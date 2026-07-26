@@ -38,3 +38,26 @@ def command_path(name: str) -> str:
 def run(cmd: list[str], *, text: bool = True) -> subprocess.CompletedProcess:
     """Run ``cmd``, capturing stdout+stderr; never raises on a non-zero exit."""
     return subprocess.run(cmd, capture_output=True, text=text)
+
+
+def run_rc(cmd: list[str], *, merge: bool = False) -> tuple[int, str]:
+    """Run ``cmd``; return ``(returncode, output)``, or ``(1, "")`` if it can't launch.
+
+    ``merge=True`` folds stderr into stdout (the ``2>&1`` cases); otherwise stderr is
+    dropped (the ``2>/dev/null`` cases). Never raises on a non-zero exit.
+    """
+    try:
+        proc = subprocess.run(
+            cmd,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT if merge else subprocess.DEVNULL,
+            text=True,
+        )
+    except OSError:
+        return 1, ""
+    return proc.returncode, proc.stdout
+
+
+def run_out(cmd: list[str]) -> str:
+    """Stdout of ``cmd`` (stderr dropped), or '' on any failure."""
+    return run_rc(cmd)[1]

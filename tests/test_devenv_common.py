@@ -46,3 +46,25 @@ def test_run_captures_output_and_never_raises():
     assert proc.stdout == "hi"
     # a non-zero exit is returned, not raised
     assert c.run(["false"]).returncode != 0
+
+
+def test_run_rc_returns_code_and_output():
+    assert c.run_rc(["printf", "hi"]) == (0, "hi")
+    rc, out = c.run_rc(["false"])
+    assert rc != 0
+
+
+def test_run_rc_merge_folds_stderr():
+    rc, out = c.run_rc(["sh", "-c", "echo err >&2"], merge=True)
+    assert "err" in out
+    # without merge, stderr is dropped
+    assert c.run_rc(["sh", "-c", "echo err >&2"])[1] == ""
+
+
+def test_run_rc_unlaunchable_returns_1_empty():
+    assert c.run_rc(["definitely-not-a-real-binary-xyz"]) == (1, "")
+
+
+def test_run_out_returns_stdout_or_empty():
+    assert c.run_out(["printf", "hi"]) == "hi"
+    assert c.run_out(["definitely-not-a-real-binary-xyz"]) == ""

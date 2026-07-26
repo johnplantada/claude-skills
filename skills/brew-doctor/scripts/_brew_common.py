@@ -15,12 +15,12 @@ from __future__ import annotations
 
 import os
 import re
-import subprocess
 import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
 from lib.devenv_common import command_available, read_text  # noqa: E402
+from lib.devenv_common import run_rc as run  # noqa: E402  — (returncode, output), merge-aware
 
 CONFIG_TOML = Path(
     os.environ.get("DEVENV_CONFIG") or (Path.home() / ".config" / "devenv" / "config.toml")
@@ -31,24 +31,6 @@ CONFIG_TOML = Path(
 
 def brew_available() -> bool:
     return command_available("brew")
-
-
-def run(cmd: list[str], *, merge: bool = False) -> tuple[int, str]:
-    """Run a command; return (returncode, output).
-
-    `merge=True` folds stderr into stdout (the `2>&1` cases); otherwise stderr is
-    discarded (the `2>/dev/null` cases). Never raises on a non-zero exit.
-    """
-    try:
-        proc = subprocess.run(
-            cmd,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.STDOUT if merge else subprocess.DEVNULL,
-            text=True,
-        )
-    except OSError:
-        return 1, ""
-    return proc.returncode, proc.stdout
 
 
 def brew(*args: str, merge: bool = False) -> str:

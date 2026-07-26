@@ -10,36 +10,19 @@ other skills' helpers on `sys.path`.
 from __future__ import annotations
 
 import os
-import subprocess
 import sys
 from fnmatch import fnmatch
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
 from lib.devenv_common import command_available  # noqa: E402
+from lib.devenv_common import run_out as _out  # noqa: E402
+from lib.devenv_common import run_rc as _run  # noqa: E402
 
 
 def chezmoi_available() -> bool:
     """True if `chezmoi` is on PATH."""
     return command_available("chezmoi")
-
-
-def _out(cmd: list[str]) -> str:
-    """stdout of `cmd` (text). Empty string on any failure — mirrors `... 2>/dev/null || true`."""
-    try:
-        proc = subprocess.run(cmd, capture_output=True, text=True)
-    except OSError:
-        return ""
-    return proc.stdout
-
-
-def _run(cmd: list[str]) -> tuple[int, str]:
-    """(returncode, stdout) for `cmd`; (1, "") if it can't be launched."""
-    try:
-        proc = subprocess.run(cmd, capture_output=True, text=True)
-    except OSError:
-        return 1, ""
-    return proc.returncode, proc.stdout
 
 
 # --- chezmoi wrappers ----------------------------------------------------------
