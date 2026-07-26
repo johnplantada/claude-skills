@@ -1,0 +1,24 @@
+# captured from: ghostty +list-fonts
+# exit: 0
+# redacted (home path, username, emails, internal hostnames) — format sample, not an env dump
+# truncated to 20 of 25 lines
+Andale Mono
+  Andale Mono
+
+Courier New
+  Courier New
+  Courier New Bold
+  Courier New Bold Italic
+  Courier New Italic
+
+Menlo
+  Menlo Bold
+  Menlo Bold Italic
+  Menlo Italic
+  Menlo Regular
+
+Monaco
+  Monaco
+
+OpenDyslexicM Nerd Font Mono
+  OpenDyslexicM Nerd Font Mono

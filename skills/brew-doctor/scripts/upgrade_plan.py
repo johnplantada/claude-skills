@@ -45,11 +45,16 @@ def major(version: str) -> str:
 
 
 def parse_outdated_line(line: str) -> tuple[str, str, str]:
-    """Parse a `brew outdated --verbose` line "name (old) < new" -> (name, old, new)."""
+    """Parse a `brew outdated --verbose` line -> (name, old, new).
+
+    Formulae print `name (old) < new`; CASKS print `name (old) != new`. Splitting on
+    `< ` alone left `new` empty for casks, and an empty new version compares unequal to
+    any old major — manufacturing a phantom "major-bump" verdict. Accept both separators.
+    """
     name = line.split()[0] if line.split() else ""
     m = re.match(r"^[^(]*\(([^)]*)\)", line)
     old = m.group(1) if m else line
-    after = line.split("< ", 1)
+    after = re.split(r" (?:<|!=) ", line, maxsplit=1)
     new = after[1].split()[0] if len(after) > 1 and after[1].split() else ""
     return name, old, new
 
@@ -131,7 +136,10 @@ def main(argv: list[str] | None = None) -> int:
 
     fragile = FRAGILE_BUILTIN + bc.config_array("brew-doctor", "pinned").split()
 
-    outdated = bc.brew("outdated", "--verbose")
+    # `--formula` matters: a bare `brew outdated --verbose` lists casks too, so a cask
+    # would land in the FORMULA plan and be told to `brew pin` — which only works on
+    # formulae. Casks get their own section below.
+    outdated = bc.brew("outdated", "--verbose", "--formula")
     out.append(f"outdated_formulae\t{count_nonempty(outdated)}")
 
     to_pin: list[str] = []
@@ -140,6 +148,12 @@ def main(argv: list[str] | None = None) -> int:
         if not line:
             continue
         name, old, new = parse_outdated_line(line)
+        if not (name and old and new):
+            # A blank field means an unrecognized format variant. Reporting it beats
+            # classifying on a blank — that is precisely how a missing cask version
+            # became a phantom "major-bump" with impossible `brew pin` advice.
+            out.append(bc.unparsed_line(line, "unrecognized `brew outdated` format"))
+            continue
         category, plan_line = classify(name, old, new, pinned, fragile)
         out.append(plan_line)
         if category == "to_pin":

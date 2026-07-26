@@ -1,0 +1,18 @@
+{
+  "skill_name": "dotfiles",
+  "pass_threshold": 0.8,
+  "queries": [
+    {"id": 1, "query": "my zshrc and gitconfig keep drifting between my personal laptop and my work mac, i want one source of truth i can sync between them. i think chezmoi does this? set it up for me", "should_trigger": true},
+    {"id": 2, "query": "chezmoi apply is failing with a conflict on dot_config/nvim/init.lua and I don't know which side is right anymore", "should_trigger": true},
+    {"id": 3, "query": "before I push my dotfiles repo to github can you make sure there are no api keys or tokens sitting in it in plaintext", "should_trigger": true},
+    {"id": 4, "query": "i just edited ~/.config/starship.toml directly — pull that change back into my tracked config repo and commit it", "should_trigger": true},
+    {"id": 5, "query": "new macbook day! get my configs onto this machine, the repo is github.com/me/dotfiles", "should_trigger": true},
+    {"id": 6, "query": "what config files in my home directory am I not tracking yet that I probably should be?", "should_trigger": true},
+    {"id": 7, "query": "my PATH is different in zsh vs fish — node resolves to different versions per shell. make them agree", "should_trigger": false},
+    {"id": 8, "query": "add a keybind to my ghostty config for cmd+shift+t to open a new tab, and make sure the config still validates", "should_trigger": false},
+    {"id": 9, "query": "my git commits show 'unverified' on github — set up ssh commit signing globally", "should_trigger": false},
+    {"id": 10, "query": "scan this backend repo at ~/code/api-server for leaked credentials before we open-source it", "should_trigger": false},
+    {"id": 11, "query": "brew upgraded neovim under me and my whole config broke. pin it so that can't happen again", "should_trigger": false},
+    {"id": 12, "query": "encrypt this tarball of client documents with age before I upload it to drive", "should_trigger": false}
+  ]
+}

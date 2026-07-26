@@ -5,8 +5,8 @@ missing, drop weak/deprecated settings, and move off weak key types. **Back up `
 first**; each change is mutating — propose, confirm, and verify auth still works. Only filenames,
 types, and perms are ever surfaced — never a private key.
 
-> Run [`scripts/ssh-config-audit.py`](../scripts/ssh-config-audit.py) first — it reports which
-> hardening options are set vs absent and flags weak settings; `scripts/key-audit.py` flags weak key
+> Run [`scripts/ssh_config_audit.py`](../scripts/ssh_config_audit.py) first — it reports which
+> hardening options are set vs absent and flags weak settings; `scripts/key_audit.py` flags weak key
 > types. A brand-new config is [setup.md](setup.md); broken auth is [repair.md](repair.md); the
 > actual key rotation is [keys.md](keys.md).
 
@@ -35,14 +35,14 @@ On Linux, **drop `UseKeychain`** — ssh errors on the unknown option there.
 
 ## 3. Modernize key types
 
-`key-audit.py` flags `rsa < 3072`, `dsa`, and old `ecdsa` as weak. Rotate each to **ed25519** via
+`key_audit.py` flags `rsa < 3072`, `dsa`, and old `ecdsa` as weak. Rotate each to **ed25519** via
 [keys.md](keys.md) §5 — generate the new key, register its **public** half everywhere, verify auth on
 every target, and only then retire the old one. Don't delete a key until its replacement authenticates.
 
 ## 4. Re-verify (nothing broke)
 
 ```bash
-scripts/ssh-config-audit.py <host>       # perms right + the resolved effective config
+scripts/ssh_config_audit.py <host>       # perms right + the resolved effective config
 ssh -T <host>                            # auth still works after the changes
 ```
 See [verification.md](verification.md). Then track the hardened config (and `.pub` keys only) via the

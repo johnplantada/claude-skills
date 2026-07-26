@@ -36,6 +36,10 @@ VENDORS = [
 ]
 DEFAULT_TOOLS = ["node", "cargo", "go", "rustc", "python3", "ruby"]
 
+# Tool names are interpolated into `command -v <t>` run by a login shell — they must
+# be plain command names, never shell syntax.
+_TOOL_NAME_RE = re.compile(r"[A-Za-z0-9@._+-]+")
+
 ZSH_STARTUP = re.compile(r"error|not found|parse error|bad pattern|command not found", re.IGNORECASE)
 FISH_STARTUP = re.compile(r"error|unknown command|expected|missing", re.IGNORECASE)
 
@@ -110,6 +114,10 @@ def _vendor_has(keg: str) -> bool:
 
 def main(argv: list[str] | None = None) -> int:
     args = sys.argv[1:] if argv is None else argv
+    for t in args:
+        if not _TOOL_NAME_RE.fullmatch(t):
+            print(f"shell-diff: invalid tool name: {t!r} (letters/digits/@._+- only)", file=sys.stderr)
+            return 2
 
     zbin = sc.resolve_bin("zsh")
     if not zbin:

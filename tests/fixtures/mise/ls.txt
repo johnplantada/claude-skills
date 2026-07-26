@@ -1,0 +1,6 @@
+# captured from: mise ls
+# exit: 0
+# redacted (home path, username, emails, internal hostnames) — format sample, not an env dump
+go      1.26.5  ~/.config/mise/config.toml  latest
+node    26.5.0  ~/.config/mise/config.toml  latest
+python  3.14.6  ~/.config/mise/config.toml  latest

@@ -71,3 +71,10 @@ def test_build_cmd_clean_inserts_flag_before_lua():
     assert nl.build_nvim_cmd(True, 600, "/tmp/x.lua") == [
         "nvim", "--headless", "--clean", "+lua vim.wait(600)", "+luafile /tmp/x.lua", "+qa"
     ]
+
+
+def test_parse_wait_non_numeric_value_raises():
+    # The value lands inside `+lua vim.wait(N)` — digits only, so an argument can't
+    # smuggle Lua into the headless run.
+    with pytest.raises(ValueError, match="--wait needs a number"):
+        nl.parse_lua_args(["--wait", "0); os.exit(1"])

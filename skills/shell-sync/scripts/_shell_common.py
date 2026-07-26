@@ -64,6 +64,23 @@ def run_login(binary: str, cmd: str, combine_stderr: bool = False) -> str:
     return proc.stdout or ""
 
 
+def fish_quote(value: str) -> str:
+    """Render VALUE as a fish single-quoted literal — a VALID ``set -gx``/``alias`` value.
+
+    Inside fish single quotes only two characters are special: the backslash and the
+    single quote itself, each escaped with a backslash. Escaping backslash first (then
+    the quote) is required so a value like ``O'Brien`` or one containing a literal
+    backslash produces a well-formed line instead of a broken/half-quoted one.
+
+    Shared by ``mirror_plan`` (env/alias values AND PATH entries) and ``path_doctor``
+    (the ``--plan`` PATH) so a PATH dir with spaces — common on macOS, e.g.
+    ``/Applications/Visual Studio Code.app/…/bin`` — stays ONE entry instead of
+    word-splitting into several bogus ones.
+    """
+    escaped = value.replace("\\", "\\\\").replace("'", "\\'")
+    return f"'{escaped}'"
+
+
 def dedupe_existing(entries: list[str], is_dir: Callable[[str], bool] = os.path.isdir) -> list[str]:
     """Order-preserving PATH cleanup: drop blanks, later duplicates, and dead dirs.
 

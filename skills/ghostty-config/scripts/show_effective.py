@@ -6,7 +6,7 @@ Usage:
     show_effective.py [--default] [key ...]
 
   (no args)        the keys you've explicitly set (compact; the "declared" view)
-  key ...          only those keys (substring match, e.g. `font` `theme` `command`)
+  key ...          only those keys (prefix match, e.g. `font` matches every font-*)
   --default        include Ghostty's built-in defaults too (the full surface)
 
 Use it to answer "is my change actually in effect?" (verification) and to see the

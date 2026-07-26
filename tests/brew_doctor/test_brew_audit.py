@@ -61,3 +61,9 @@ def test_orphan_kept_lines_drops_headers():
 def test_orphan_tokens_splits_on_whitespace():
     assert ba.orphan_tokens(["foo bar", "baz"]) == ["foo", "bar", "baz"]
     assert ba.orphan_tokens([]) == []
+
+
+def test_main_rejects_an_unknown_section():
+    # A typo'd section must exit 2 with a usage hint — not print an empty report that
+    # reads as "healthy". (Checked before the brew probe, so no brew needed here.)
+    assert ba.main(["pinz"]) == 2

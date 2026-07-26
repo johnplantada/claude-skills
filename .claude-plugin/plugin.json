@@ -1,7 +1,7 @@
 {
   "name": "devenv",
   "description": "A gallery of dev-environment skills (Homebrew, runtimes, dotfiles, shells, Ghostty, Neovim, git, ssh, macOS defaults) that share one settings store and cross-skill runbooks — each skill sets up, repairs, upgrades, and optimizes its layer, verification-first.",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "author": {
     "name": "John Plantada"
   },

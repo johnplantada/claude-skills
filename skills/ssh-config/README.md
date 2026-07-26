@@ -62,10 +62,10 @@ server", "clean up my ssh config" — and it routes to the right workflow.
 ssh-config/
 ├── SKILL.md                 # router + discovery + secrets/verification principles
 ├── scripts/                 # the stable toolbox (metadata only — never key material)
-│   ├── key-audit.py         # per-key perms/type/passphrase/agent + strength verdict
-│   ├── ssh-config-audit.py  # config perms + Host blocks + Include + ssh -G resolve
-│   ├── agent-status.py      # loaded identities vs on-disk *.pub
-│   ├── key-new.py           # (mutating) generate ed25519 + load + show .pub
+│   ├── key_audit.py         # per-key perms/type/passphrase/agent + strength verdict
+│   ├── ssh_config_audit.py  # config perms + Host blocks + Include + ssh -G resolve
+│   ├── agent_status.py      # loaded identities vs on-disk *.pub
+│   ├── key_new.py           # (mutating) generate ed25519 + load + show .pub
 │   └── README.md            # toolbox table + secrets rule + conventions
 ├── reference/
 │   ├── setup.md             # global defaults + per-Host + Include + hardening

@@ -1,0 +1,7 @@
+# captured from: brew tap
+# exit: 0
+# redacted (home path, username, emails, internal hostnames) — format sample, not an env dump
+domt4/autoupdate
+hashicorp/tap
+homebrew/core
+mongodb/brew

@@ -11,3 +11,6 @@ __pycache__/
 *.pyc
 .pytest_cache/
 .ruff_cache/
+
+# LLM eval run records — local artifacts (model + timestamp + outcomes), not fixtures
+tests_eval/results/

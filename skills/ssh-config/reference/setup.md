@@ -71,7 +71,7 @@ ssh **ignores** a config or key with loose perms — this is not optional.
 
 ## 5. Verify before you trust it
 
-Run `scripts/ssh-config-audit.py <host>` to confirm perms are right and see the resolved effective
+Run `scripts/ssh_config_audit.py <host>` to confirm perms are right and see the resolved effective
 config, then `ssh -T` to prove auth. Under the hood the audit runs:
 
 ```bash

@@ -123,12 +123,17 @@ def _run_verify(tmp: str, mode: str, key: str, email: str, signers: str) -> int:
     if mode == "selftest":
         # Ephemeral, passphrase-less key generated INSIDE the temp repo — proves the
         # sign+verify machinery without touching any real key/agent.
-        subprocess.run(
+        keygen = subprocess.run(
             ["ssh-keygen", "-q", "-t", "ed25519", "-N", "", "-C", "verify-signing-selftest",
              "-f", f"{tmp}/sign_key"],
             capture_output=True, text=True,
         )
         key = f"{tmp}/sign_key.pub"
+        if keygen.returncode != 0 or not Path(key).is_file():
+            out.append("result\t❌\tssh-keygen failed — cannot generate the self-test key")
+            out.append(f"detail\t{collapse_ws((keygen.stdout + keygen.stderr).strip())}")
+            print("\n".join(out))
+            return 1
         pub = Path(key).read_text().strip()
         signers = f"{tmp}/allowed_signers"
         Path(signers).write_text(f"{email} {pub}\n")
@@ -195,6 +200,9 @@ def main(argv: list[str] | None = None) -> int:
     if parsed["help"]:
         print(__doc__)
         return 0
+    if parsed["mode"] == "key" and not Path(parsed["key"]).is_file():
+        print(f"--key: no such file: {parsed['key']}", file=sys.stderr)
+        return 2
 
     tmp = tempfile.mkdtemp(prefix="verifysign.")
     try:

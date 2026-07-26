@@ -38,6 +38,23 @@ def classify_activation(doctor: str) -> str:
     return "unknown (inspect `mise doctor` output)"
 
 
+def login_doctor() -> str:
+    """`mise doctor` as run by a REAL login+interactive shell.
+
+    Activation happens in an rc file, which a non-interactive subprocess never sources —
+    so asking `mise doctor` from THIS process always answers "not activated" even on a
+    perfectly configured machine. That false positive sends you to fix a shell init that
+    is already correct, so activation must be judged from a login shell (the same
+    clean-env technique shell_resolve.py uses). Falls back to '' if zsh is unavailable,
+    and the caller then uses the in-process reading.
+    """
+    zsh = rc.command_v("zsh")
+    if not zsh:
+        return ""
+    proc = rc.login_shell_resolve(zsh, ["-l", "-i"], "mise doctor 2>&1")
+    return proc.stdout or ""
+
+
 def extract_shims_dir(doctor: str, home: str) -> str:
     """The shims directory `mise doctor` names, or the documented default."""
     for line in doctor.splitlines():
@@ -75,9 +92,22 @@ def main(argv: list[str] | None = None) -> int:
 
     doc = rc.run(["mise", "doctor"])
     doctor = doc.stdout + doc.stderr
-    print(f"mise_activated\t{classify_activation(doctor)}")
-    print(f"mise_shims_dir\t{extract_shims_dir(doctor, str(rc.HOME))}")
-    print(f"mise_problems\t{count_problems(doctor)}")
+
+    # Activation is an rc-file fact, so judge it from a login shell — not from this
+    # non-interactive process, which would report a correctly-activated machine as broken.
+    # The src= tag makes that distinction visible in the report itself.
+    login = login_doctor()
+    if login:
+        print(rc.fact("mise_activated", classify_activation(login), src="login-shell"))
+        print(rc.fact("mise_problems", str(count_problems(login)), src="login-shell"))
+    else:
+        print(rc.undetermined(
+            "mise_activated",
+            "no zsh to ask; this process never sources an rc file, so its reading "
+            "would understate activation",
+        ))
+        print(rc.fact("mise_problems", str(count_problems(doctor)), src="this-process"))
+    print(rc.fact("mise_shims_dir", extract_shims_dir(doctor, str(rc.HOME))))
 
     print("-- mise current (versions in effect here + source file) --")
     cur = rc.run(["mise", "current"])

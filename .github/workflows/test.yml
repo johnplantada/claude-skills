@@ -28,3 +28,18 @@ jobs:
         run: pip install pytest
       - name: Run the suite
         run: pytest
+
+  # The unit suite exercises pure functions with canned tool output; this job runs
+  # every read-only entry point end to end on the OS the skills target, catching
+  # subprocess-wrapper rot and real-tool output-format drift.
+  smoke-macos:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install pytest
+        run: pip install pytest
+      - name: Run the smoke suite
+        run: pytest tests_smoke -q

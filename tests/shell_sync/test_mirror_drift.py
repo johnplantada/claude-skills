@@ -28,6 +28,18 @@ def test_norm_path_expands_home():
     assert md.norm_path("set -gx PATH $HOME/bin", home="/Users/me") == ["/Users/me/bin"]
 
 
+def test_norm_path_unquotes_fish_quoted_entries():
+    # The generator now quotes every entry; the parser must round-trip them — including
+    # a dir with spaces staying ONE dir.
+    text = "set -gx PATH '/a' '/Applications/VS Code.app/bin'"
+    assert md.norm_path(text, home="/h") == ["/Applications/VS Code.app/bin", "/a"]
+
+
+def test_norm_path_still_reads_legacy_unquoted_entries():
+    # A mirror generated before quoting existed must still parse (bare tokens pass through).
+    assert md.norm_path("set -gx PATH /a '/b'", home="/h") == ["/a", "/b"]
+
+
 # --- drift_lines ---------------------------------------------------------------
 
 def test_drift_lines_reports_stale_and_missing():

@@ -30,10 +30,11 @@ paths don't show as false drift.
 # declared: defaults write com.apple.dock autohide -bool true
 defaults read com.apple.dock autohide 2>/dev/null      # live -> 1 (true) means match
 ```
-A quick sweep over one domain against a backup:
+A quick sweep over one domain against a backup (`defaults_apply.py` prints its backup
+dir when it runs; substitute that path):
 
 ```bash
-diff <(defaults read com.apple.dock 2>/dev/null) /tmp/macos.dock.before 2>/dev/null
+diff <(defaults read com.apple.dock 2>/dev/null) <backup-dir>/com.apple.dock.before 2>/dev/null
 ```
 Booleans read back as `0`/`1`; map `-bool true` → `1` when comparing.
 </details>

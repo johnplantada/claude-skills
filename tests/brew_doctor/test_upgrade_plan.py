@@ -80,3 +80,18 @@ def test_build_commands_all_pinned_message():
 def test_build_commands_no_all_pinned_message_when_nothing_outdated():
     lines = up.build_commands(to_pin=[], safe=[], has_out=False, has_cout=False, snap="/tmp/s")
     assert not any("already pinned" in ln for ln in lines)
+
+
+def test_parse_outdated_line_handles_the_cask_separator():
+    """The pinned finding, caught by a live audit: casks print `!=` where formulae print
+    `<`. Splitting on `< ` alone left `new` empty, and an empty new version compares
+    unequal to any old major — manufacturing a phantom 'major-bump' that then advised
+    `brew pin`, which does not work on casks."""
+    line = "elgato-control-center (1.8.1,20582) != 1.9,20829"
+    assert up.parse_outdated_line(line) == ("elgato-control-center", "1.8.1,20582", "1.9,20829")
+
+
+def test_cask_style_bump_is_not_a_phantom_major_bump():
+    name, old, new = up.parse_outdated_line("some-cask (1.8.1,20582) != 1.8.2,20829")
+    category, _line = up.classify(name, old, new, pinned=[], fragile=[])
+    assert category == "safe"

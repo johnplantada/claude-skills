@@ -34,17 +34,17 @@ name instead of re-deriving `stat` / `ssh-keygen` / `ssh -G` / `ssh-add` each se
 
 | Script | Does | Read-only? |
 |---|---|---|
-| `scripts/ssh-config-audit.py [host]` | config perms + Host aliases + `Include` + hardening opts + weak settings + `known_hosts`; with `[host]`, the `ssh -G` effective config | ✅ |
-| `scripts/key-audit.py [ssh-dir]` | per key: perms, type, bits, comment, fingerprint, passphrase?, in-agent?, strength verdict | ✅ |
-| `scripts/agent-status.py [ssh-dir]` | `ssh-add -l` identities cross-referenced against on-disk `*.pub` | ✅ |
-| `scripts/key-new.py <name> <comment>` | generate ed25519 + load into agent/keychain + print the PUBLIC key | ⚠️ mutates |
+| `scripts/ssh_config_audit.py [host]` | config perms + Host aliases + `Include` + hardening opts + weak settings + `known_hosts`; with `[host]`, the `ssh -G` effective config | ✅ |
+| `scripts/key_audit.py [ssh-dir]` | per key: perms, type, bits, comment, fingerprint, passphrase?, in-agent?, strength verdict | ✅ |
+| `scripts/agent_status.py [ssh-dir]` | `ssh-add -l` identities cross-referenced against on-disk `*.pub` | ✅ |
+| `scripts/key_new.py <name> <comment>` | generate ed25519 + load into agent/keychain + print the PUBLIC key | ⚠️ mutates |
 
 ## Discovery (always run first)
 
 ```bash
-scripts/ssh-config-audit.py    # perms, Host blocks, Include, hardening, known_hosts
-scripts/key-audit.py           # key hygiene: types, perms, passphrases (metadata only)
-scripts/agent-status.py        # loaded identities vs keys on disk
+scripts/ssh_config_audit.py    # perms, Host blocks, Include, hardening, known_hosts
+scripts/key_audit.py           # key hygiene: types, perms, passphrases (metadata only)
+scripts/agent_status.py        # loaded identities vs keys on disk
 ```
 Under the hood these run the read-only primitives below (nothing here reads a private key):
 ```bash

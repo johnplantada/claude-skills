@@ -10,7 +10,7 @@
     {
       "name": "devenv",
       "source": "./",
-      "description": "Set up, repair, upgrade, and optimize your whole dev environment — Homebrew, runtimes (mise), dotfiles (chezmoi), zsh↔fish, Ghostty, Neovim, git, ssh, macOS defaults — with a shared settings store and cross-skill bootstrap/health runbooks. Ships a Stop hook that reminds you when chezmoi-managed dotfiles drift."
+      "description": "Set up, repair, upgrade, and optimize your whole dev environment — Homebrew, runtimes (mise), dotfiles (chezmoi), zsh↔fish, Ghostty, Neovim, git, ssh, macOS defaults — with a shared settings store and cross-skill bootstrap/health runbooks. Ships a Stop hook that reminds you when chezmoi-managed dotfiles drift, and a PreToolUse guard that mechanically blocks reading secret-by-location files (private keys, .netrc, .aws/credentials) into the model's context."
     }
   ]
 }

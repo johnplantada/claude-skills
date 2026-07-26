@@ -27,6 +27,7 @@ from pathlib import Path
 import _brew_common as bc
 
 NEWLINE = "\n"
+SECTIONS = ("all", "env", "inventory", "pins", "autoupdate", "cruft")
 
 
 # --- pure helpers ------------------------------------------------------------
@@ -135,7 +136,9 @@ def _emit_autoupdate(out: list[str]) -> None:
 
 
 def _emit_cruft(out: list[str]) -> None:
-    outdated = bc.brew("outdated", "--verbose")
+    # `--formula` keeps casks out of the FORMULA count — a bare `brew outdated` lists
+    # both, so every outdated cask was counted twice (once here, once as a cask below).
+    outdated = bc.brew("outdated", "--verbose", "--formula")
     out.append(f"outdated_count\t{count_nonempty(outdated)}")
     for line in outdated.splitlines():
         if line:
@@ -180,6 +183,10 @@ def build_report(section: str) -> list[str]:
 def main(argv: list[str] | None = None) -> int:
     args = sys.argv[1:] if argv is None else argv
     section = args[0] if args else "all"
+    if section not in SECTIONS:
+        # A typo'd section must not print an empty report that reads as "healthy".
+        print(f"brew-audit: unknown section '{section}' (use: {' '.join(SECTIONS)})", file=sys.stderr)
+        return 2
     if not bc.brew_available():
         print("brew-audit: brew not on PATH", file=sys.stderr)
         return 3

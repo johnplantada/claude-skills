@@ -1,0 +1,24 @@
+# captured from: defaults read com.apple.dock
+# exit: 0
+# redacted (home path, username, emails, internal hostnames) — format sample, not an env dump
+# truncated to 20 of 364 lines
+{
+    autohide = 1;
+    "last-analytics-stamp" =     (
+        "806552205.327082"
+    );
+    lastShowIndicatorTime = "806769519.204316";
+    loc = "en_US:US";
+    "mod-count" = 3308;
+    orientation = bottom;
+    "persistent-apps" =     (
+                {
+            GUID = 2458471965;
+            "tile-data" =             {
+                book = {length = 592, bytes = 0x626f6f6b 50020000 00000510 40000000 ... 04000000 00000000 };
+                "bundle-identifier" = "com.apple.apps.launcher";
+                "dock-extra" = 0;
+                "file-data" =                 {
+                    "_CFURLString" = "file:///System/Applications/Apps.app/";
+                    "_CFURLStringType" = 15;
+                };

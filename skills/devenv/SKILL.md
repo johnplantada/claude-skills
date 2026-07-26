@@ -67,6 +67,12 @@ The file is a plain dotfile — **track it via the `dotfiles` skill** so setting
    `config.toml` > ask the user. Never override a fresh explicit instruction with a stored setting.
 3. **Verify per layer.** Each delegated skill owns its own verification; the capstone's job is
    sequencing and merging results, not re-checking.
+   But a **surprising** finding — one that contradicts what the config visibly says — gets
+   confirmed a second way before it reaches the user. Scripts report what they measured, and a
+   fact measured in the wrong environment (`src=this-process` for rc-file state) or computed near
+   an `unparsed` row looks identical to a real one. A false positive sends the user to fix a
+   working system; that costs more than the finding was worth. See
+   [reference/health.md](reference/health.md).
 4. **Read reality too.** Settings describe intent; still confirm against the machine (the canonical
    shell exists, pinned formulae are installed, etc.).
 

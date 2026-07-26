@@ -4,7 +4,14 @@ Dotfiles are the #1 place secrets leak into git. A managed config may hold API t
 keys, or session cookies. Handle these deliberately — never `chezmoi add` a secret-bearing file
 as plaintext.
 
-> **Hard control — a secret's plaintext is never read into this session.** Neither the skill nor its
+> **Hard control — a secret's plaintext is never read into this session.** This includes AFTER a
+> finding: never Read/grep/`chezmoi cat` a flagged file to inspect or confirm what tripped the
+> scanner — the `path + reason` line is the complete evidence, and one confirmation read defeats
+> the entire pipeline. For secret-by-location paths (private keys, `.netrc`, `.aws/credentials`,
+> `gh/hosts.yml`, raw or chezmoi-encoded) this is enforced *mechanically* by the plugin's
+> PreToolUse guard (`scripts/secret_read_guard.py`) — treat a denial as the contract working.
+> Files that are secret only by CONTENT can't be path-blocked; for those this instruction is the
+> control. Neither the skill nor its
 > scripts print or ingest secret *values*: detection is `grep -l` (paths + reason only), verification
 > is by exit code, ciphertext markers (`encrypted_*.age`), and unresolved `{{ ... }}` references —
 > never by reading the value. Operations that need the real plaintext (creating an `age` key,

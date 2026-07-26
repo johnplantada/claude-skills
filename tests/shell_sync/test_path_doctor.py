@@ -37,11 +37,16 @@ def test_missing_tool_dir_lines_skips_absent_dirs():
     assert lines == []
 
 
-def test_plan_lines_fish_is_space_joined():
+def test_plan_lines_fish_quotes_each_entry():
     assert pd.plan_lines("fish", ["/a", "/b"]) == [
         "-- repair plan (review, then apply by hand) --",
-        "set -gx PATH /a /b",
+        "set -gx PATH '/a' '/b'",
     ]
+
+
+def test_plan_lines_fish_keeps_a_spaced_dir_as_one_entry():
+    body = pd.plan_lines("fish", ["/Applications/VS Code.app/bin"])[1]
+    assert body == "set -gx PATH '/Applications/VS Code.app/bin'"
 
 
 def test_plan_lines_zsh_is_colon_joined_export():

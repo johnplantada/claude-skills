@@ -1,0 +1,9 @@
+# recorded from: nvim --headless "+Lazy! sync" +qa
+# observed: 2026-07-26, lazy.nvim on Neovim 0.12.4 (verbatim, ANSI codes intact)
+# why recorded: lazy prints each plugin's git COMMIT SUBJECT during sync. A subject that
+# merely mentions a deprecation ("...without generating deprecation warnings") matched the
+# startup filter's keywords and was reported as a finding about the USER's config — two
+# phantom findings on every single sweep, which trains you to ignore the check. A synced,
+# up-to-date machine prints none of these rows, so the format can't be re-captured.
+[35m[cmp-nvim-lsp] [0m[36mcheckout[0m[90m | [0mHEAD is now at cbc7b02 Call client methods without generating deprecation warnings in nvim 0.11+ (#87)
+[35m[telescope-fzf-native.nvim] [0m[36mcheckout[0m[90m | [0mHEAD is now at b25b749 fix: add shim for deprecated `vim.F.if_nil` (#159)

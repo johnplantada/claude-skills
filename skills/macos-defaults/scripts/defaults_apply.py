@@ -11,7 +11,9 @@ Usage:
 What it does (in order):
     1. Reads the script and WARNS on `sudo` / security-sensitive lines (won't proceed
        past those without the operator having seen them).
-    2. Backs up every touched domain to /tmp/macos.<domain>.before (reversible).
+    2. Backs up every touched domain to a fresh private temp dir (mkdtemp), one
+       <domain>.before file each — reversible, and a re-run can't clobber the
+       previous run's backups.
     3. Without --yes: stops here (dry run). With --yes: runs `bash <script>`.
     4. `killall Dock Finder SystemUIServer` so UI settings reload (harmless if not running).
     5. Reminds which settings still need logout/reboot to take effect.
@@ -23,6 +25,7 @@ from __future__ import annotations
 
 import re
 import sys
+import tempfile
 from pathlib import Path
 
 import _macos_common as mc
@@ -92,14 +95,18 @@ def main(argv: list[str] | None = None) -> int:
             print(f"{lineno}:{line}")
         print("-- confirm these are intended before applying --")
 
-    # 2. Back up each domain the script writes to (unique, stable order).
-    print("== backing up touched domains to /tmp ==")
+    # 2. Back up each domain the script writes to (unique, stable order). A fresh
+    # mkdtemp per run: private (0700), never overwrites an earlier run's backups, and
+    # a hostile domain token from the script text can't traverse outside it.
+    backup_dir = Path(tempfile.mkdtemp(prefix="macos-defaults."))
+    print(f"== backing up touched domains to {backup_dir} ==")
     for domain in extract_write_domains(text):
-        out = f"/tmp/macos.{domain}.before"
+        safe = re.sub(r"[^A-Za-z0-9._-]", "_", domain)
+        out = backup_dir / f"{safe}.before"
         ok, contents = mc.read_domain(domain)
         if not ok:
             print(f"  ({domain} had no existing prefs)")
-        Path(out).write_text(contents)
+        out.write_text(contents)
         print(f"  {domain} -> {out}")
 
     # 3. Apply (guarded).

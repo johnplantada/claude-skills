@@ -87,9 +87,18 @@ def test_build_plan_has_markers_path_and_footer():
         "2026-07-26", ["/a", "/b"], ["FOO=bar"], ["gs='git status'"], True, False
     )
     assert lines[0] == "# >>> shell-sync (AUTO-GENERATED) >>>"
-    assert "set -gx PATH /a /b" in lines
+    assert "set -gx PATH '/a' '/b'" in lines
     assert "set -gx FOO 'bar'" in lines
     assert "alias gs 'git status'" in lines
     assert "# --- functions ---" in lines
     assert lines[-1] == "# <<< shell-sync (AUTO-GENERATED) <<<"
     assert any("2026-07-26" in l for l in lines)
+
+
+def test_build_plan_quotes_a_path_entry_with_spaces():
+    # The PINNED finding: a PATH dir with spaces (an .app bundle's bin) must stay ONE
+    # fish PATH entry — unquoted it would word-split into several bogus ones.
+    lines = mp.build_plan(
+        "2026-07-26", ["/Applications/Visual Studio Code.app/bin", "/b"], [], [], False, False
+    )
+    assert "set -gx PATH '/Applications/Visual Studio Code.app/bin' '/b'" in lines

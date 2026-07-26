@@ -36,7 +36,7 @@ def public_key_report(key: str, name: str, pub_text: str) -> list[str]:
         "",
         f'register it, e.g.:  gh ssh-key add {key}.pub --title "{name}"',
         f"add a Host block pointing IdentityFile at {key} (see setup.md), then verify with:",
-        "  ssh-config-audit.py <host>   &&   ssh -T <host>",
+        "  ssh_config_audit.py <host>   &&   ssh -T <host>",
     ]
 
 

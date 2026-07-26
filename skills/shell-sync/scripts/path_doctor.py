@@ -102,9 +102,16 @@ def missing_tool_dir_lines(
 
 
 def plan_lines(shell: str, clean: list[str]) -> list[str]:
-    """The ``--plan`` repair block: a header + the cleaned PATH as a set/export line."""
+    """The ``--plan`` repair block: a header + the cleaned PATH as a set/export line.
+
+    fish entries are individually quoted (a dir with spaces must stay one entry);
+    the zsh form is colon-joined inside one double-quoted string, so it needs none.
+    """
     header = "-- repair plan (review, then apply by hand) --"
-    body = f"set -gx PATH {' '.join(clean)}" if shell == "fish" else f'export PATH="{":".join(clean)}"'
+    if shell == "fish":
+        body = f"set -gx PATH {' '.join(sc.fish_quote(p) for p in clean)}"
+    else:
+        body = f'export PATH="{":".join(clean)}"'
     return [header, body]
 
 

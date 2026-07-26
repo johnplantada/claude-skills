@@ -8,15 +8,15 @@ filenames, types, and perms. (Loose perms or a key not offered that *breaks* aut
 > **Run the toolbox, don't re-compose bash.** Three read-only scripts cover this whole workflow
 > and enforce the secrets rule (metadata only — never private-key bytes):
 > ```bash
-> scripts/key-audit.py            # §1-3: perms + types + passphrases, per key
-> scripts/ssh-config-audit.py     # §1,5,6: config perms + Host blocks + Include + known_hosts
-> scripts/agent-status.py         # §4: loaded identities vs on-disk keys
+> scripts/key_audit.py            # §1-3: perms + types + passphrases, per key
+> scripts/ssh_config_audit.py     # §1,5,6: config perms + Host blocks + Include + known_hosts
+> scripts/agent_status.py         # §4: loaded identities vs on-disk keys
 > ```
 > The blocks below are the under-the-hood reference for what each script runs.
 
 ## 1. Permissions (ssh refuses loose perms — check first)
 
-Covered by `scripts/key-audit.py` (per-key perms) and `scripts/ssh-config-audit.py` (dir + config).
+Covered by `scripts/key_audit.py` (per-key perms) and `scripts/ssh_config_audit.py` (dir + config).
 Under the hood:
 
 ```bash
@@ -35,7 +35,7 @@ Fix: `chmod 700 ~/.ssh; chmod 600 ~/.ssh/id_*; chmod 644 ~/.ssh/*.pub`.
 
 ## 2. Key inventory & types (PUBLIC data only)
 
-`scripts/key-audit.py` prints type/bits/fingerprint/comment + a strength verdict per key. Under the hood:
+`scripts/key_audit.py` prints type/bits/fingerprint/comment + a strength verdict per key. Under the hood:
 
 ```bash
 for k in ~/.ssh/*.pub; do ssh-keygen -lf "$k"; done   # bits, fingerprint, type — never the key body
@@ -46,7 +46,7 @@ for k in ~/.ssh/*.pub; do ssh-keygen -lf "$k"; done   # bits, fingerprint, type 
 
 ## 3. Passphrases (a stolen key with no passphrase = instant compromise)
 
-`scripts/key-audit.py` reports `passphrase: NONE | protected` per key — from the exit code only,
+`scripts/key_audit.py` reports `passphrase: NONE | protected` per key — from the exit code only,
 never the key body. Under the hood:
 
 ```bash
@@ -59,7 +59,7 @@ entered once — see [keys.md](keys.md).
 
 ## 4. Loaded agent identities
 
-`scripts/agent-status.py` lists loaded identities and cross-references them against on-disk `*.pub`
+`scripts/agent_status.py` lists loaded identities and cross-references them against on-disk `*.pub`
 (loaded / not-loaded / orphaned). Under the hood:
 
 ```bash
@@ -70,7 +70,7 @@ noting. `AddKeysToAgent yes` (below) auto-loads on first use.
 
 ## 5. Config quality
 
-`scripts/ssh-config-audit.py` reports Host aliases, `Include`, and which hardening options are
+`scripts/ssh_config_audit.py` reports Host aliases, `Include`, and which hardening options are
 set/absent — without dumping the config verbatim (it can hold private HostName/User). Under the hood:
 
 ```bash
@@ -90,7 +90,7 @@ Review each `Host` block and the global (`Host *`) defaults for:
 
 ## 6. known_hosts
 
-`scripts/ssh-config-audit.py` reports `known_hosts` presence + entry count. Under the hood:
+`scripts/ssh_config_audit.py` reports `known_hosts` presence + entry count. Under the hood:
 
 ```bash
 wc -l ~/.ssh/known_hosts 2>/dev/null                # present? (absent = every host is TOFU-prompted)

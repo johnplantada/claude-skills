@@ -2,7 +2,7 @@
 name: Dotfiles
 description: Set up, repair, upgrade, and optimize dotfiles with chezmoi, plus a first-class SECRETS path — version-control your config files (shell, editor, git, tools) in one git-backed source. Use to SET UP dotfiles (init, or bootstrap a new machine from the repo), REPAIR a broken state (apply fails, unreconcilable drift, source conflicts), UPGRADE day-to-day (add/edit/apply and sync across machines), OPTIMIZE the source (untracked configs, cruft, plaintext that should be encrypted), or handle SECRETS safely (never commit plaintext; a secret's value never enters the model's context). Verified with chezmoi diff/status/doctor; treats secrets as a first-class safety concern.
 argument-hint: [setup|repair|upgrade|optimize|secrets]
-allowed-tools: Bash(chezmoi doctor), Bash(chezmoi status), Bash(chezmoi diff *), Bash(chezmoi managed *), Bash(chezmoi unmanaged *), Bash(chezmoi source-path), Bash(chezmoi cat *), Bash(chezmoi git *), Bash(chezmoi data), Bash(git -C * *), Bash(ls *), Bash(cp *), Bash(*dotfiles/scripts/*)
+allowed-tools: Bash(chezmoi doctor), Bash(chezmoi status), Bash(chezmoi diff *), Bash(chezmoi managed *), Bash(chezmoi unmanaged *), Bash(chezmoi source-path), Bash(chezmoi git *), Bash(chezmoi data), Bash(git -C * *), Bash(ls *), Bash(cp *), Bash(*dotfiles/scripts/*)
 ---
 
 # Dotfiles (chezmoi)
@@ -101,6 +101,15 @@ the answer back. Managed by the `devenv` skill. Keys honored:
   unresolved `{{ ... }}` references — never by reading the value. Ops needing the real plaintext
   (age key, password-manager unlock, moving a private key) run out of band via `!`. See
   [reference/secrets.md](reference/secrets.md).
+- **Never open a flagged file to "see" or confirm the finding.** Once the scanner flags a path,
+  that line *is* the evidence — the reason names the rule (token shape, key block, secret-by-location),
+  which is everything needed to classify and route it. Reading, grepping, or `chezmoi cat`-ing the
+  file to double-check pulls the very value into context that the whole pipeline exists to keep out —
+  one "let me verify" read undoes the guarantee. Classify by path + reason alone; if genuinely
+  ambiguous, ask the user what the file holds rather than looking. For secret-by-*location* paths
+  (private keys, `.netrc`, `.aws/credentials`) the plugin's PreToolUse guard
+  (`scripts/secret_read_guard.py`) enforces this mechanically — a denial from it is the contract
+  working, not an obstacle to route around.
 - The source repo is personal and often sensitive — **private remote**, and never publish it as an
   Artifact or paste its contents outward.
 - On a fresh machine, `chezmoi init --apply` overwrites local configs — back up or diff first.

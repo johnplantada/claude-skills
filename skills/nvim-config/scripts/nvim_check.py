@@ -33,11 +33,27 @@ safe to re-run; scratch files go to a temp dir, never the user's project.
   deprecations            checkhealth vim.deprecated + static grep of config
   api <vim.path>          type of a core API (nil = removed) — e.g. vim.treesitter.language.get_lang"""
 
-# Startup noise filter: keep real error/deprecation lines, drop git-progress chatter.
+# Startup noise filter: keep real error/deprecation lines, drop lazy.nvim's progress
+# chatter. The subtle case is a plugin's own GIT COMMIT SUBJECT — lazy prints
+# `[cmp-nvim-lsp] checkout | HEAD is now at cbc7b02 Call client methods without
+# generating deprecation warnings…`, and a subject that merely *mentions* a
+# deprecation is indistinguishable from a real one by keyword alone. Excluding the
+# progress format itself is what separates "a plugin fixed a deprecation" (noise)
+# from "your config hit one" (the finding) — otherwise every sync reports phantom
+# problems and the check stops meaning anything.
 _STARTUP_INCLUDE = re.compile(r"error|fail|deprecat|attempt to|E5108", re.IGNORECASE)
-_STARTUP_EXCLUDE = re.compile(r"receiving|resolving|counting|compressing", re.IGNORECASE)
+_STARTUP_EXCLUDE = re.compile(
+    r"receiving|resolving|counting|compressing"
+    r"|HEAD is now at"          # git checkout line: the rest is a commit subject
+    r"|\|\s*(checkout|clone|updated|installed|pulling|fetching)\b",  # lazy progress rows
+    re.IGNORECASE,
+)
 
 _WARN_ERR = re.compile(r"warning|error", re.IGNORECASE)
+
+# A filetype extension becomes part of a scratch filename that is then interpolated
+# into a Lua `vim.cmd('edit …')` string — keep it to plain extension characters.
+_EXT_RE = re.compile(r"[A-Za-z0-9_.-]+")
 
 # Deprecated API call-sites a static scan of the config should surface.
 _DEPRECATION = re.compile(
@@ -123,6 +139,10 @@ def main(argv: list[str] | None = None) -> int:
         lines = filter_startup(gc.run_lazy_sync())
         print("\n".join(lines) if lines else "clean: no error/deprecation lines")
         return 0
+
+    if check in ("open", "ts", "lsp") and rest and not _EXT_RE.fullmatch(rest[0]):
+        print(f"invalid extension: {rest[0]!r} (letters/digits/._- only)", file=sys.stderr)
+        return 1
 
     if check == "open":
         if not rest:

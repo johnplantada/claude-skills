@@ -6,15 +6,15 @@ handshake** (fingerprints only), fix the narrowest cause, and prove auth works. 
 private key** to debug — permissions, fingerprints, and `ssh -vT` tell the whole story.
 
 > **Diagnose with the read-only scripts** (metadata only, never key bytes):
-> `scripts/ssh-config-audit.py <host>` (resolved `ssh -G`), `scripts/key-audit.py` (perms / type /
-> passphrase), `scripts/agent-status.py` (loaded identities). Prove the fix — [verification.md](verification.md).
+> `scripts/ssh_config_audit.py <host>` (resolved `ssh -G`), `scripts/key_audit.py` (perms / type /
+> passphrase), `scripts/agent_status.py` (loaded identities). Prove the fix — [verification.md](verification.md).
 
 ## 1. Symptom → cause
 
 | Symptom | Likely cause | Check |
 |---|---|---|
-| `Permission denied (publickey)` / key "not offered" | **loose perms** → ssh silently ignores the key/config | `key-audit.py` (700/600/644) |
-| agent has no identities | key not loaded, or agent not running | `agent-status.py` · `ssh-add -l` |
+| `Permission denied (publickey)` / key "not offered" | **loose perms** → ssh silently ignores the key/config | `key_audit.py` (700/600/644) |
+| agent has no identities | key not loaded, or agent not running | `agent_status.py` · `ssh-add -l` |
 | `Too many authentication failures` | agent offers **every** key; server cuts you off | `ssh -G <host>` → `identitiesonly`? |
 | wrong user / host / key used | an earlier `Host *` / `Match` / `Include` overrides | `ssh -G <host>` (effective config) |
 | `Host key verification failed` | `known_hosts` mismatch (host rotated — or MITM) | the host's `known_hosts` entry |
@@ -36,7 +36,7 @@ private key** to debug — permissions, fingerprints, and `ssh -vT` tell the who
 ## 3. Prove it (fingerprints only, never the key)
 
 ```bash
-scripts/ssh-config-audit.py <host>              # identityfile is the key you intend; identitiesonly yes
+scripts/ssh_config_audit.py <host>              # identityfile is the key you intend; identitiesonly yes
 ssh -vT git@github.com 2>&1 | grep -iE 'offering|authentication succeeded|identity file'
 ssh -o BatchMode=yes <host> true                # green = KEY auth worked (not a password fallback)
 ```

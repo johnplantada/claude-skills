@@ -24,6 +24,31 @@ def test_filter_startup_is_case_insensitive():
     assert nc.filter_startup("ATTEMPT TO index nil") == ["ATTEMPT TO index nil"]
 
 
+def test_filter_startup_drops_plugin_commit_subjects():
+    """The pinned finding, caught by a live health sweep: lazy.nvim prints each plugin's
+    commit SUBJECT during sync, and a subject mentioning a deprecation/error is not a
+    finding about YOUR config. Keyword matching alone reported these as problems every
+    single run, which trains you to ignore the check."""
+    out = (
+        "\x1b[35m[cmp-nvim-lsp] \x1b[0m\x1b[36mcheckout\x1b[0m\x1b[90m | \x1b[0m"
+        "HEAD is now at cbc7b02 Call client methods without generating deprecation "
+        "warnings in nvim 0.11+ (#87)\n"
+        "[telescope-fzf-native.nvim] checkout | HEAD is now at b25b749 "
+        "fix: add shim for deprecated `vim.F.if_nil` (#159)\n"
+    )
+    assert nc.filter_startup(out) == []
+
+
+def test_filter_startup_still_reports_a_real_deprecation_during_a_sync():
+    # The exclusion must be surgical: a genuine runtime warning in the same output
+    # still gets through.
+    out = (
+        "[plugin] checkout | HEAD is now at abc1234 fix deprecated api usage\n"
+        "vim.tbl_islist is deprecated, use vim.islist\n"
+    )
+    assert nc.filter_startup(out) == ["vim.tbl_islist is deprecated, use vim.islist"]
+
+
 def test_filter_startup_empty_when_clean():
     assert nc.filter_startup("Lazy sync finished\nall good\n") == []
 

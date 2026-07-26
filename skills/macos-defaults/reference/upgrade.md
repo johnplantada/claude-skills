@@ -31,12 +31,16 @@ security-sensitive keys (see [SKILL.md](../SKILL.md) Safety) — confirm those w
 
 ## 2. Back up current values (reversible)
 
-Before writing, snapshot what the affected keys are now, so a change can be undone:
+Before writing, snapshot what the affected keys are now, so a change can be undone.
+`defaults_apply.py` does this automatically (a fresh private temp dir per run, one
+`<domain>.before` file each — it prints the dir). By hand, mirror that: back up into a
+`mktemp -d` dir, never a fixed predictable path:
 
 ```bash
-# for each domain the script touches:
-defaults read com.apple.dock    > /tmp/macos.dock.before    2>/dev/null || true
-defaults read com.apple.finder  > /tmp/macos.finder.before  2>/dev/null || true
+BK=$(mktemp -d)   # for each domain the script touches:
+defaults read com.apple.dock    > "$BK/com.apple.dock.before"    2>/dev/null || true
+defaults read com.apple.finder  > "$BK/com.apple.finder.before"  2>/dev/null || true
+echo "backups in $BK"
 ```
 
 ## 3. Run the script

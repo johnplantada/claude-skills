@@ -26,6 +26,7 @@ from pathlib import Path
 
 import _shell_common as sc
 import dump_env
+from _shell_common import fish_quote
 
 # Vars we must NOT mirror — only user-set vars should cross to fish. Three classes:
 #   1. shell/session/system (PWD, TERM, SSH_*, __CF*, …)
@@ -49,18 +50,6 @@ ALIAS_DENY_RE = re.compile(r"run-help|which-command")
 
 
 # --- pure logic ----------------------------------------------------------------
-
-def fish_quote(value: str) -> str:
-    """Render VALUE as a fish single-quoted literal — a VALID ``set -gx``/``alias`` value.
-
-    Inside fish single quotes only two characters are special: the backslash and the
-    single quote itself, each escaped with a backslash. Escaping backslash first (then
-    the quote) is required so a value like ``O'Brien`` or one containing a literal
-    backslash produces a well-formed line instead of a broken/half-quoted one.
-    """
-    escaped = value.replace("\\", "\\\\").replace("'", "\\'")
-    return f"'{escaped}'"
-
 
 def strip_wrapping_quotes(val: str) -> str:
     """Strip one layer of surrounding single- then double-quotes (as zsh prints them)."""
@@ -137,7 +126,9 @@ def build_plan(
         f"# Generated {date}. Review before installing to ~/.config/fish/conf.d/00-shell-sync.fish.",
         "",
         "# PATH — resolved zsh login PATH: deduped, dead/transient (system) entries dropped.",
-        f"set -gx PATH {' '.join(path_entries)}",
+        # Each entry individually quoted: a dir with spaces (e.g. an .app bundle's bin)
+        # must stay ONE PATH entry, not word-split into several.
+        f"set -gx PATH {' '.join(fish_quote(p) for p in path_entries)}",
         "",
         "# --- env ---",
     ]

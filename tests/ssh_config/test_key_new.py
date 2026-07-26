@@ -13,7 +13,7 @@ def test_public_key_report_shows_pub_and_register_hint():
     assert "ssh-ed25519 AAAA me@host" in lines
     assert 'register it, e.g.:  gh ssh-key add /home/me/.ssh/id_ed25519.pub --title "id_ed25519"' in lines
     # invocation examples point at the .py entrypoint, not the old .sh
-    assert any("ssh-config-audit.py <host>" in l for l in lines)
+    assert any("ssh_config_audit.py <host>" in l for l in lines)
     assert not any(".sh" in l for l in lines)
 
 

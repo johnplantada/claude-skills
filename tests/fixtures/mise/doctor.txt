@@ -1,0 +1,64 @@
+# captured from: mise doctor
+# exit: 1
+# redacted (home path, username, emails, internal hostnames) — format sample, not an env dump
+# truncated to 60 of 126 lines
+version: 2026.7.14 macos-arm64 (2026-07-26)
+activated: no
+shims_on_path: no
+self_update_available: no
+
+build_info:
+  Target: aarch64-apple-darwin
+  Features: default, native-tls, self_update
+  Built: Sun, 26 Jul 2026 15:13:29 +0000
+  Rust Version: rustc 1.97.1 (8bab26f4f 2026-07-14) (Homebrew)
+  Profile: release
+
+shell:
+  /bin/zsh
+  zsh 5.9 (arm64-apple-darwin25.0)
+
+aqua:
+  baked in registry: aquaproj/aqua-registry@f2cab17924c99504bf3c9014c3b4969763d98f08
+  baked in registry tools: 2258
+
+dirs:
+  cache: ~/Library/Caches/mise
+  config: ~/.config/mise
+  data: ~/.local/share/mise
+  shims: ~/.local/share/mise/shims
+  state: ~/.local/state/mise
+
+config_files:
+  ~/.config/mise/config.toml
+
+env_files:
+  (none)
+
+ignored_config_files: (none)
+
+backends:
+  aqua
+  asdf
+  cargo
+  conda
+  core
+  dotnet
+  forgejo
+  gem
+  github
+  gitlab
+  go
+  npm
+  pipx
+  pkgx
+  spm
+  http
+  s3
+  ubi
+  vfox
+
+plugins:
+
+toolset:
+  core:USER@example.com

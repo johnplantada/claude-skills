@@ -19,7 +19,7 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
-from lib.devenv_common import command_available, read_text
+from lib.devenv_common import command_available, fact, read_text, undetermined, unparsed_line
 from lib.devenv_common import run_rc as run
 
 CONFIG_TOML = Path(

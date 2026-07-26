@@ -1,0 +1,7 @@
+# captured from: nvim --version
+# exit: 0
+# redacted (home path, username, emails, internal hostnames) — format sample, not an env dump
+NVIM v0.12.4
+Build type: Release
+LuaJIT 2.1.1785005726
+Run "nvim -V1 -v" for more info

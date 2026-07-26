@@ -68,3 +68,29 @@ def test_run_rc_unlaunchable_returns_1_empty():
 def test_run_out_returns_stdout_or_empty():
     assert c.run_out(["printf", "hi"]) == "hi"
     assert c.run_out(["definitely-not-a-real-binary-xyz"]) == ""
+
+
+# --- output conventions: unparsed / provenance / undetermined -------------------
+
+def test_unparsed_line_surfaces_the_raw_line():
+    """A parser that can't read an in-scope line must SAY so. The alternative — returning
+    a blank field — is how a cask's missing version became a confident 'major-bump'."""
+    row = c.unparsed_line("elgato (1.8.1) != 1.9", "unrecognized format")
+    assert row.startswith("unparsed\t")
+    assert "elgato (1.8.1) != 1.9" in row
+    assert "unrecognized format" in row
+
+
+def test_fact_tags_provenance_only_when_given():
+    assert c.fact("mise_activated", "yes") == "mise_activated\tyes"
+    assert c.fact("mise_activated", "yes", src="login-shell") == (
+        "mise_activated\tyes\tsrc=login-shell"
+    )
+
+
+def test_undetermined_is_distinct_from_a_clean_result():
+    """'couldn't check' must not read as 'checked, all good' — they imply opposite actions."""
+    row = c.undetermined("mise_activated", "no zsh to ask")
+    assert "undetermined" in row
+    assert "no zsh to ask" in row
+    assert row != c.fact("mise_activated", "yes")

@@ -64,9 +64,10 @@ def tool_lines(tool: str, have_mise: bool) -> list[str]:
     lines = [f"== {tool} =="]
 
     if have_mise:
-        if rc.run(["mise", "ls-remote", tool]).returncode == 0:
+        remote = rc.run(["mise", "ls-remote", tool])
+        if remote.returncode == 0:
             lines.append("mise_managed\tyes")
-            rec = recent_versions(rc.run(["mise", "ls-remote", tool]).stdout)
+            rec = recent_versions(remote.stdout)
             lines.append("recent_versions\t" + (rec or f"(see: mise ls-remote '{tool}')"))
             if is_lts_lang(tool):
                 lines.append(f"lts_alias\t{tool}@lts (recommended default)")

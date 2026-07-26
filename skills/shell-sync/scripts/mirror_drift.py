@@ -59,9 +59,23 @@ def norm_env(text: str, home: str) -> list[str]:
     return sorted(out)
 
 
+# One PATH token: a fish single-quoted literal (backslash escapes inside) or a bare word.
+_PATH_TOKEN_RE = re.compile(r"'(?:\\.|[^'\\])*'|\S+")
+
+
+def _unquote_fish(tok: str) -> str:
+    """Undo ``fish_quote``: strip the surrounding single quotes and unescape ``\\'``/``\\\\``.
+    Bare (unquoted) tokens — e.g. from a mirror generated before entries were quoted —
+    pass through unchanged."""
+    if len(tok) >= 2 and tok[0] == "'" and tok[-1] == "'":
+        return re.sub(r"\\(.)", r"\1", tok[1:-1])
+    return tok
+
+
 def norm_path(text: str, home: str) -> list[str]:
     """The PATH block (single- or continuation-line) -> one dir per line, sorted
-    unique, ``$HOME`` expanded."""
+    unique, ``$HOME`` expanded. Tokenizes quote-aware, so a quoted entry with spaces
+    (an .app bundle's bin dir) stays one dir instead of splitting."""
     collected: list[str] = []
     active = False
     for line in text.splitlines():
@@ -75,9 +89,8 @@ def norm_path(text: str, home: str) -> list[str]:
     dirs: set[str] = set()
     for line in collected:
         line = re.sub(r"^set -gx PATH", "", line)
-        for tok in line.split(" "):
-            if tok:
-                dirs.add(tok.replace("$HOME", home))
+        for tok in _PATH_TOKEN_RE.findall(line):
+            dirs.add(_unquote_fish(tok).replace("$HOME", home))
     return sorted(dirs)
 
 

@@ -1,0 +1,12 @@
+# recorded from: brew outdated --verbose
+# observed: 2026-07-26 on macOS arm64, Homebrew 5 (verbatim)
+# why recorded: formulae print "<", CASKS print "!=". Splitting on "< " alone left the
+# new version empty, which compared unequal to any old major and manufactured a phantom
+# "major-bump" verdict that then advised `brew pin` — a command that does not work on
+# casks. Once everything is upgraded this output is empty, so the format cannot be
+# re-captured from a healthy machine.
+libnghttp3 (1.17.0) < 1.18.0
+luajit (2.1.1784902473) < 2.1.1785005726
+mise (2026.7.13) < 2026.7.14
+ollama (0.32.3) < 0.32.4
+elgato-control-center (1.8.1,20582) != 1.9,20829

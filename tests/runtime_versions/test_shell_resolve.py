@@ -22,3 +22,16 @@ def test_parse_args_tools_without_shell_keep_default_shell():
 
 def test_parse_args_both_explicit():
     assert sr.parse_args(["both", "go"]) == ("both", ["go"])
+
+
+def test_parse_args_rejects_a_tool_name_with_shell_metacharacters():
+    # Tool names are interpolated into the login-shell scripts — a name carrying shell
+    # syntax must be rejected up front, never quoted-and-hoped.
+    import pytest
+
+    with pytest.raises(ValueError, match="invalid tool name"):
+        sr.parse_args(["zsh", "node; rm -rf /"])
+
+
+def test_parse_args_accepts_versioned_and_dotted_tool_names():
+    assert sr.parse_args(["python3.12", "node@22"]) == ("both", ["python3.12", "node@22"])

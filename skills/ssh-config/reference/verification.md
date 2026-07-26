@@ -4,14 +4,14 @@ Editing `~/.ssh/config` is not proof. A change is done only when the effective c
 intended **and** authentication succeeds. **Never print a private key to verify it** — use
 fingerprints and effective-config output.
 
-> **Fast path:** `scripts/ssh-config-audit.py <host>` prints the resolved `ssh -G` settings, and
-> `scripts/agent-status.py` shows the loaded identities — both read-only, fingerprints only. The
+> **Fast path:** `scripts/ssh_config_audit.py <host>` prints the resolved `ssh -G` settings, and
+> `scripts/agent_status.py` shows the loaded identities — both read-only, fingerprints only. The
 > blocks below are the under-the-hood reference.
 
 ## The config resolves (effective, not just the file)
 
 `ssh -G` prints the *fully resolved* config for a host — every `Host`/`Match`/`Include` applied, so
-you see what ssh will actually use (not what you think the file says). `scripts/ssh-config-audit.py
+you see what ssh will actually use (not what you think the file says). `scripts/ssh_config_audit.py
 <host>` runs this and extracts the key settings; under the hood:
 
 ```bash
@@ -48,7 +48,7 @@ ssh -vT git@github.com 2>&1 | grep -iE 'offering|authentication succeeded|identi
 
 ## The agent holds the expected identities
 
-`scripts/agent-status.py` lists them and cross-references on-disk `*.pub` for you. Under the hood:
+`scripts/agent_status.py` lists them and cross-references on-disk `*.pub` for you. Under the hood:
 
 ```bash
 ssh-add -l         # lists loaded keys by fingerprint/type — never the key body

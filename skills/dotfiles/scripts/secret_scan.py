@@ -82,8 +82,11 @@ def gitleaks_available() -> bool:
     return dc.command_available("gitleaks")
 
 
-def parse_gitleaks_report(report_json: str) -> set[str]:
+def parse_gitleaks_report(report_json: str, base: str = "") -> set[str]:
     """Turn a gitleaks JSON report into `<file>\treason=gitleaks:<rule>` lines.
+
+    A relative finding path is anchored to `base` (the scanned target dir) so both
+    engines emit the same path shape — the built-in scanner walks real paths.
 
     SAFETY: reads ONLY the file path and rule id from each finding. The `Match`/`Secret`/
     line fields (redacted or not) are deliberately never touched, so no secret material
@@ -100,6 +103,8 @@ def parse_gitleaks_report(report_json: str) -> set[str]:
         path = finding.get("File") or finding.get("file") or ""
         rule = finding.get("RuleID") or finding.get("rule") or "secret"
         if path:
+            if base and not os.path.isabs(path):
+                path = os.path.join(base, path)
             out.add(f"{path}\treason=gitleaks:{rule}")
     return out
 
@@ -116,7 +121,10 @@ def gitleaks_findings(target: str) -> set[str] | None:
             "--exit-code", "0", "--no-banner",
         ])
         text = dc.read_text_skip_binary(report)
-        return None if text is None else parse_gitleaks_report(text)
+        if text is None:
+            return None
+        base = target if os.path.isdir(target) else os.path.dirname(target)
+        return parse_gitleaks_report(text, base)
 
 
 def builtin_content_findings(target: str) -> set[str]:
@@ -130,27 +138,29 @@ def builtin_content_findings(target: str) -> set[str]:
     return out
 
 
-def content_findings(target: str) -> set[str]:
-    """Content-based findings: prefer gitleaks, fall back to the built-in patterns
-    (also when gitleaks is present but errors — never trust a silent clean)."""
+def content_findings(target: str) -> tuple[set[str], str]:
+    """Content-based findings plus the engine that ACTUALLY produced them: prefer
+    gitleaks, fall back to the built-in patterns (also when gitleaks is present but
+    errors — never trust a silent clean, and never label the fallback as gitleaks)."""
     if gitleaks_available():
         found = gitleaks_findings(target)
         if found is not None:
-            return found
-    return builtin_content_findings(target)
+            return found, "gitleaks"
+    return builtin_content_findings(target), "built-in patterns"
 
 
-def scan(target: str) -> list[str]:
-    """Sorted, de-duplicated finding lines (`<path>\treason=...`) for `target`."""
-    findings: set[str] = set(content_findings(target))
-    # Location shapes are chezmoi-source-encoding aware — always the built-in check.
+def scan(target: str) -> tuple[list[str], str]:
+    """Sorted, de-duplicated finding lines (`<path>\treason=...`) for `target`, plus
+    the content-engine name for the summary line."""
+    findings, engine = content_findings(target)
+    findings = set(findings)
+    # Location shapes are chezmoi-source-encoding aware — always the built-in check
+    # (location_reason itself exempts the encrypted_* ciphertext form).
     for path in dc.iter_files(target):
-        base = path.rsplit("/", 1)[-1]
-        if not base.startswith("encrypted_"):
-            reason = location_reason(path)
-            if reason is not None:
-                findings.add(f"{path}\treason={reason}")
-    return sorted(findings)
+        reason = location_reason(path)
+        if reason is not None:
+            findings.add(f"{path}\treason={reason}")
+    return sorted(findings), engine
 
 
 def resolve_target(args: list[str]) -> str:
@@ -176,10 +186,9 @@ def main(argv: list[str] | None = None) -> int:
     args = sys.argv[1:] if argv is None else argv
     target = resolve_target(args)
 
-    findings = scan(target)
+    findings, engine = scan(target)
     if findings:
         print("\n".join(findings))
-        engine = "gitleaks" if gitleaks_available() else "built-in patterns"
         print(
             f"findings\t{len(findings)}\t({engine}) — REVIEW each: encrypt "
             f"(chezmoi add --encrypt), template, or .chezmoiignore",

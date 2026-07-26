@@ -55,7 +55,9 @@ def parse_lua_args(argv: list[str]) -> LuaArgs:
             clean = True
             i += 1
         elif arg == "--wait":
-            if i + 1 >= len(argv):
+            # The value is interpolated into `+lua vim.wait(N)` — digits only, so no
+            # argument can smuggle Lua into the headless run.
+            if i + 1 >= len(argv) or not argv[i + 1].isdigit():
                 raise ValueError("--wait needs a number")
             wait = argv[i + 1]
             i += 2

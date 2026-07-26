@@ -60,3 +60,35 @@ def test_prefixed_prepends_each_line():
 
 def test_prefixed_empty_input_gives_no_lines():
     assert ms.prefixed("", "installed: ") == []
+
+
+def test_login_doctor_reading_wins_over_the_in_process_one(monkeypatch, capsys):
+    """The pinned finding, caught by a live audit: activation is set in an rc file, which
+    this process never sources — so the in-process `mise doctor` says "not activated"
+    even when the user's real shells are correctly activated. Reporting that sends them
+    to fix a shell init that isn't broken. The login-shell reading must win."""
+    monkeypatch.setattr(ms.rc, "have", lambda tool: True)
+    monkeypatch.setattr(
+        ms.rc, "run",
+        lambda cmd: type("P", (), {"stdout": "activated: no\n", "stderr": "", "returncode": 1})(),
+    )
+    monkeypatch.setattr(ms, "login_doctor", lambda: "activated: yes\nshims: ~/.local/share/mise/shims\n")
+    ms.main([])
+    out = capsys.readouterr().out
+    assert "mise_activated\tyes" in out
+    assert "src=login-shell" in out  # provenance makes the wrong-environment class self-diagnosing
+
+
+def test_falls_back_to_in_process_reading_when_no_login_shell(monkeypatch, capsys):
+    monkeypatch.setattr(ms.rc, "have", lambda tool: True)
+    monkeypatch.setattr(
+        ms.rc, "run",
+        lambda cmd: type("P", (), {"stdout": "activated: no\n", "stderr": "", "returncode": 1})(),
+    )
+    monkeypatch.setattr(ms, "login_doctor", lambda: "")
+    ms.main([])
+    out = capsys.readouterr().out
+    # With no login shell to ask, the honest answer is "undetermined" — NOT "no", which
+    # would read as a real finding and send the user to fix a working shell init.
+    assert "mise_activated\tundetermined" in out
+    assert "understate" in out

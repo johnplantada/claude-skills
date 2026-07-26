@@ -19,19 +19,37 @@ A shell not installed is reported and skipped. READ-ONLY (runs login rc as-is).
 
 from __future__ import annotations
 
+import re
 import sys
 
 import _runtime_common as rc
 
+# Tool names are interpolated into the login-shell scripts below, so they must be
+# plain command names — never shell syntax. Same hardening stance as
+# `_runtime_common.nvm_default_version` (values may not smuggle metacharacters).
+_TOOL_NAME_RE = re.compile(r"[A-Za-z0-9@._+-]+")
+
+
+def valid_tool(name: str) -> bool:
+    """True if `name` is a plain command name, safe to place in a shell script."""
+    return bool(_TOOL_NAME_RE.fullmatch(name))
+
 
 def parse_args(argv: list[str]) -> tuple[str, list[str]]:
-    """(which-shells, tools). Leading zsh|fish|both selects the shell; rest are tools."""
+    """(which-shells, tools). Leading zsh|fish|both selects the shell; rest are tools.
+
+    Raises ValueError for a tool name that isn't a plain command name (it would be
+    interpolated into a shell script — reject, don't quote-and-hope).
+    """
     which = "both"
     args = list(argv)
     if args and args[0] in ("zsh", "fish", "both"):
         which = args[0]
         args = args[1:]
     tools = args or ["node", "python", "go"]
+    for tool in tools:
+        if not valid_tool(tool):
+            raise ValueError(f"invalid tool name: {tool!r} (letters/digits/@._+- only)")
     return which, tools
 
 
@@ -95,7 +113,11 @@ def main(argv: list[str] | None = None) -> int:
         print(__doc__.strip())
         return 0
 
-    which, tools = parse_args(args)
+    try:
+        which, tools = parse_args(args)
+    except ValueError as exc:
+        print(f"shell-resolve: {exc}", file=sys.stderr)
+        return 2
     print("-- clean-env (env -i) login resolution; compare shells: same path+version = consistent --")
     if which == "zsh":
         run_zsh(tools)

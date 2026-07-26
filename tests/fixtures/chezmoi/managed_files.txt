@@ -1,0 +1,19 @@
+# captured from: chezmoi managed --include=files
+# exit: 0
+# redacted (home path, username, emails, internal hostnames) — format sample, not an env dump
+# truncated to 15 of 29 lines
+.config/claude-code/settings.json
+.config/devenv/config.toml
+.config/fish/completions/oc.fish
+.config/fish/completions/terraform.fish
+.config/fish/conf.d/fish_frozen_key_bindings.fish
+.config/fish/conf.d/fish_frozen_theme.fish
+.config/fish/conf.d/rustup.fish
+.config/fish/conf.d/uv.env.fish
+.config/fish/config.fish
+.config/fish/functions/strudel-cli.fish
+.config/fish/functions/strudel-eval.fish
+.config/fish/functions/strudel-samples.fish
+.config/fish/functions/strudel-tmux.fish
+.config/fish/functions/strudel-watch.fish
+.config/fish/functions/strudel.fish

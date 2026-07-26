@@ -1,0 +1,48 @@
+# captured from: chezmoi doctor
+# exit: 0
+# redacted (home path, username, emails, internal hostnames) — format sample, not an env dump
+RESULT   CHECK                       MESSAGE
+ok       version                     v2.71.1, commit 94f58519ad17b954a5e7621a3c4e24385fd5417a, built at 2026-07-20T20:06:37Z, built by Homebrew
+ok       latest-version              v2.71.1
+ok       os-arch                     darwin/arm64
+ok       build-info                  -trimpath=true, CGO_ENABLED=1, GOARM64=v8.0
+ok       uname                       Darwin host.example 25.5.0 Darwin Kernel Version 25.5.0: Mon Apr 27 20:41:06 PDT 2026; root:xnu-12377.121.6~2/RELEASE_ARM64_T6030 arm64
+ok       go-version                  go1.26.5 (gc)
+ok       executable                  /opt/homebrew/bin/chezmoi
+ok       upgrade-method              brew-upgrade
+info     config-file                 ~/.config/chezmoi/chezmoi.toml: not found
+ok       source-dir                  ~/.local/share/chezmoi is a git working tree (clean)
+ok       suspicious-entries          no suspicious entries
+ok       working-tree                ~/.local/share/chezmoi is a git working tree (clean)
+ok       dest-dir                    ~ is a directory
+ok       hardlink                    created hardlink from ~/.local/share/chezmoi to /var/folders/nq/4p28s2js5jqbx2c5blq3jmb80000gn/T/
+ok       symlink                     created symlink from .new-name to .old-name
+ok       umask                       022
+ok       cd-command                  found /bin/zsh
+ok       cd-args                     /bin/zsh
+info     diff-command                not set
+ok       edit-command                found /usr/bin/vi
+ok       edit-args                   /usr/bin/vi
+ok       git-command                 found /opt/homebrew/bin/git, version 2.55.0
+ok       merge-command               found /usr/bin/vimdiff
+ok       shell-command               found /bin/zsh
+ok       shell-args                  /bin/zsh
+info     age-command                 age not found in $PATH
+info     gpg-command                 gpg not found in $PATH
+info     pinentry-command            not set
+info     1password-command           op not found in $PATH
+info     bitwarden-command           bw not found in $PATH
+info     bitwarden-secrets-command   bws not found in $PATH
+info     dashlane-command            dcli not found in $PATH
+info     doppler-command             doppler not found in $PATH
+info     gopass-command              gopass not found in $PATH
+info     keepassxc-command           keepassxc-cli not found in $PATH
+info     keepassxc-db                not set
+info     keeper-command              keeper not found in $PATH
+info     lastpass-command            lpass not found in $PATH
+info     pass-command                pass not found in $PATH
+info     passhole-command            ph not found in $PATH
+info     protonpass-command          pass-cli not found in $PATH
+info     rbw-command                 rbw not found in $PATH
+info     vault-command               vault not found in $PATH
+info     secret-command              not set

@@ -4,7 +4,7 @@ Goal: modern **ed25519** keys, protected by a **passphrase** (stored in the macO
 entered once), loaded into the agent, and registered by their **PUBLIC** half. **NEVER print or
 commit the private key.**
 
-> **One-shot generate + load:** `scripts/key-new.py <name> <comment>` does steps 1-2 together —
+> **One-shot generate + load:** `scripts/key_new.py <name> <comment>` does steps 1-2 together —
 > generates the ed25519 key (interactive passphrase prompt), loads it into the agent + keychain,
 > and prints the PUBLIC key ready to register. It refuses to overwrite an existing key and never
 > prints the private half. Steps 1-2 below are the under-the-hood reference (and the Linux path,
@@ -13,7 +13,7 @@ commit the private key.**
 ## 1. Generate an ed25519 key (with a passphrase)
 
 ```bash
-scripts/key-new.py id_ed25519 "john@laptop-2026"    # generate + load + show the .pub
+scripts/key_new.py id_ed25519 "john@laptop-2026"    # generate + load + show the .pub
 # — or by hand:
 ssh-keygen -t ed25519 -C "john@laptop-2026" -f ~/.ssh/id_ed25519
 # -C is a comment/label (email or user@host), NOT a secret. ssh-keygen prompts for a passphrase —

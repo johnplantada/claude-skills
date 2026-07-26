@@ -1,0 +1,4 @@
+# captured from: git --version
+# exit: 0
+# redacted (home path, username, emails, internal hostnames) — format sample, not an env dump
+git version 2.55.0
