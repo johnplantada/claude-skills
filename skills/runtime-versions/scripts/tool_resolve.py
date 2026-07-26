@@ -69,17 +69,23 @@ def context_line() -> str:
 
 
 def tool_lines(tool: str, have_mise: bool) -> list[str]:
-    """Every output line for one tool."""
+    """Every output line for one tool.
+
+    Resolution facts are tagged `src=this-process`: they come from the PATH this script
+    inherited, not from a fresh login. A manager loaded only by an interactive rc file is
+    invisible here, so an untagged answer would look like the machine's truth when it is
+    only this process's. `shell_resolve.py` gives the per-shell answer (`src=login-shell`).
+    """
     lines: list[str] = []
     cv = rc.command_v(tool)
     if not cv:
-        lines.append(f"{tool}_command_v\t(not found on PATH)")
-        lines.append(f"{tool}_owner\tnone")
+        lines.append(rc.fact(f"{tool}_command_v", "(not found on PATH)", src="this-process"))
+        lines.append(rc.fact(f"{tool}_owner", "none", src="this-process"))
     else:
         real = rc.realpath(cv)
-        lines.append(f"{tool}_command_v\t{cv}")
-        lines.append(f"{tool}_real_path\t{real}")
-        lines.append(f"{tool}_owner\t{classify(real)}")
+        lines.append(rc.fact(f"{tool}_command_v", cv, src="this-process"))
+        lines.append(rc.fact(f"{tool}_real_path", real, src="this-process"))
+        lines.append(rc.fact(f"{tool}_owner", classify(real), src="this-process"))
 
     if have_mise:
         mw = rc.run(["mise", "which", tool]).stdout.strip()

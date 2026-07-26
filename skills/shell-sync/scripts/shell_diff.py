@@ -143,6 +143,12 @@ def main(argv: list[str] | None = None) -> int:
     else:
         out.append("startup\tfish\tabsent")
 
+    # Every fact here comes from a real login shell under a wiped environment, which is
+    # what makes this tool's answers trustworthy where tool_resolve.py's are only
+    # "what this process happens to see". Saying so in the output means a reader never
+    # has to remember which script had which guarantee.
+    out.append("source\tlogin-shell (env -i, rc fully loaded)\tsrc=login-shell")
+
     tools = args or DEFAULT_TOOLS
     for t in tools:
         zp = sc.run_login(zbin, f"command -v {t}").strip() or "-"

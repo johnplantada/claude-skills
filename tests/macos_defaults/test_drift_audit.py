@@ -129,3 +129,25 @@ def test_audit_string_home_path_is_not_false_drift():
     live = {("com.apple.screencapture", "location"): "/Users/me/Desktop"}
     _lines, n_match, n_drift, n_miss, _ = da.audit(script, _reader(live), home="/Users/me")
     assert (n_match, n_drift, n_miss) == (1, 0, 0)
+
+
+def test_unparsable_write_line_is_reported_not_silently_skipped():
+    """The pinned finding: a `defaults write` line the regex can't read used to be
+    dropped in silence, so a declared setting went unaudited while the summary still
+    said '0 drift'. Under-reporting drift is the one thing this tool must not do."""
+    text = (
+        'defaults write com.apple.dock autohide -bool true\n'
+        'defaults write   # malformed, no domain or key\n'
+    )
+    lines, _m, _d, _miss, decl = da.audit(text, lambda d, k: (True, "1"), home="/h")
+    blob = "\n".join(lines)
+    assert "unparsed" in blob, "malformed declaration was skipped silently"
+    assert "NOT audited" in blob
+    assert "UNPARSED and not audited" in lines[-1], "summary hides the unaudited line"
+    assert decl == 1, "only the parsable line counts as declared"
+
+
+def test_comments_mentioning_defaults_write_are_not_flagged():
+    text = '# defaults write com.apple.dock autohide -bool true   (example)\n'
+    lines, *_ = da.audit(text, lambda d, k: (True, "1"), home="/h")
+    assert not any("unparsed" in ln for ln in lines)

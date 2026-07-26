@@ -119,6 +119,9 @@ def main(argv: list[str] | None = None) -> int:
         print(f"shell-resolve: {exc}", file=sys.stderr)
         return 2
     print("-- clean-env (env -i) login resolution; compare shells: same path+version = consistent --")
+    # Stated explicitly so this tool's answers are visibly distinguishable from
+    # tool_resolve.py's, which can only report what its own process inherited.
+    print("source\tlogin-shell (env -i, rc fully loaded)\tsrc=login-shell")
     if which == "zsh":
         run_zsh(tools)
     elif which == "fish":

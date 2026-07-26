@@ -109,11 +109,18 @@ def audit(
     testable without touching the `defaults` CLI.
     """
     lines: list[str] = []
-    n_match = n_drift = n_miss = n_decl = 0
+    n_match = n_drift = n_miss = n_decl = n_unparsed = 0
 
     for line in text.splitlines():
         parsed = parse_write_line(line)
         if parsed is None:
+            # A line that clearly INTENDS to be a `defaults write` but doesn't parse was
+            # previously skipped in silence — so a declared setting simply went
+            # unaudited while the summary still read "0 drift". Under-reporting drift is
+            # the one thing this tool must never do, so say it out loud instead.
+            if "defaults write " in line and not line.lstrip().startswith("#"):
+                n_unparsed += 1
+                lines.append(mc.unparsed_line(line, "not a parsable `defaults write` — NOT audited"))
             continue
         domain, key, type_, value = parsed
         n_decl += 1
@@ -134,10 +141,13 @@ def audit(
             n_drift += 1
             lines.append(f"DRIFT   {domain} {key}: live={live} expected={value}")
 
-    lines.append(
+    summary = (
         f"summary: {n_match} match, {n_drift} drift, {n_miss} missing "
         f"({n_decl} declared)"
     )
+    if n_unparsed:
+        summary += f" — {n_unparsed} line(s) UNPARSED and not audited"
+    lines.append(summary)
     return lines, n_match, n_drift, n_miss, n_decl
 
 

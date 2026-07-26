@@ -83,6 +83,10 @@ graph LR
 - **Secrets stay out of context** — private keys and plaintext secrets are handled as metadata only;
   their values never enter the model. For files that are secret by *location*, a `PreToolUse` hook
   enforces this mechanically rather than by instruction.
+- **Reports say how they know** — a fact that depends on which environment was asked carries
+  `src=login-shell` or `src=this-process`; a line a parser couldn't read is emitted as `unparsed`
+  rather than silently dropped; a check that couldn't run says `undetermined` instead of looking
+  clean. All three exist because the alternative shipped confident, wrong findings.
 
 ## Testing & CI
 

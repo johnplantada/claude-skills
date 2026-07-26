@@ -9,7 +9,12 @@ functions in the individual scripts.
 from __future__ import annotations
 
 import subprocess
+import sys
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
+# Re-exported for this skill's scripts (F401/E402 waived for _*.py in pyproject).
+from lib.devenv_common import fact, undetermined, unparsed_line
 
 
 def read_key(domain: str, key: str) -> tuple[bool, str]:

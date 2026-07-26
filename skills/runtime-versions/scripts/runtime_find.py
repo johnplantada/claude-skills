@@ -74,8 +74,12 @@ def tool_lines(tool: str, have_mise: bool) -> list[str]:
         else:
             lines.append(f"mise_managed\tunknown — check: mise registry | grep {tool}")
 
+    # src= matters: this is the PATH this script inherited, not a fresh login shell —
+    # a manager loaded only by an interactive rc file wouldn't appear here.
     cur = rc.command_v(tool)
-    lines.append(f"resolves_now\t{cur or '(not found)'}\towner={owner_of(cur)}")
+    lines.append(
+        rc.fact("resolves_now", f"{cur or '(not found)'}\towner={owner_of(cur)}", src="this-process")
+    )
 
     if brew_has(tool):
         lines.append("⚠ also provided by Homebrew — don't stack sources. Install runtimes via mise, not brew")
