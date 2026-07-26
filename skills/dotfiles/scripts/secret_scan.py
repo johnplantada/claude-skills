@@ -1,13 +1,20 @@
 #!/usr/bin/env python3
-"""Flag plaintext secrets in the chezmoi source tree, SAFELY. Part of the dotfiles skill.
+"""A plaintext-secret TRIPWIRE for the chezmoi source tree — safe by construction.
+
+This is NOT a general secret scanner. It is a lightweight, zero-dependency guardrail
+that runs *inside an agent* with one hard rule: a secret's VALUE never enters output or
+the model's context — only a file path plus the reason it was flagged (a rule/pattern
+NAME or a path shape). For real, repo-wide scanning use a dedicated tool:
+gitleaks (https://github.com/gitleaks/gitleaks), trufflehog, or detect-secrets.
+
+If **gitleaks** is installed it is used as the content engine (run with `--redact`, and
+we read only the file + rule id from its JSON — never a match/secret field); otherwise a
+small built-in pattern set is the fallback. Either way the output stays metadata-only.
+Path-shape ("secret-by-location") detection is always the built-in check, since it knows
+chezmoi's source encoding (`private_dot_ssh/`, `encrypted_*`) that gitleaks does not.
 
   secret_scan.py            # scan the chezmoi source tree (chezmoi source-path)
   secret_scan.py <path>     # scan an explicit dir/file (e.g. a file about to be added)
-
-SAFETY CONTRACT: this NEVER prints matched values or file contents — only a file
-path plus the reason it was flagged (pattern *name* or *location*, never the text
-that matched). Run it before any first-add and before every first commit. The #1
-dotfiles hazard is a secret in git.
 
 Output: one `<path>\treason=<why>` line per finding (sorted, de-duped) on stdout.
 Exit: 0 = clean, 1 = findings to review, 2 = usage error. `.git/` is skipped.
@@ -15,13 +22,15 @@ Exit: 0 = clean, 1 = findings to review, 2 = usage error. `.git/` is skipped.
 
 from __future__ import annotations
 
+import json
 import os
 import re
 import sys
+import tempfile
 
 import _dotfiles_common as dc
 
-# --- Content patterns: high-signal credential shapes. (name, extended-regex).
+# --- Built-in content patterns (fallback when gitleaks is absent): high-signal shapes.
 # Only the pattern NAME is ever emitted — the matched text stays out of output/context.
 CONTENT_PATTERNS: list[tuple[str, str]] = [
     ("private-key-block", r"BEGIN [A-Z ]*PRIVATE KEY"),
@@ -51,8 +60,8 @@ _CONTENT_RES: list[tuple[str, re.Pattern[str]]] = [
 
 
 def scan_text_for_names(text: str) -> list[str]:
-    """Names of every content pattern that matches `text`, in pattern order. Returns
-    only the names — never the matched substring (the safety contract)."""
+    """Names of every built-in content pattern that matches `text`, in pattern order.
+    Returns only the names — never the matched substring (the safety contract)."""
     return [name for name, rx in _CONTENT_RES if rx.search(text)]
 
 
@@ -67,24 +76,80 @@ def location_reason(path: str) -> str | None:
     return None
 
 
-def scan(target: str) -> list[str]:
-    """Sorted, de-duplicated finding lines (`<path>\treason=...`) for `target`."""
-    findings: set[str] = set()
-    for path in dc.iter_files(target):
-        base = path.rsplit("/", 1)[-1]
+# --- Content engine: gitleaks when present, built-in patterns otherwise --------------
 
-        # Content: read the file (binary skipped, like `grep -I`); emit pattern names only.
+def gitleaks_available() -> bool:
+    return dc.command_available("gitleaks")
+
+
+def parse_gitleaks_report(report_json: str) -> set[str]:
+    """Turn a gitleaks JSON report into `<file>\treason=gitleaks:<rule>` lines.
+
+    SAFETY: reads ONLY the file path and rule id from each finding. The `Match`/`Secret`/
+    line fields (redacted or not) are deliberately never touched, so no secret material
+    can reach output or the model's context.
+    """
+    try:
+        data = json.loads(report_json or "[]")
+    except (ValueError, TypeError):
+        return set()
+    out: set[str] = set()
+    for finding in data if isinstance(data, list) else []:
+        if not isinstance(finding, dict):
+            continue
+        path = finding.get("File") or finding.get("file") or ""
+        rule = finding.get("RuleID") or finding.get("rule") or "secret"
+        if path:
+            out.add(f"{path}\treason=gitleaks:{rule}")
+    return out
+
+
+def gitleaks_findings(target: str) -> set[str] | None:
+    """Run gitleaks over `target` (REDACTED) and return metadata-only finding lines,
+    or None if gitleaks produced no report (a run error — caller should fall back rather
+    than trust a silent 'clean'). `--redact` keeps secrets out of gitleaks' own output."""
+    with tempfile.TemporaryDirectory() as tmp:
+        report = os.path.join(tmp, "gl.json")
+        dc._run([
+            "gitleaks", "detect", "--source", target, "--no-git", "--redact",
+            "--report-format", "json", "--report-path", report,
+            "--exit-code", "0", "--no-banner",
+        ])
+        text = dc.read_text_skip_binary(report)
+        return None if text is None else parse_gitleaks_report(text)
+
+
+def builtin_content_findings(target: str) -> set[str]:
+    """Built-in fallback: pattern-match each file's content, emitting only rule names."""
+    out: set[str] = set()
+    for path in dc.iter_files(target):
         text = dc.read_text_skip_binary(path)
         if text is not None:
             for name in scan_text_for_names(text):
-                findings.add(f"{path}\treason=content:{name}")
+                out.add(f"{path}\treason=content:{name}")
+    return out
 
-        # Location: filename/path shape only — no read. `encrypted_*` is exempt.
+
+def content_findings(target: str) -> set[str]:
+    """Content-based findings: prefer gitleaks, fall back to the built-in patterns
+    (also when gitleaks is present but errors — never trust a silent clean)."""
+    if gitleaks_available():
+        found = gitleaks_findings(target)
+        if found is not None:
+            return found
+    return builtin_content_findings(target)
+
+
+def scan(target: str) -> list[str]:
+    """Sorted, de-duplicated finding lines (`<path>\treason=...`) for `target`."""
+    findings: set[str] = set(content_findings(target))
+    # Location shapes are chezmoi-source-encoding aware — always the built-in check.
+    for path in dc.iter_files(target):
+        base = path.rsplit("/", 1)[-1]
         if not base.startswith("encrypted_"):
             reason = location_reason(path)
             if reason is not None:
                 findings.add(f"{path}\treason={reason}")
-
     return sorted(findings)
 
 
@@ -114,9 +179,10 @@ def main(argv: list[str] | None = None) -> int:
     findings = scan(target)
     if findings:
         print("\n".join(findings))
+        engine = "gitleaks" if gitleaks_available() else "built-in patterns"
         print(
-            f"findings\t{len(findings)}\t— REVIEW each: encrypt (chezmoi add --encrypt), "
-            f"template, or .chezmoiignore",
+            f"findings\t{len(findings)}\t({engine}) — REVIEW each: encrypt "
+            f"(chezmoi add --encrypt), template, or .chezmoiignore",
             file=sys.stderr,
         )
         return 1

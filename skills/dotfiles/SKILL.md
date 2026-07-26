@@ -24,7 +24,7 @@ Manage config files as a git-backed source of truth with **chezmoi**. The source
 ## The scripts (prefer these over ad-hoc bash)
 
 Stable, tested helpers live in [`scripts/`](scripts/README.md) — **call them instead of
-re-composing chezmoi discovery / status / secret-scan bash each session.** Run by absolute path
+re-deriving the chezmoi discovery / status / secret-scan commands each session.** Run by absolute path
 from this skill's directory. All three are read-only, resolve the source dir internally (never
 hardcode `~/.local/share/chezmoi`), and degrade gracefully when chezmoi is absent/uninitialized.
 
@@ -32,7 +32,7 @@ hardcode `~/.local/share/chezmoi`), and degrade gracefully when chezmoi is absen
 |---|---|
 | Environment + health (installed? source dir, remote, drift counts, doctor summary) — **run first** | `scripts/chezmoi_status.py` |
 | Managed inventory with per-file drift status (`--` in sync / `MM` differs); `--unmanaged` for add-gaps | `scripts/dotfiles_inventory.py` |
-| Secret-hygiene scan of the source tree — **paths + reason only, never values** (exit 1 = findings) | `scripts/secret_scan.py [path]` |
+| Secret-hygiene **tripwire** (uses gitleaks if installed, else built-in patterns) — **paths + reason only, never values** (exit 1 = findings) | `scripts/secret_scan.py [path]` |
 
 Full contract + a worked example: [scripts/README.md](scripts/README.md). The inline commands in the
 sections and reference files below is what these run under the hood — reach for it only for novel,

@@ -69,11 +69,16 @@ def nvm_default_version() -> str | None:
     nvm_sh = next((p for p in candidates if p.is_file() and p.stat().st_size > 0), None)
     if nvm_sh is None:
         return None
+    # Pass HOME (via env) and the nvm.sh path (via argv $1), never interpolated into the
+    # shell string — no value from Python can smuggle shell metacharacters into bash.
     script = (
-        f'export NVM_DIR="{HOME}/.nvm"; . "{nvm_sh}" >/dev/null 2>&1; '
+        'export NVM_DIR="$HOME/.nvm"; . "$1" >/dev/null 2>&1; '
         "nvm version default 2>/dev/null"
     )
-    proc = subprocess.run(["bash", "-c", script], capture_output=True, text=True)
+    env = {**os.environ, "HOME": str(HOME)}
+    proc = subprocess.run(
+        ["bash", "-c", script, "bash", str(nvm_sh)], env=env, capture_output=True, text=True
+    )
     out = proc.stdout.strip()
     return out or "(unknown)"
 

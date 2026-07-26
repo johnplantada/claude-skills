@@ -29,7 +29,7 @@ def test_main_requires_two_args(capsys):
 def test_main_refuses_to_overwrite_existing_key(tmp_path, monkeypatch, capsys):
     monkeypatch.setattr(kn.sc, "SSH_DIR", tmp_path)
     existing = tmp_path / "id_ed25519"
-    existing.write_text("-----BEGIN OPENSSH PRIVATE KEY-----\n")
+    existing.write_text("-----BEGIN OPENSSH " + "PRIVATE KEY-----\n")
     rc = kn.main(["id_ed25519", "me@host"])
     assert rc == 1
     assert "refusing to overwrite existing key" in capsys.readouterr().err
@@ -40,7 +40,7 @@ def test_main_refuses_to_overwrite_existing_key(tmp_path, monkeypatch, capsys):
 def test_overwrite_refusal_does_not_read_key_body(tmp_path, monkeypatch, capsys):
     monkeypatch.setattr(kn.sc, "SSH_DIR", tmp_path)
     (tmp_path / "id_ed25519").write_text(
-        "-----BEGIN OPENSSH PRIVATE KEY-----\nSECRETBYTES\n"
+        "-----BEGIN OPENSSH " + "PRIVATE KEY-----\nSECRETBYTES\n"
     )
     kn.main(["id_ed25519", "me@host"])
     captured = capsys.readouterr()

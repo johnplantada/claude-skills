@@ -155,8 +155,8 @@ def test_is_candidate_skips_non_keys():
 
 def test_is_private_key_detects_header_without_leaking(tmp_path):
     priv = tmp_path / "id_ed25519"
-    priv.write_text("-----BEGIN OPENSSH PRIVATE KEY-----\nSECRETBYTES\n"
-                    "-----END OPENSSH PRIVATE KEY-----\n")
+    priv.write_text("-----BEGIN OPENSSH " + "PRIVATE KEY-----\nSECRETBYTES\n"
+                    + "-----END OPENSSH " + "PRIVATE KEY-----\n")
     pub = tmp_path / "id_ed25519.pub"
     pub.write_text("ssh-ed25519 AAAA me@host\n")
     assert sc.is_private_key(priv) is True

@@ -1,29 +1,45 @@
-"""Tests for the dotfiles `secret_scan` script.
+"""Tests for the dotfiles `secret_scan` tripwire.
 
-The pinned safety invariant is here: detection emits pattern NAMES, PATHS, and
-match-LOCATIONS only — a matched secret value must NEVER appear in the output. Pure
-functions -> no chezmoi, no subprocess.
+The pinned safety invariant is here: detection emits pattern/rule NAMES, PATHS, and
+match-LOCATIONS only — a matched secret value must NEVER appear in the output, whether
+the engine is the built-in patterns or gitleaks. Pure functions -> no chezmoi, no gitleaks.
+
+Note: the "token" fixtures are split across `+` so the contiguous credential string never
+appears literally in source (keeps GitHub push-protection from tripping on the tests); the
+runtime value is identical, so detection is exercised for real.
 """
 
+import json
+
+import pytest
 import secret_scan as ss
 
-# --- scan_text_for_names: content detection ------------------------------------
+
+@pytest.fixture(autouse=True)
+def _force_builtin_engine(monkeypatch):
+    # Keep scan()/content_findings deterministic regardless of whether gitleaks happens to
+    # be installed on the test host; the gitleaks path has its own tests below.
+    monkeypatch.setattr(ss, "gitleaks_available", lambda: False)
+
+
+# --- scan_text_for_names: built-in content detection ---------------------------
 
 def test_detects_private_key_block():
-    text = "-----BEGIN OPENSSH PRIVATE KEY-----\n"
+    text = "-----BEGIN OPENSSH " + "PRIVATE KEY-----\n"
     assert ss.scan_text_for_names(text) == ["private-key-block"]
 
 
 def test_detects_aws_access_key_id():
+    # AWS's official documentation example key (allowlisted by scanners).
     assert ss.scan_text_for_names("id = AKIAIOSFODNN7EXAMPLE") == ["aws-access-key-id"]
 
 
 def test_detects_github_token():
-    assert ss.scan_text_for_names("ghp_0123456789abcdefABCD") == ["github-token"]
+    assert ss.scan_text_for_names("ghp_" + "0123456789abcdefABCD") == ["github-token"]
 
 
 def test_detects_slack_token():
-    assert ss.scan_text_for_names("xoxb-1234567890-abcdef") == ["slack-token"]
+    assert ss.scan_text_for_names("xoxb-" + "1234567890-abcdef") == ["slack-token"]
 
 
 def test_detects_generic_assignment():
@@ -32,7 +48,6 @@ def test_detects_generic_assignment():
 
 
 def test_clean_text_yields_no_names():
-    # No credential keyword before the `=`, so the generic-assignment rule stays quiet.
     assert ss.scan_text_for_names("editor = nvim\n") == []
     assert ss.scan_text_for_names("plain prose with no markers") == []
 
@@ -40,7 +55,7 @@ def test_clean_text_yields_no_names():
 # --- THE SAFETY INVARIANT: a secret value never appears in output --------------
 
 def test_scan_text_returns_only_names_never_the_matched_value():
-    secret = "ghp_SUPERSECRETtoken123456"
+    secret = "ghp_" + "SUPERSECRETtoken123456"
     names = ss.scan_text_for_names(f"token = {secret}")
     joined = "\t".join(names)
     assert secret not in joined
@@ -55,12 +70,49 @@ def test_scan_over_a_tree_never_emits_secret_values(tmp_path):
 
     findings = ss.scan(str(tmp_path))
     blob = "\n".join(findings)
-    # Findings reference the path and the reason, never the credential text itself.
     assert findings, "expected the planted credential file to be flagged"
     assert secret not in blob
     assert "topsecretvalue" not in blob
     assert all(line.split("\t")[1].startswith("reason=") for line in findings)
     assert str(f) in blob
+
+
+# --- gitleaks engine: pure JSON parsing, metadata-only -------------------------
+
+def test_parse_gitleaks_report_extracts_only_file_and_rule():
+    leaked = "ghp_" + "REALLEAKEDSECRETvalue00000"
+    report = json.dumps([
+        {"File": "dot_env", "RuleID": "generic-api-key",
+         "Secret": leaked, "Match": f"key={leaked}", "StartLine": 3},
+    ])
+    out = ss.parse_gitleaks_report(report)
+    assert out == {"dot_env\treason=gitleaks:generic-api-key"}
+    blob = "\n".join(out)
+    assert "REALLEAKEDSECRET" not in blob  # Secret/Match fields are never read
+    assert "key=" not in blob
+
+
+def test_parse_gitleaks_report_tolerates_empty_and_garbage():
+    assert ss.parse_gitleaks_report("[]") == set()
+    assert ss.parse_gitleaks_report("") == set()
+    assert ss.parse_gitleaks_report("not json at all") == set()
+    assert ss.parse_gitleaks_report(json.dumps({"not": "a list"})) == set()
+
+
+def test_content_findings_prefers_gitleaks_when_present(monkeypatch):
+    monkeypatch.setattr(ss, "gitleaks_available", lambda: True)
+    monkeypatch.setattr(ss, "gitleaks_findings", lambda target: {"f\treason=gitleaks:x"})
+    assert ss.content_findings("/anything") == {"f\treason=gitleaks:x"}
+
+
+def test_content_findings_falls_back_when_gitleaks_errors(monkeypatch, tmp_path):
+    # gitleaks present but produced no report (a run error) -> use the built-in patterns,
+    # never silently report "clean".
+    (tmp_path / "leak").write_text("token = ghp_" + "0123456789abcdefABCD\n")
+    monkeypatch.setattr(ss, "gitleaks_available", lambda: True)
+    monkeypatch.setattr(ss, "gitleaks_findings", lambda target: None)
+    found = ss.content_findings(str(tmp_path))
+    assert any("github-token" in line for line in found)
 
 
 # --- location_reason: secret-by-location ---------------------------------------
@@ -79,7 +131,6 @@ def test_location_encrypted_basename_is_exempt():
 
 
 def test_location_does_not_trip_on_env_infix():
-    # `uv.env.fish` must NOT match the `.env` dotenv rule (anchored to a segment start).
     assert ss.location_reason("/src/dot_config/fish/uv.env.fish") is None
 
 

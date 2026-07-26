@@ -1,7 +1,7 @@
 # dotfiles scripts — the stable toolbox
 
-Tested, parameterized helpers so a session **calls a script** instead of re-composing the
-chezmoi discovery / status / secret-scan bash from scratch each time. Fewer tokens, no
+Tested, parameterized helpers so a session **calls a script** instead of re-deriving the
+chezmoi discovery / status / secret-scan commands from scratch each time. Fewer tokens, no
 re-derivation, no footguns (e.g. `chezmoi source-path` printing a path even when *not*
 initialized, or a hand-written secret grep that prints the secret it found). These are the
 source of truth for the mechanical commands; the reference `.md` files carry the judgment.
@@ -15,7 +15,7 @@ gracefully when chezmoi is absent or uninitialized.
 |---|---|---|
 | `chezmoi_status.py` | Environment + health: installed? source dir, worktree clean/dirty, remote, config, managed file/dir counts, templates/encrypted, **drift** (`status`/`diff` counts), and a `doctor` summary with any warning/error rows. **Run first.** | `chezmoi_status.py` |
 | `dotfiles_inventory.py [--dirs] [--unmanaged]` | Managed inventory in one view: summary counts, then each managed target tagged with its live drift code (`--` = in sync, `MM` = differs). `--unmanaged` also lists add-candidates in `$HOME`. | `dotfiles_inventory.py` |
-| `secret_scan.py [path]` | Flags plaintext secrets in the source tree (or an explicit path) by **file path + reason only — never prints values or file contents**. Exit 1 = findings, 0 = clean. Run before every first-add and first-commit. | `secret_scan.py` |
+| `secret_scan.py [path]` | A **tripwire** (not a full scanner): flags plaintext secrets by **file path + reason only — never values or file contents**. Prefers **gitleaks** (metadata-only, `--redact`) when installed, else built-in patterns; always does chezmoi source-encoding location checks. Exit 1 = findings, 0 = clean. For repo-wide scanning use gitleaks/trufflehog/detect-secrets. | `secret_scan.py` |
 
 ## Worked example — is it initialized, does it drift, is it safe to commit?
 
