@@ -23,7 +23,6 @@ import re
 import shutil
 import sys
 from pathlib import Path
-from typing import List
 
 import _shell_common as sc
 import dump_env
@@ -65,20 +64,16 @@ def fish_quote(value: str) -> str:
 
 def strip_wrapping_quotes(val: str) -> str:
     """Strip one layer of surrounding single- then double-quotes (as zsh prints them)."""
-    if val.startswith("'"):
-        val = val[1:]
-    if val.endswith("'"):
-        val = val[:-1]
-    if val.startswith('"'):
-        val = val[1:]
-    if val.endswith('"'):
-        val = val[:-1]
+    val = val.removeprefix("'")
+    val = val.removesuffix("'")
+    val = val.removeprefix('"')
+    val = val.removesuffix('"')
     return val
 
 
-def env_lines(export_lines: List[str]) -> List[str]:
+def env_lines(export_lines: list[str]) -> list[str]:
     """User-set exports (denylist applied) as fish ``set -gx NAME 'value'`` lines."""
-    out: List[str] = []
+    out: list[str] = []
     for line in export_lines:
         if not line or DENY_RE.search(line):
             continue
@@ -87,10 +82,10 @@ def env_lines(export_lines: List[str]) -> List[str]:
     return out
 
 
-def alias_lines(alias_raw: List[str]) -> List[str]:
+def alias_lines(alias_raw: list[str]) -> list[str]:
     """Simple aliases as fish ``alias name 'value'``; ones using shell expansion
     (``$``/backtick/brace) are emitted as ``# TODO port`` comments instead."""
-    out: List[str] = []
+    out: list[str] = []
     for line in alias_raw:
         if not line:
             continue
@@ -111,7 +106,7 @@ def config_has_starship_init(text: str) -> bool:
     return any(pat.search(line) for line in text.splitlines())
 
 
-def starship_block(has_starship: bool, config_has_init: bool) -> List[str]:
+def starship_block(has_starship: bool, config_has_init: bool) -> list[str]:
     """The `# --- prompt ---` body: mirror starship's per-shell init, or explain why not."""
     if not has_starship:
         return [
@@ -129,14 +124,14 @@ def starship_block(has_starship: bool, config_has_init: bool) -> List[str]:
 
 def build_plan(
     date: str,
-    path_entries: List[str],
-    export_lines: List[str],
-    alias_raw: List[str],
+    path_entries: list[str],
+    export_lines: list[str],
+    alias_raw: list[str],
     has_starship: bool,
     config_has_init: bool,
-) -> List[str]:
+) -> list[str]:
     """Assemble the full managed-file body between the AUTO-GENERATED markers."""
-    lines: List[str] = [
+    lines: list[str] = [
         "# >>> shell-sync (AUTO-GENERATED) >>>",
         "# Mirrors zsh -> fish. Do NOT edit; edit your zsh config and re-generate with mirror_plan.py.",
         f"# Generated {date}. Review before installing to ~/.config/fish/conf.d/00-shell-sync.fish.",
@@ -162,7 +157,7 @@ def build_plan(
 
 # --- IO ------------------------------------------------------------------------
 
-def main(argv: List[str] | None = None) -> int:
+def main(argv: list[str] | None = None) -> int:
     args = sys.argv[1:] if argv is None else argv
     canon = args[0] if args else "zsh"
     mirror = args[1] if len(args) > 1 else "fish"

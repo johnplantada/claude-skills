@@ -11,5 +11,17 @@ testpaths = ["tests"]
 addopts = "-q"
 
 [tool.ruff]
-line-length = 100
+line-length = 120
 target-version = "py39"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "SIM", "FURB", "RUF"]
+# E741: single-letter loop/comprehension vars (`l`) are idiomatic here and this rule
+# is widely disabled; not worth churny renames.
+ignore = ["E741"]
+
+[tool.ruff.lint.per-file-ignores]
+# Skill helpers legitimately (a) insert the repo root on sys.path before importing
+# lib.devenv_common (E402) and (b) re-export those primitives for their sibling
+# scripts (F401). Both are by design, not smells.
+"skills/**/scripts/_*.py" = ["E402", "F401"]

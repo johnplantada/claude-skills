@@ -21,7 +21,7 @@ setting took by re-reading it — never trust that a `defaults write` did what y
 | Find drift between live values and the script, and tighten it | [reference/optimize.md](reference/optimize.md) |
 | Prove settings took (and stay idempotent) | [reference/verification.md](reference/verification.md) |
 
-## The scripts (call these, don't re-compose bash)
+## The scripts (call these, don't re-derive them)
 
 The mechanical commands live in [`scripts/`](scripts/README.md) as tested helpers — call them by
 name instead of hand-writing `defaults read` loops or a parse-and-compare each session:

@@ -25,7 +25,7 @@ from __future__ import annotations
 
 import os
 import sys
-from typing import Callable, List
+from typing import Callable
 
 import _shell_common as sc
 import dump_env
@@ -33,7 +33,7 @@ import dump_env
 USAGE = "\n".join((__doc__ or "").splitlines()[2:25])
 
 # The usual tool bin dirs a session forgets to add. Only those present are reported.
-def suspect_dirs(home: str) -> List[str]:
+def suspect_dirs(home: str) -> list[str]:
     """The candidate tool bin dirs, ``$HOME`` expanded — a plain ordered list."""
     return [
         "/opt/homebrew/bin",
@@ -51,9 +51,9 @@ def suspect_dirs(home: str) -> List[str]:
 
 # --- pure logic ----------------------------------------------------------------
 
-def entry_lines(path_lines: List[str]) -> List[str]:
+def entry_lines(path_lines: list[str]) -> list[str]:
     """Every non-empty PATH entry, numbered in order: ``entry<TAB>NN<TAB>/dir``."""
-    out: List[str] = []
+    out: list[str] = []
     n = 0
     for entry in path_lines:
         if not entry.strip():
@@ -63,9 +63,9 @@ def entry_lines(path_lines: List[str]) -> List[str]:
     return out
 
 
-def dup_lines(path_lines: List[str]) -> List[str]:
+def dup_lines(path_lines: list[str]) -> list[str]:
     """Entries that appear more than once (first kept; later flagged, in order)."""
-    out: List[str] = []
+    out: list[str] = []
     seen: set[str] = set()
     for entry in path_lines:
         if not entry.strip():
@@ -77,20 +77,20 @@ def dup_lines(path_lines: List[str]) -> List[str]:
     return out
 
 
-def dead_lines(path_lines: List[str], is_dir: Callable[[str], bool]) -> List[str]:
+def dead_lines(path_lines: list[str], is_dir: Callable[[str], bool]) -> list[str]:
     """Entries whose directory does not exist (dead/placeholder)."""
     return [f"dead\t{entry}" for entry in path_lines if entry.strip() and not is_dir(entry)]
 
 
 def missing_tool_dir_lines(
-    path_lines: List[str],
-    suspects: List[str],
+    path_lines: list[str],
+    suspects: list[str],
     is_dir: Callable[[str], bool],
     exec_count: Callable[[str], int],
-) -> List[str]:
+) -> list[str]:
     """Present tool bin dirs that are NOT on PATH: ``missing_tool_dir<TAB>/dir<TAB>N execs``."""
     on_path = set(path_lines)
-    out: List[str] = []
+    out: list[str] = []
     for d in suspects:
         if not d:
             continue
@@ -101,13 +101,10 @@ def missing_tool_dir_lines(
     return out
 
 
-def plan_lines(shell: str, clean: List[str]) -> List[str]:
+def plan_lines(shell: str, clean: list[str]) -> list[str]:
     """The ``--plan`` repair block: a header + the cleaned PATH as a set/export line."""
     header = "-- repair plan (review, then apply by hand) --"
-    if shell == "fish":
-        body = f"set -gx PATH {' '.join(clean)}"
-    else:
-        body = f'export PATH="{":".join(clean)}"'
+    body = f"set -gx PATH {' '.join(clean)}" if shell == "fish" else f'export PATH="{":".join(clean)}"'
     return [header, body]
 
 
@@ -121,7 +118,7 @@ def _exec_count(d: str) -> int:
         return 0
 
 
-def main(argv: List[str] | None = None) -> int:
+def main(argv: list[str] | None = None) -> int:
     args = sys.argv[1:] if argv is None else argv
 
     shell = "zsh"
@@ -144,7 +141,7 @@ def main(argv: List[str] | None = None) -> int:
         return 3
     path_lines = dump_env.resolve_section(shell, "path", binary)
 
-    out: List[str] = []
+    out: list[str] = []
     out += entry_lines(path_lines)
     out += dup_lines(path_lines)
     out += dead_lines(path_lines, os.path.isdir)

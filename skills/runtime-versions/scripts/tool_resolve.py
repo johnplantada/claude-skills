@@ -55,7 +55,7 @@ def classify(path: str) -> str:
 def format_on_path(entries: list[str]) -> str:
     """The `<count> entr(y/ies): <list>` tail for `which -a` results ((none) if empty)."""
     joined = "".join(p + " " for p in entries)
-    listout = joined if joined else "(none)"
+    listout = joined or "(none)"
     return f"{len(entries)} entr(y/ies): {listout}"
 
 
@@ -83,7 +83,7 @@ def tool_lines(tool: str, have_mise: bool) -> list[str]:
 
     if have_mise:
         mw = rc.run(["mise", "which", tool]).stdout.strip()
-        lines.append(f"{tool}_mise_says\t{mw if mw else f'(mise has no version for {tool} in this dir)'}")
+        lines.append(f"{tool}_mise_says\t{mw or f'(mise has no version for {tool} in this dir)'}")
     else:
         lines.append(f"{tool}_mise_says\t(mise not installed)")
 
@@ -97,7 +97,7 @@ def main(argv: list[str] | None = None) -> int:
         print(__doc__.strip())
         return 0
 
-    tools = args if args else ["node", "python", "go", "ruby"]
+    tools = args or ["node", "python", "go", "ruby"]
     have_mise = rc.have("mise")
 
     print(context_line())

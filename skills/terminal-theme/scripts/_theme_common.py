@@ -14,8 +14,8 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
-from lib.devenv_common import command_available as command_exists  # noqa: E402
-from lib.devenv_common import read_text  # noqa: E402
+from lib.devenv_common import command_available as command_exists
+from lib.devenv_common import read_text
 
 # The fish incantation that resolves every color var in a real login+interactive shell.
 # Files alone lie: universal vars, conf.d, and config.fish all contribute and only the

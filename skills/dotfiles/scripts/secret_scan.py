@@ -45,7 +45,7 @@ LOCATION_REGEX = (
 )
 
 _LOCATION_RE = re.compile(LOCATION_REGEX)
-_CONTENT_RES: list[tuple[str, "re.Pattern[str]"]] = [
+_CONTENT_RES: list[tuple[str, re.Pattern[str]]] = [
     (name, re.compile(regex)) for name, regex in CONTENT_PATTERNS
 ]
 

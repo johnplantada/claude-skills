@@ -29,7 +29,6 @@ import re
 import subprocess
 import sys
 from pathlib import Path
-from typing import List, Tuple
 
 import _shell_common as sc
 
@@ -39,7 +38,7 @@ PLAN = HERE / "mirror_plan.py"
 
 # --- pure logic: normalize a managed-file body to comparable sorted lines ------
 
-def norm_env(text: str, home: str) -> List[str]:
+def norm_env(text: str, home: str) -> list[str]:
     """``set -gx NAME value`` lines (not PATH) -> sorted unique ``NAME=value``,
     with ``$HOME`` expanded so a curated ``$HOME/x`` compares to a literal path."""
     out: set[str] = set()
@@ -53,19 +52,17 @@ def norm_env(text: str, home: str) -> List[str]:
             continue
         name = parts[2]
         val = parts[3] if len(parts) > 3 else ""
-        if val.startswith("'"):
-            val = val[1:]
-        if val.endswith("'"):
-            val = val[:-1]
+        val = val.removeprefix("'")
+        val = val.removesuffix("'")
         val = val.replace("$HOME", home)
         out.add(f"{name}={val}")
     return sorted(out)
 
 
-def norm_path(text: str, home: str) -> List[str]:
+def norm_path(text: str, home: str) -> list[str]:
     """The PATH block (single- or continuation-line) -> one dir per line, sorted
     unique, ``$HOME`` expanded."""
-    collected: List[str] = []
+    collected: list[str] = []
     active = False
     for line in text.splitlines():
         if line.startswith("set -gx PATH"):
@@ -85,12 +82,12 @@ def norm_path(text: str, home: str) -> List[str]:
 
 
 def drift_lines(
-    i_env: List[str], f_env: List[str], i_path: List[str], f_path: List[str]
-) -> Tuple[List[str], bool]:
+    i_env: list[str], f_env: list[str], i_path: list[str], f_path: list[str]
+) -> tuple[list[str], bool]:
     """Compare installed vs fresh env/PATH sets; return (drift lines, any-drift)."""
     f_env_set, i_env_set = set(f_env), set(i_env)
     f_path_set, i_path_set = set(f_path), set(i_path)
-    lines: List[str] = []
+    lines: list[str] = []
     lines += [f"drift_env_stale\t{x}" for x in i_env if x not in f_env_set]
     lines += [f"drift_env_missing\t{x}" for x in f_env if x not in i_env_set]
     lines += [f"drift_path_stale\t{x}" for x in i_path if x not in f_path_set]
@@ -100,7 +97,7 @@ def drift_lines(
 
 # --- IO ------------------------------------------------------------------------
 
-def main(argv: List[str] | None = None) -> int:
+def main(argv: list[str] | None = None) -> int:
     args = sys.argv[1:] if argv is None else argv
     home = os.environ.get("HOME", "")
     mirror = Path(args[0]) if args else Path(home) / ".config" / "fish" / "conf.d" / "00-shell-sync.fish"
@@ -117,7 +114,7 @@ def main(argv: List[str] | None = None) -> int:
     installed = sc.read_text(mirror)
 
     drift = False
-    lines: List[str] = []
+    lines: list[str] = []
 
     # staleness by mtime: any canonical zsh config newer than the mirror?
     mirror_mtime = mirror.stat().st_mtime

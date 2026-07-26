@@ -2,7 +2,6 @@
 
 import runtime_find as rf
 
-
 # --- owner_of ------------------------------------------------------------------
 
 def test_owner_of_none_for_empty():

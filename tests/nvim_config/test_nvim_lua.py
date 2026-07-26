@@ -4,10 +4,8 @@ These are the footgun-free contract: the temp-file/`+luafile` mechanics live in 
 but what flag maps to what is verified here without launching Neovim.
 """
 
-import pytest
-
 import nvim_lua as nl
-
+import pytest
 
 # --- parse_lua_args ------------------------------------------------------------
 

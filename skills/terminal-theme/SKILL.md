@@ -38,7 +38,7 @@ hex (which won't follow the terminal) and rendering the ANSI palette everything 
   Ghostty theme of the same name). Brand-accurate, but every switch re-applies all surfaces and each
   theme needs its mapping. Covered in [upgrade.md](upgrade.md).
 
-## The scripts (call these, don't re-compose bash)
+## The scripts (call these, don't re-derive them)
 
 Read-only helpers in [`scripts/`](scripts/README.md) — the *mutation* is editing config files
 (starship.toml, fish `conf.d`), these are the **audit + verification** around it.

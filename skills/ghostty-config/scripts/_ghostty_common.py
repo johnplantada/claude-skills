@@ -13,7 +13,7 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
-from lib.devenv_common import command_available, read_text  # noqa: E402
+from lib.devenv_common import command_available, read_text
 
 # The two config locations on macOS. The Library file is always read and, when both
 # exist, overrides the XDG file (which macOS only consults with XDG_CONFIG_HOME set).

@@ -19,8 +19,8 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
-from lib.devenv_common import command_available, read_text  # noqa: E402
-from lib.devenv_common import run_rc as run  # noqa: E402  — (returncode, output), merge-aware
+from lib.devenv_common import command_available, read_text
+from lib.devenv_common import run_rc as run
 
 CONFIG_TOML = Path(
     os.environ.get("DEVENV_CONFIG") or (Path.home() / ".config" / "devenv" / "config.toml")

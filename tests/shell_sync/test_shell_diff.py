@@ -2,7 +2,6 @@
 
 import shell_diff as sd
 
-
 # --- only_in -------------------------------------------------------------------
 
 def test_only_in_is_sorted_difference_without_blanks():

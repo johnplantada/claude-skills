@@ -18,7 +18,7 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
-from lib.devenv_common import read_text  # noqa: E402  — shared primitive, re-exported for callers
+from lib.devenv_common import read_text
 
 SSH_DIR = Path.home() / ".ssh"
 
@@ -58,7 +58,7 @@ def is_private_key(path: Path | str) -> bool:
     and are NEVER returned or printed — no key material leaves this function.
     """
     try:
-        with open(path, "r", errors="ignore") as fh:
+        with open(path, errors="ignore") as fh:
             return "PRIVATE KEY" in fh.read()
     except OSError:
         return False

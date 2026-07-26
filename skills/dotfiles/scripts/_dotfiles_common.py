@@ -15,9 +15,9 @@ from fnmatch import fnmatch
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
-from lib.devenv_common import command_available  # noqa: E402
-from lib.devenv_common import run_out as _out  # noqa: E402
-from lib.devenv_common import run_rc as _run  # noqa: E402
+from lib.devenv_common import command_available
+from lib.devenv_common import run_out as _out
+from lib.devenv_common import run_rc as _run
 
 
 def chezmoi_available() -> bool:

@@ -2,7 +2,6 @@
 
 import mise_status as ms
 
-
 # --- classify_activation: version-phrasing variants ----------------------------
 
 def test_activation_yes_variants():

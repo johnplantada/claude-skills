@@ -2,7 +2,6 @@
 
 import theme_list as tl
 
-
 CATALOG = (
     "Adventure Time (resources)\n"
     "Catppuccin Mocha (resources)\n"

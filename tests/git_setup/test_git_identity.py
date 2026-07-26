@@ -2,7 +2,6 @@
 
 import git_identity as gi
 
-
 # --- origin_of: the "which file supplied this value" logic ----------------------
 
 def test_origin_of_strips_file_prefix():

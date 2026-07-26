@@ -6,7 +6,6 @@ greppable output filters and the snippet builders that shape what those runs rep
 
 import nvim_check as nc
 
-
 # --- filter_startup ------------------------------------------------------------
 
 def test_filter_startup_keeps_error_and_deprecation_lines():

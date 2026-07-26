@@ -2,7 +2,6 @@
 
 import show_effective as se
 
-
 RAW = "font-family = Iosevka\nfont-size = 14\ntheme = Nord\ncursor-style = block\n"
 
 

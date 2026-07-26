@@ -25,7 +25,7 @@ Supporting reference (not a standalone path): **[reference/identity.md](referenc
 work-vs-personal identities via `includeIf` conditional includes, pulled in by **setup** and
 **repair**.
 
-## The scripts (call these, don't re-compose bash)
+## The scripts (call these, don't re-derive them)
 
 `scripts/` is the tested toolbox — call a script by name instead of re-deriving the same
 `git config --global --get` probes or the throwaway-repo signing dance each session. Full table +

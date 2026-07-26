@@ -26,7 +26,6 @@ from pathlib import Path
 
 import _git_common as gc
 
-
 # --- pure argument parsing -----------------------------------------------------
 
 def parse_args(argv: list[str]) -> dict:

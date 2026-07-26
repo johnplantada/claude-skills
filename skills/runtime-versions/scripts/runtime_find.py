@@ -67,14 +67,14 @@ def tool_lines(tool: str, have_mise: bool) -> list[str]:
         if rc.run(["mise", "ls-remote", tool]).returncode == 0:
             lines.append("mise_managed\tyes")
             rec = recent_versions(rc.run(["mise", "ls-remote", tool]).stdout)
-            lines.append("recent_versions\t" + (rec if rec else f"(see: mise ls-remote '{tool}')"))
+            lines.append("recent_versions\t" + (rec or f"(see: mise ls-remote '{tool}')"))
             if is_lts_lang(tool):
                 lines.append(f"lts_alias\t{tool}@lts (recommended default)")
         else:
             lines.append(f"mise_managed\tunknown — check: mise registry | grep {tool}")
 
     cur = rc.command_v(tool)
-    lines.append(f"resolves_now\t{cur if cur else '(not found)'}\towner={owner_of(cur)}")
+    lines.append(f"resolves_now\t{cur or '(not found)'}\towner={owner_of(cur)}")
 
     if brew_has(tool):
         lines.append("⚠ also provided by Homebrew — don't stack sources. Install runtimes via mise, not brew")
@@ -96,7 +96,7 @@ def main(argv: list[str] | None = None) -> int:
         print(__doc__.strip())
         return 0
 
-    tools = args if args else ["node", "python", "go", "ruby"]
+    tools = args or ["node", "python", "go", "ruby"]
     have_mise = rc.have("mise")
     if not have_mise:
         print("mise: NOT installed — stand it up first (setup.md); showing current resolution only.")

@@ -27,7 +27,7 @@ If intent is ambiguous, run **Environment discovery** below, then confirm which 
 ## 2. The scripts (prefer these over ad-hoc bash)
 
 Stable, tested helpers live in [`scripts/`](scripts/README.md) — **call them instead of
-re-composing bash/Lua each session.** Run by absolute path from this skill's directory. They
+re-deriving the commands each session.** Run by absolute path from this skill's directory. They
 resolve `stdpath` internally, so never hardcode `~/.config/nvim`.
 
 | Need | Script |

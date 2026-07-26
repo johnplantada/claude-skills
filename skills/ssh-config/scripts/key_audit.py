@@ -94,7 +94,7 @@ def key_block(name: str, path: str, key_perms: str, pub_exists: bool,
             lines.append(f"type: {ktype}")
             lines.append(f"bits: {bits}")
             lines.append(f"fingerprint: {fp}")
-            lines.append(f"comment: {comment if comment else '(none)'}")
+            lines.append(f"comment: {comment or '(none)'}")
             lines.append(classify_strength(ktype, bits))
             lines.append("in_agent: " + ("yes" if fp and fp in agent_fps else "no"))
         else:
@@ -120,9 +120,7 @@ def _is_candidate(path: Path) -> bool:
         return False
     if "known_hosts" in name or "authorized_keys" in name:
         return False
-    if name in _SKIP_NAMES:
-        return False
-    return True
+    return name not in _SKIP_NAMES
 
 
 def main(argv: list[str] | None = None) -> int:

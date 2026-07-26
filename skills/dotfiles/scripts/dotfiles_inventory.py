@@ -44,7 +44,7 @@ def managed_rows(managed_text: str, status_text: str) -> list[str]:
         if target == "":
             continue
         code = status_code(status_text, target)
-        rows.append(f"{code if code else '--'}\t{target}")
+        rows.append(f"{code or '--'}\t{target}")
     return rows
 
 

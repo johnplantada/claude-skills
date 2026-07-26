@@ -7,7 +7,6 @@ intact (the reason the bash version sliced from column 4 rather than word-split)
 
 import chezmoi_drift_check as dc
 
-
 # --- build_reminder: the in-sync case -----------------------------------------
 
 def test_build_reminder_returns_none_when_in_sync():

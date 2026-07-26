@@ -2,7 +2,6 @@
 
 import brew_find as bf
 
-
 # --- set membership -----------------------------------------------------------
 
 def test_in_set_is_exact_case_insensitive():

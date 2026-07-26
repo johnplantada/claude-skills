@@ -93,7 +93,7 @@ def brew_runtimes(formula_output: str) -> str:
     Mirrors `grep -E '^(node|python|ruby|go)(@|$)' | tr '\\n' ' '` (trailing space kept).
     """
     joined = "".join(l + " " for l in formula_output.splitlines() if _BREW_RUNTIME_RE.match(l))
-    return joined if joined else "(none)"
+    return joined or "(none)"
 
 
 def legacy_shims_on_path(path: str) -> str:
@@ -104,7 +104,7 @@ def legacy_shims_on_path(path: str) -> str:
     """
     hits = [f"{i}:{entry}" for i, entry in enumerate(path.split(":"), 1) if _SHIM_RE.search(entry)]
     joined = "".join(h + " " for h in hits)
-    return joined if joined else "(none)"
+    return joined or "(none)"
 
 
 def _read_rc_contents() -> list[tuple[str, str]]:

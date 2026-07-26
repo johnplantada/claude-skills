@@ -50,12 +50,12 @@ def test_run_captures_output_and_never_raises():
 
 def test_run_rc_returns_code_and_output():
     assert c.run_rc(["printf", "hi"]) == (0, "hi")
-    rc, out = c.run_rc(["false"])
+    rc, _out = c.run_rc(["false"])
     assert rc != 0
 
 
 def test_run_rc_merge_folds_stderr():
-    rc, out = c.run_rc(["sh", "-c", "echo err >&2"], merge=True)
+    _rc, out = c.run_rc(["sh", "-c", "echo err >&2"], merge=True)
     assert "err" in out
     # without merge, stderr is dropped
     assert c.run_rc(["sh", "-c", "echo err >&2"])[1] == ""

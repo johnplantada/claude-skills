@@ -2,7 +2,6 @@
 
 import brewfile_status as bs
 
-
 # --- resolve_brewfile: precedence + ~ expansion ------------------------------
 
 def test_resolve_prefers_explicit_file():

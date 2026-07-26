@@ -57,10 +57,7 @@ def includes_xdg(lib_text: str, xdg_path: Path | str) -> bool:
         "~/.config/ghostty/config",
         "$HOME/.config/ghostty/config",
     ]
-    for line in find_include_lines(lib_text):
-        if any(target in line for target in targets):
-            return True
-    return False
+    return any(any(target in line for target in targets) for line in find_include_lines(lib_text))
 
 
 def build_report(

@@ -30,10 +30,10 @@ then `scripts/shell_diff.py` and `scripts/mirror_drift.py`, classify the finding
 Ignore `benign (…)` divergences from `shell_diff.py` (system `path_helper` / brew vendor
 activation) — they're expected noise, not work. Only a `review` row is a real divergence.
 
-## The scripts (call these, don't re-compose bash)
+## The scripts (call these, don't re-derive them)
 
 The mechanical commands live in [`scripts/`](scripts/README.md) as tested, clean-environment helpers.
-**Call them by name** — the inline bash below and in the reference docs is under-the-hood explanation,
+**Call them by name** — the inline commands below and in the reference docs is under-the-hood explanation,
 not what you retype each session. All are read-only; none writes a config file (repairs/mirrors print
 a plan to stdout for you to apply).
 

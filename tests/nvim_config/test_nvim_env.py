@@ -6,7 +6,6 @@ predicate, and the line builders are string functions.
 
 import nvim_env as env
 
-
 # --- detect_manager ------------------------------------------------------------
 
 def _exists(paths):

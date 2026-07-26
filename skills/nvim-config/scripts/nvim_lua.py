@@ -20,6 +20,7 @@ Output is the snippet's stdout/stderr, verbatim. `print()` and `io.write()` both
 
 from __future__ import annotations
 
+import contextlib
 import os
 import subprocess
 import sys
@@ -99,10 +100,8 @@ def run(snippet: str, *, clean: bool = False, wait: str | int = 0) -> str:
         proc = subprocess.run(build_nvim_cmd(clean, wait, tmp), capture_output=True, text=True)
         return (proc.stdout + proc.stderr).rstrip("\n")
     finally:
-        try:
+        with contextlib.suppress(OSError):
             os.unlink(tmp)
-        except OSError:
-            pass
 
 
 def main(argv: list[str] | None = None) -> int:

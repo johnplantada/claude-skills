@@ -2,7 +2,6 @@
 
 import brew_audit as ba
 
-
 # --- count_nonempty / join_trailing ------------------------------------------
 
 def test_count_nonempty_counts_only_non_blank_lines():

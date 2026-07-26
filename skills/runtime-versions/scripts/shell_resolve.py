@@ -31,7 +31,7 @@ def parse_args(argv: list[str]) -> tuple[str, list[str]]:
     if args and args[0] in ("zsh", "fish", "both"):
         which = args[0]
         args = args[1:]
-    tools = args if args else ["node", "python", "go"]
+    tools = args or ["node", "python", "go"]
     return which, tools
 
 

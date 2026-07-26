@@ -25,7 +25,6 @@ from __future__ import annotations
 
 import re
 import sys
-from typing import List
 
 import _shell_common as sc
 
@@ -50,7 +49,7 @@ def section_command(shell: str, section: str) -> str:
     raise ValueError(f"unknown section: {section}")
 
 
-def parse_functions(shell: str, raw: str) -> List[str]:
+def parse_functions(shell: str, raw: str) -> list[str]:
     """Function names from the shell's raw output, sorted and de-duplicated.
 
     fish prints them comma-separated (``functions -n``); zsh one per line. Both are
@@ -62,13 +61,13 @@ def parse_functions(shell: str, raw: str) -> List[str]:
 
 
 def tag_all(
-    path_lines: List[str],
-    export_lines: List[str],
-    alias_lines: List[str],
-    function_lines: List[str],
-) -> List[str]:
+    path_lines: list[str],
+    export_lines: list[str],
+    alias_lines: list[str],
+    function_lines: list[str],
+) -> list[str]:
     """The `all` overview: each section's lines prefixed with its tag."""
-    out: List[str] = []
+    out: list[str] = []
     out += [f"path\t{line}" for line in path_lines]
     out += [f"export\t{line}" for line in export_lines]
     out += [f"alias\t{line}" for line in alias_lines]
@@ -78,7 +77,7 @@ def tag_all(
 
 # --- IO: run the shell and hand its output to the pure parsers -----------------
 
-def resolve_section(shell: str, section: str, binary: str) -> List[str]:
+def resolve_section(shell: str, section: str, binary: str) -> list[str]:
     """Run one section in the clean login shell and return its parsed lines."""
     raw = sc.run_login(binary, section_command(shell, section))
     if section == "functions":
@@ -86,7 +85,7 @@ def resolve_section(shell: str, section: str, binary: str) -> List[str]:
     return raw.splitlines()
 
 
-def main(argv: List[str] | None = None) -> int:
+def main(argv: list[str] | None = None) -> int:
     args = sys.argv[1:] if argv is None else argv
     shell = args[0] if args else ""
     section = args[1] if len(args) > 1 else "all"

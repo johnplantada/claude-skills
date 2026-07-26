@@ -64,7 +64,7 @@ def first_email_origin(show_origin: str) -> str:
     for line in show_origin.splitlines():
         if re.search(r"user\.email=", line):
             origin = line.split("\t")[0]
-            return origin[len("file:"):] if origin.startswith("file:") else origin
+            return origin.removeprefix("file:")
     return ""
 
 
@@ -84,7 +84,8 @@ def signing_gaps(gpgsign: str, fmt: str, signkey: str, signers: str) -> list[tup
         out.append((
             "R",
             "signed but WON'T VERIFY locally — commit.gpgsign=true, gpg.ssh.allowedSignersFile unset",
-            "git config --global gpg.ssh.allowedSignersFile ~/.config/git/allowed_signers  (+ add <email> <pubkey> line)",
+            "git config --global gpg.ssh.allowedSignersFile ~/.config/git/allowed_signers"
+            "  (+ add <email> <pubkey> line)",
         ))
     if fmt == "ssh" and signkey:
         if signkey.endswith(".pub"):

@@ -5,7 +5,6 @@ exercised via `is_private_key` header detection, not by feeding key material to 
 import _ssh_common as sc
 import key_audit as ka
 
-
 # --- parse_keygen_line: the awk/sed field extraction ---------------------------
 
 def test_parse_keygen_line_basic():
@@ -27,7 +26,7 @@ def test_parse_keygen_line_multiword_comment():
 
 
 def test_parse_keygen_line_empty_comment():
-    bits, fp, ktype, comment = ka.parse_keygen_line("256 SHA256:q  (ED25519)")
+    _bits, _fp, ktype, comment = ka.parse_keygen_line("256 SHA256:q  (ED25519)")
     assert comment == ""
     assert ktype == "ED25519"
 

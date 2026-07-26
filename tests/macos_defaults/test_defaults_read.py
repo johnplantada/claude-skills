@@ -3,7 +3,6 @@ no `defaults` CLI needed."""
 
 import defaults_read as dr
 
-
 # --- parse_curated / select_targets --------------------------------------------
 
 def test_parse_curated_yields_group_domain_key_triples():

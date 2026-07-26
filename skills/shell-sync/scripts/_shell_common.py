@@ -14,11 +14,11 @@ import os
 import shutil
 import subprocess
 import sys
+from collections.abc import Callable
 from pathlib import Path
-from typing import Callable, List
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
-from lib.devenv_common import read_text  # noqa: E402  — shared primitive, re-exported for callers
+from lib.devenv_common import read_text
 
 
 def resolve_bin(shell: str) -> str | None:
@@ -64,14 +64,14 @@ def run_login(binary: str, cmd: str, combine_stderr: bool = False) -> str:
     return proc.stdout or ""
 
 
-def dedupe_existing(entries: List[str], is_dir: Callable[[str], bool] = os.path.isdir) -> List[str]:
+def dedupe_existing(entries: list[str], is_dir: Callable[[str], bool] = os.path.isdir) -> list[str]:
     """Order-preserving PATH cleanup: drop blanks, later duplicates, and dead dirs.
 
     Pure given the ``is_dir`` predicate (injected so tests need no real filesystem).
     Shared by ``path_doctor`` (the ``--plan`` PATH) and ``mirror_plan`` (the PATH
     block) so both clean PATH the same way.
     """
-    out: List[str] = []
+    out: list[str] = []
     seen: set[str] = set()
     for entry in entries:
         if not entry or entry in seen:

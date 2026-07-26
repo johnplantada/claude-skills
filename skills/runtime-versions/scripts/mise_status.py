@@ -20,9 +20,9 @@ import sys
 
 import _runtime_common as rc
 
-_ACTIVATED_YES = re.compile(r"activated: *yes|mise is active|is activated", re.I)
-_ACTIVATED_NO = re.compile(r"activated: *no|not activated|is not active", re.I)
-_PROBLEM = re.compile(r"problem|error|warning", re.I)
+_ACTIVATED_YES = re.compile(r"activated: *yes|mise is active|is activated", re.IGNORECASE)
+_ACTIVATED_NO = re.compile(r"activated: *no|not activated|is not active", re.IGNORECASE)
+_PROBLEM = re.compile(r"problem|error|warning", re.IGNORECASE)
 
 
 def classify_activation(doctor: str) -> str:
@@ -41,7 +41,7 @@ def classify_activation(doctor: str) -> str:
 def extract_shims_dir(doctor: str, home: str) -> str:
     """The shims directory `mise doctor` names, or the documented default."""
     for line in doctor.splitlines():
-        if re.search("shims", line, re.I):
+        if re.search("shims", line, re.IGNORECASE):
             stripped = line.lstrip()
             if stripped:
                 return stripped

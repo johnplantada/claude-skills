@@ -26,7 +26,7 @@ rather than just editing the file and hoping.
 **[reference/keys.md](reference/keys.md)** is a first-class path (key generation/rotation is a
 distinct security flow), kept alongside the canonical four.
 
-## The scripts (call these; don't re-compose bash)
+## The scripts (call these; don't re-derive them)
 
 `scripts/` is the stable toolbox — see [scripts/README.md](scripts/README.md). Call a script by
 name instead of re-deriving `stat` / `ssh-keygen` / `ssh -G` / `ssh-add` each session; the

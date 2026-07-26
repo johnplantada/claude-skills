@@ -4,7 +4,6 @@ testable without the `defaults` CLI."""
 
 import drift_audit as da
 
-
 # --- norm_bool -----------------------------------------------------------------
 
 def test_norm_bool_maps_truthy_and_falsy_spellings():
@@ -128,5 +127,5 @@ def test_audit_quiet_suppresses_match_lines_only():
 def test_audit_string_home_path_is_not_false_drift():
     script = 'defaults write com.apple.screencapture location -string "$HOME/Desktop"\n'
     live = {("com.apple.screencapture", "location"): "/Users/me/Desktop"}
-    lines, n_match, n_drift, n_miss, _ = da.audit(script, _reader(live), home="/Users/me")
+    _lines, n_match, n_drift, n_miss, _ = da.audit(script, _reader(live), home="/Users/me")
     assert (n_match, n_drift, n_miss) == (1, 0, 0)

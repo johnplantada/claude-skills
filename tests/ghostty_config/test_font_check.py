@@ -2,7 +2,6 @@
 
 import font_check as fc
 
-
 # --- parse_font_families -------------------------------------------------------
 
 def test_parse_font_families_all_variants_and_quotes():

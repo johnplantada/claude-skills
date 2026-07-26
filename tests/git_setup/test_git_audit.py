@@ -2,7 +2,6 @@
 
 import git_audit as ga
 
-
 # --- parsing helpers -----------------------------------------------------------
 
 def test_includes_from_takes_second_field_with_trailing_space():

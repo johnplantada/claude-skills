@@ -14,9 +14,9 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
-from lib.devenv_common import command_available as have  # noqa: E402
-from lib.devenv_common import command_path as command_v  # noqa: E402
-from lib.devenv_common import read_text, run  # noqa: E402
+from lib.devenv_common import command_available as have
+from lib.devenv_common import command_path as command_v
+from lib.devenv_common import read_text, run
 
 HOME = Path.home()
 

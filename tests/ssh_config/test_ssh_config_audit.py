@@ -3,7 +3,6 @@ no `ssh -G` needed."""
 
 import ssh_config_audit as sca
 
-
 # --- host_aliases: redacts values, reports aliases only ------------------------
 
 def test_host_aliases_lists_aliases_with_trailing_space():

@@ -22,14 +22,14 @@ import sys
 import _brew_common as bc
 
 # Runtimes belong to mise, not brew. Fragile = version-sensitive config breakers.
-RUNTIME_SET = (
-    "node nodejs python python3 ruby go golang rust deno bun php perl elixir erlang "
-    "openjdk java kotlin scala dotnet"
-).split()
-FRAGILE_BUILTIN = (
-    "neovim vim postgresql mongodb mysql redis lua-language-server gopls pyright "
-    "rust-analyzer terraform"
-).split()
+RUNTIME_SET = [
+    "node", "nodejs", "python", "python3", "ruby", "go", "golang", "rust", "deno",
+    "bun", "php", "perl", "elixir", "erlang", "openjdk", "java", "kotlin", "scala", "dotnet",
+]
+FRAGILE_BUILTIN = [
+    "neovim", "vim", "postgresql", "mongodb", "mysql", "redis",
+    "lua-language-server", "gopls", "pyright", "rust-analyzer", "terraform",
+]
 
 USAGE = """brew_find.py — read-only search + info + "best install" advisor. Never mutates.
 

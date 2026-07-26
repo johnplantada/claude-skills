@@ -6,7 +6,6 @@ bug can't come back. Pure functions -> no mocking, no `ghostty` needed.
 
 import config_audit as ca
 
-
 # --- parse_pairs ---------------------------------------------------------------
 
 def test_parse_pairs_skips_comments_and_blanks():

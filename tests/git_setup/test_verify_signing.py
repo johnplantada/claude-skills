@@ -1,9 +1,7 @@
 """Tests for the git-setup `verify_signing` script. Pure functions -> no mocking, no git."""
 
 import pytest
-
 import verify_signing as vs
-
 
 # --- parse_args ----------------------------------------------------------------
 

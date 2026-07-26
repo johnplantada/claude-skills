@@ -1,9 +1,7 @@
 """Tests for the dotfiles `dotfiles_inventory` script — pure functions only."""
 
-import pytest
-
 import dotfiles_inventory as di
-
+import pytest
 
 # --- status_code: the status<->managed correlation -----------------------------
 

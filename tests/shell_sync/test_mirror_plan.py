@@ -7,7 +7,6 @@ a value like ``O'Brien`` or one with a literal backslash produces a VALID fish
 
 import mirror_plan as mp
 
-
 # --- fish_quote: the pinned escaping finding -----------------------------------
 
 def test_fish_quote_escapes_a_single_quote():

@@ -39,10 +39,8 @@ def parse_font_families(text: str) -> list[str]:
         if not stripped.startswith("font-family") or "=" not in stripped:
             continue
         name = line.split("=", 1)[1].strip()
-        if name.startswith('"'):
-            name = name[1:]
-        if name.endswith('"'):
-            name = name[:-1]
+        name = name.removeprefix('"')
+        name = name.removesuffix('"')
         if name:
             names.append(name)
     return names

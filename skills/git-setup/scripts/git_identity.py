@@ -40,7 +40,7 @@ def origin_of(show_origin: str, key: str) -> str:
         origin, kv = parts
         if kv.startswith(prefix):
             result = origin
-    return result[len("file:"):] if result.startswith("file:") else result
+    return result.removeprefix("file:")
 
 
 def format_rules(rules: list[str]) -> list[str]:

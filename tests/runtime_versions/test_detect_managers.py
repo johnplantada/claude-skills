@@ -6,7 +6,6 @@ Pure functions -> no mocking, no managers installed needed. The pinned review fi
 
 import detect_managers as dm
 
-
 # --- file_has_active_hook: the commented-out-hook finding ----------------------
 
 def test_active_hook_matches_a_live_line():

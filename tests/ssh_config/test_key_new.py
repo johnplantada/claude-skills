@@ -3,7 +3,6 @@ only its pure pieces and its gating are exercised — never the key-generation I
 
 import key_new as kn
 
-
 # --- public_key_report: the register hint, references the .py entrypoints -------
 
 def test_public_key_report_shows_pub_and_register_hint():

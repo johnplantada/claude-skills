@@ -42,7 +42,7 @@ config-file = ~/.config/ghostty/config
 ```
 `scripts/ghostty_doctor.py` flags the split-brain when the XDG file exists but isn't included.
 
-## The scripts (call these, don't re-compose bash)
+## The scripts (call these, don't re-derive them)
 
 The mechanical commands live in [`scripts/`](scripts/README.md) as tested, read-only helpers — call
 them by name. Ghostty's config is a plain file, so the **mutation is a file edit** and these scripts

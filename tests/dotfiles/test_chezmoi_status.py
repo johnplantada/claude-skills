@@ -2,7 +2,6 @@
 
 import chezmoi_status as cs
 
-
 # --- count_nonblank_lines (grep -c .) ------------------------------------------
 
 def test_count_nonblank_lines_ignores_empty_lines():

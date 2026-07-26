@@ -17,6 +17,7 @@ isolated in `chezmoi_status`.
 
 from __future__ import annotations
 
+import contextlib
 import json
 import shutil
 import subprocess
@@ -57,10 +58,8 @@ def chezmoi_status() -> str:
 
 def main(argv: list[str] | None = None) -> int:
     # Drain stdin so the caller's pipe closes cleanly; the payload is unused.
-    try:
+    with contextlib.suppress(OSError):
         sys.stdin.read()
-    except OSError:
-        pass
 
     if not chezmoi_available():
         return 0

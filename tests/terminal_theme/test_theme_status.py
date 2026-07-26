@@ -13,7 +13,6 @@ import inspect
 import _theme_common as tc
 import theme_status as ts
 
-
 # --- extract_ghostty_theme -----------------------------------------------------
 
 def test_extract_ghostty_theme_reads_the_first_theme_line():

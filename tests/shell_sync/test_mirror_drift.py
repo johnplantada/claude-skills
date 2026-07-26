@@ -2,7 +2,6 @@
 
 import mirror_drift as md
 
-
 # --- norm_env ------------------------------------------------------------------
 
 def test_norm_env_excludes_path_and_expands_home_sorted():

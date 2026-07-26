@@ -24,10 +24,10 @@ import tempfile
 import _brew_common as bc
 
 # Built-in version-sensitive keywords whose config commonly breaks on a major bump.
-FRAGILE_BUILTIN = (
-    "neovim vim postgresql mongodb mysql redis node python ruby go rust "
-    "lua-language-server gopls pyright rust-analyzer terraform"
-).split()
+FRAGILE_BUILTIN = [
+    "neovim", "vim", "postgresql", "mongodb", "mysql", "redis", "node", "python",
+    "ruby", "go", "rust", "lua-language-server", "gopls", "pyright", "rust-analyzer", "terraform",
+]
 
 
 # --- pure helpers ------------------------------------------------------------

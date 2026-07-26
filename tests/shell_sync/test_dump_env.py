@@ -2,7 +2,6 @@
 
 import dump_env as de
 
-
 # --- section_command -----------------------------------------------------------
 
 def test_section_command_path_differs_per_shell():

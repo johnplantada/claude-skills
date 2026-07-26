@@ -25,7 +25,7 @@ from __future__ import annotations
 import os
 import re
 import sys
-from typing import Callable, List, Set
+from typing import Callable
 
 import _shell_common as sc
 import dump_env
@@ -36,18 +36,18 @@ VENDORS = [
 ]
 DEFAULT_TOOLS = ["node", "cargo", "go", "rustc", "python3", "ruby"]
 
-ZSH_STARTUP = re.compile(r"error|not found|parse error|bad pattern|command not found", re.I)
-FISH_STARTUP = re.compile(r"error|unknown command|expected|missing", re.I)
+ZSH_STARTUP = re.compile(r"error|not found|parse error|bad pattern|command not found", re.IGNORECASE)
+FISH_STARTUP = re.compile(r"error|unknown command|expected|missing", re.IGNORECASE)
 
 
 # --- pure logic ----------------------------------------------------------------
 
-def only_in(a: Set[str], b: Set[str]) -> List[str]:
+def only_in(a: set[str], b: set[str]) -> list[str]:
     """Sorted, non-empty entries in set ``a`` that are not in set ``b``."""
     return sorted(x for x in (a - b) if x)
 
 
-def classify_zsh(d: str, is_dir: Callable[[str], bool], syspaths: Set[str]) -> str:
+def classify_zsh(d: str, is_dir: Callable[[str], bool], syspaths: set[str]) -> str:
     """Classify a zsh-only PATH dir: system path_helper noise vs a real divergence."""
     if not is_dir(d):
         return "benign (dead/system path_helper)"
@@ -81,9 +81,9 @@ def tool_line(tool: str, zpath: str, fpath: str) -> str:
 
 # --- IO ------------------------------------------------------------------------
 
-def _read_syspaths() -> Set[str]:
+def _read_syspaths() -> set[str]:
     """The macOS path_helper source dirs: /etc/paths + /etc/paths.d/* (nonempty lines)."""
-    out: Set[str] = set()
+    out: set[str] = set()
     files = ["/etc/paths"]
     d = "/etc/paths.d"
     if os.path.isdir(d):
@@ -97,7 +97,7 @@ def _read_syspaths() -> Set[str]:
 
 def _vendor_has(keg: str) -> bool:
     """True if any fish vendor_conf.d activation file name matches ``keg`` (case-insensitive)."""
-    pat = re.compile(keg, re.I)
+    pat = re.compile(keg, re.IGNORECASE)
     for v in VENDORS:
         try:
             entries = os.listdir(v)
@@ -108,7 +108,7 @@ def _vendor_has(keg: str) -> bool:
     return False
 
 
-def main(argv: List[str] | None = None) -> int:
+def main(argv: list[str] | None = None) -> int:
     args = sys.argv[1:] if argv is None else argv
 
     zbin = sc.resolve_bin("zsh")
@@ -121,7 +121,7 @@ def main(argv: List[str] | None = None) -> int:
     fset = {l for l in dump_env.resolve_section("fish", "path", fbin) if l} if fbin else set()
 
     syspaths = _read_syspaths()
-    out: List[str] = []
+    out: list[str] = []
 
     for d in only_in(zset, fset):
         out.append(f"only_in_zsh\t{d}\t{classify_zsh(d, os.path.isdir, syspaths)}")
@@ -135,13 +135,10 @@ def main(argv: List[str] | None = None) -> int:
     else:
         out.append("startup\tfish\tabsent")
 
-    tools = args if args else DEFAULT_TOOLS
+    tools = args or DEFAULT_TOOLS
     for t in tools:
         zp = sc.run_login(zbin, f"command -v {t}").strip() or "-"
-        if fbin:
-            fp = sc.run_login(fbin, f"command -v {t}").strip() or "-"
-        else:
-            fp = "?"
+        fp = sc.run_login(fbin, f"command -v {t}").strip() or "-" if fbin else "?"
         out.append(tool_line(t, zp, fp))
 
     print("\n".join(out))

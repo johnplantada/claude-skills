@@ -2,7 +2,6 @@
 
 import upgrade_plan as up
 
-
 # --- major / is_fragile -------------------------------------------------------
 
 def test_major_strips_v_prefix_and_minor():

@@ -7,7 +7,6 @@ functions -> no chezmoi, no subprocess.
 
 import secret_scan as ss
 
-
 # --- scan_text_for_names: content detection ------------------------------------
 
 def test_detects_private_key_block():
@@ -101,7 +100,7 @@ def test_scan_produces_sorted_unique_reason_lines(tmp_path):
     assert findings == sorted(findings)
     assert len(findings) == len(set(findings))
     for line in findings:
-        path, reason = line.split("\t", 1)
+        _path, reason = line.split("\t", 1)
         assert reason.startswith("reason=")
 
 

@@ -3,9 +3,9 @@
 Pure functions -> no `ghostty` needed. The known review findings are pinned as tests.
 """
 
-import ghostty_doctor as doctor
 from pathlib import Path
 
+import ghostty_doctor as doctor
 
 # --- find_include_lines --------------------------------------------------------
 

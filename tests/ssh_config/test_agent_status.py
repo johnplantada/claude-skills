@@ -3,7 +3,6 @@
 
 import agent_status as ag
 
-
 # --- agent_fingerprints --------------------------------------------------------
 
 def test_agent_fingerprints_takes_second_field_of_each_line():

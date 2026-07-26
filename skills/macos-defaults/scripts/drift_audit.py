@@ -77,9 +77,7 @@ def parse_write_line(line: str) -> tuple[str, str, str, str] | None:
         rest = _TYPE_RE.sub("", rest, count=1)
 
     value = rest.strip()
-    if len(value) >= 2 and value[0] == '"' and value[-1] == '"':
-        value = value[1:-1]
-    elif len(value) >= 2 and value[0] == "'" and value[-1] == "'":
+    if len(value) >= 2 and value[0] == value[-1] and value[0] in ('"', "'"):
         value = value[1:-1]
     return domain, key, type_, value
 

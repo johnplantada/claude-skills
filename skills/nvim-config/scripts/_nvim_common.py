@@ -15,7 +15,9 @@ import tempfile
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
-from lib.devenv_common import command_available, read_text  # noqa: E402
+import contextlib
+
+from lib.devenv_common import command_available, read_text
 
 
 def nvim_available() -> bool:
@@ -112,10 +114,8 @@ def make_scratch(ext: str, content: str) -> str:
 
 def remove(path: str) -> None:
     """Delete a scratch file, ignoring a missing file."""
-    try:
+    with contextlib.suppress(OSError):
         os.unlink(path)
-    except OSError:
-        pass
 
 
 def walk_files(root: str) -> list[tuple[str, str]]:
@@ -187,12 +187,10 @@ def git_short_head(path: str) -> str | None:
 
 def git_fetch_tags(directory: str) -> None:
     """`git fetch --tags --quiet` (best-effort; errors ignored)."""
-    try:
+    with contextlib.suppress(OSError):
         subprocess.run(
             ["git", "-C", directory, "fetch", "--tags", "--quiet"], capture_output=True
         )
-    except OSError:
-        pass
 
 
 def git_log1(directory: str) -> str:

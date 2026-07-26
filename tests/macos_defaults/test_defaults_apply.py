@@ -5,7 +5,6 @@ The parsing is pure; the --yes gate (dry-run-by-default) is verified by injectin
 
 import defaults_apply as ap
 
-
 # --- find_sensitive_lines ------------------------------------------------------
 
 def test_find_sensitive_lines_flags_sudo_and_security_terms():

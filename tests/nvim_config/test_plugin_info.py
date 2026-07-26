@@ -4,10 +4,8 @@ git and Neovim calls are isolated in `_nvim_common`; the pin/tag/drift analysis 
 plain string work verified here.
 """
 
-import pytest
-
 import plugin_info as pi
-
+import pytest
 
 # --- parse_plugin_args ---------------------------------------------------------
 

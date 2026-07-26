@@ -34,7 +34,7 @@ hardcode `~/.local/share/chezmoi`), and degrade gracefully when chezmoi is absen
 | Managed inventory with per-file drift status (`--` in sync / `MM` differs); `--unmanaged` for add-gaps | `scripts/dotfiles_inventory.py` |
 | Secret-hygiene scan of the source tree — **paths + reason only, never values** (exit 1 = findings) | `scripts/secret_scan.py [path]` |
 
-Full contract + a worked example: [scripts/README.md](scripts/README.md). The inline bash in the
+Full contract + a worked example: [scripts/README.md](scripts/README.md). The inline commands in the
 sections and reference files below is what these run under the hood — reach for it only for novel,
 one-off checks.
 
