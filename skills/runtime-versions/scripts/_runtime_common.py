@@ -9,9 +9,14 @@ these observe, never mutate.
 from __future__ import annotations
 
 import os
-import shutil
 import subprocess
+import sys
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
+from lib.devenv_common import command_available as have  # noqa: E402
+from lib.devenv_common import command_path as command_v  # noqa: E402
+from lib.devenv_common import read_text, run  # noqa: E402
 
 HOME = Path.home()
 
@@ -25,29 +30,6 @@ RC_FILES = [
     HOME / ".profile",
     HOME / ".config" / "fish" / "config.fish",
 ]
-
-
-def have(cmd: str) -> bool:
-    """True if `cmd` resolves on PATH (like `command -v cmd`)."""
-    return shutil.which(cmd) is not None
-
-
-def run(cmd: list[str]) -> subprocess.CompletedProcess:
-    """Run `cmd`, capturing stdout/stderr as text. Never raises on non-zero exit."""
-    return subprocess.run(cmd, capture_output=True, text=True)
-
-
-def read_text(path: Path) -> str:
-    """File contents, or '' if it doesn't exist / can't be read."""
-    try:
-        return Path(path).read_text()
-    except OSError:
-        return ""
-
-
-def command_v(tool: str) -> str:
-    """First match for `tool` on PATH, or '' — mirrors `command -v tool`."""
-    return shutil.which(tool) or ""
 
 
 def which_all(tool: str) -> list[str]:

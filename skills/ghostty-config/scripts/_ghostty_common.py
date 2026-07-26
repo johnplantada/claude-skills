@@ -8,9 +8,12 @@ logic stays as pure, directly-testable functions.
 from __future__ import annotations
 
 import os
-import shutil
 import subprocess
+import sys
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
+from lib.devenv_common import command_available, read_text  # noqa: E402
 
 # The two config locations on macOS. The Library file is always read and, when both
 # exist, overrides the XDG file (which macOS only consults with XDG_CONFIG_HOME set).
@@ -19,15 +22,7 @@ XDG = Path(os.environ.get("XDG_CONFIG_HOME") or (Path.home() / ".config")) / "gh
 
 
 def ghostty_available() -> bool:
-    return shutil.which("ghostty") is not None
-
-
-def read_text(path: Path) -> str:
-    """File contents, or '' if it doesn't exist / can't be read."""
-    try:
-        return path.read_text()
-    except OSError:
-        return ""
+    return command_available("ghostty")
 
 
 def has_content(path: Path) -> bool:

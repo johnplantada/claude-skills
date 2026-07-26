@@ -8,13 +8,12 @@ stays as pure, directly-testable functions.
 from __future__ import annotations
 
 import os
-import shutil
-import subprocess
+import sys
+from pathlib import Path
 
-
-def _run(cmd: list[str]) -> subprocess.CompletedProcess[str]:
-    """Run a command, capturing text output, never raising on non-zero exit."""
-    return subprocess.run(cmd, capture_output=True, text=True)
+sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
+from lib.devenv_common import command_path as command_v  # noqa: E402
+from lib.devenv_common import run as _run  # noqa: E402
 
 
 def uname_s() -> str:
@@ -31,11 +30,6 @@ def git_version() -> str:
     proc = _run(["git", "--version"])
     parts = proc.stdout.split()
     return parts[2] if len(parts) >= 3 else ""
-
-
-def command_v(name: str) -> str:
-    """Absolute path to `name` on PATH, or '' — the `command -v name` value."""
-    return shutil.which(name) or ""
 
 
 def getg(key: str) -> str:

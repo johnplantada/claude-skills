@@ -14,7 +14,11 @@ into any returned value.
 from __future__ import annotations
 
 import subprocess
+import sys
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
+from lib.devenv_common import read_text  # noqa: E402  — shared primitive, re-exported for callers
 
 SSH_DIR = Path.home() / ".ssh"
 
@@ -76,11 +80,3 @@ def ssh_g(host: str) -> tuple[int, str]:
     """Run `ssh -G <host>` (resolve effective config). Return (returncode, stdout)."""
     proc = subprocess.run(["ssh", "-G", host], capture_output=True, text=True)
     return proc.returncode, proc.stdout
-
-
-def read_text(path: Path | str) -> str:
-    """File contents, or '' if it doesn't exist / can't be read."""
-    try:
-        return Path(path).read_text()
-    except OSError:
-        return ""

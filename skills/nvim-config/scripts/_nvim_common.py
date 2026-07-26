@@ -9,23 +9,18 @@ skills' `_common` helpers on the shared pytest sys.path.
 from __future__ import annotations
 
 import os
-import shutil
 import subprocess
+import sys
 import tempfile
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
+from lib.devenv_common import command_available, read_text  # noqa: E402
 
 
 def nvim_available() -> bool:
     """True if `nvim` is on PATH."""
-    return shutil.which("nvim") is not None
-
-
-def read_text(path: str) -> str:
-    """File contents, or '' if it doesn't exist / can't be read."""
-    try:
-        with open(path, encoding="utf-8", errors="ignore") as fh:
-            return fh.read()
-    except OSError:
-        return ""
+    return command_available("nvim")
 
 
 def nvim_version_line() -> str:

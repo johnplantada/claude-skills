@@ -10,15 +10,18 @@ other skills' helpers on `sys.path`.
 from __future__ import annotations
 
 import os
-import shutil
 import subprocess
+import sys
 from fnmatch import fnmatch
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
+from lib.devenv_common import command_available  # noqa: E402
 
 
 def chezmoi_available() -> bool:
     """True if `chezmoi` is on PATH."""
-    return shutil.which("chezmoi") is not None
+    return command_available("chezmoi")
 
 
 def _out(cmd: list[str]) -> str:

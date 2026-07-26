@@ -15,9 +15,12 @@ from __future__ import annotations
 
 import os
 import re
-import shutil
 import subprocess
+import sys
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
+from lib.devenv_common import command_available, read_text  # noqa: E402
 
 CONFIG_TOML = Path(
     os.environ.get("DEVENV_CONFIG") or (Path.home() / ".config" / "devenv" / "config.toml")
@@ -27,7 +30,7 @@ CONFIG_TOML = Path(
 # --- brew availability + generic runner --------------------------------------
 
 def brew_available() -> bool:
-    return shutil.which("brew") is not None
+    return command_available("brew")
 
 
 def run(cmd: list[str], *, merge: bool = False) -> tuple[int, str]:
@@ -60,17 +63,7 @@ def brew_ok(*args: str) -> bool:
 
 # --- filesystem reads (launchd / cron / plist / files) -----------------------
 
-def read_text(path: Path) -> str:
-    """File contents, or '' if it doesn't exist / can't be read.
-
-    Decodes leniently (a launchd `Program` target is often a compiled binary) so a
-    non-UTF-8 file degrades to a searchable string instead of raising, matching how
-    `grep` still scans a binary.
-    """
-    try:
-        return path.read_text(errors="replace")
-    except OSError:
-        return ""
+# read_text (lenient decode for launchd `Program` binaries) comes from lib.devenv_common.
 
 
 def launch_agents_dir() -> Path:

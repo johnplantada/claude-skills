@@ -9,9 +9,13 @@ functions.
 from __future__ import annotations
 
 import os
-import shutil
 import subprocess
+import sys
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
+from lib.devenv_common import command_available as command_exists  # noqa: E402
+from lib.devenv_common import read_text  # noqa: E402
 
 # The fish incantation that resolves every color var in a real login+interactive shell.
 # Files alone lie: universal vars, conf.d, and config.fish all contribute and only the
@@ -20,19 +24,6 @@ _FISH_DUMP_CMD = (
     'for v in (set -n | grep -E "fish_color|fish_pager_color"); '
     'echo $v" = "$$v; end'
 )
-
-
-def command_exists(name: str) -> bool:
-    """True if `name` is on PATH."""
-    return shutil.which(name) is not None
-
-
-def read_text(path: Path) -> str:
-    """File contents, or '' if it doesn't exist / can't be read."""
-    try:
-        return path.read_text()
-    except OSError:
-        return ""
 
 
 def starship_config_path() -> Path:

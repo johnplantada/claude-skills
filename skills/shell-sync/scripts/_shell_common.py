@@ -13,7 +13,12 @@ from __future__ import annotations
 import os
 import shutil
 import subprocess
+import sys
+from pathlib import Path
 from typing import Callable, List
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
+from lib.devenv_common import read_text  # noqa: E402  — shared primitive, re-exported for callers
 
 
 def resolve_bin(shell: str) -> str | None:
@@ -57,14 +62,6 @@ def run_login(binary: str, cmd: str, combine_stderr: bool = False) -> str:
     except OSError:
         return ""
     return proc.stdout or ""
-
-
-def read_text(path) -> str:
-    """File contents, or '' if it doesn't exist / can't be read."""
-    try:
-        return open(path, "r").read()
-    except OSError:
-        return ""
 
 
 def dedupe_existing(entries: List[str], is_dir: Callable[[str], bool] = os.path.isdir) -> List[str]:

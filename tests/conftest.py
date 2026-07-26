@@ -13,7 +13,8 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 
-_script_dirs = [str(ROOT / "scripts")] + sorted(glob.glob(str(ROOT / "skills" / "*" / "scripts")))
+# Repo root first, so `from lib.devenv_common import ...` resolves (the shared primitives).
+_script_dirs = [str(ROOT), str(ROOT / "scripts")] + sorted(glob.glob(str(ROOT / "skills" / "*" / "scripts")))
 for _d in _script_dirs:
     if _d not in sys.path:
         sys.path.insert(0, _d)
