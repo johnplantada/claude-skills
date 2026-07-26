@@ -5,29 +5,19 @@ on:
   pull_request:
 
 jobs:
-  lint:
+  # Same entry point contributors run locally (`./check`), so a green laptop means a
+  # green CI — no separate incantation to keep in sync.
+  check:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - name: Install ruff
-        run: pip install ruff
-      - name: Lint
-        run: ruff check .
-
-  test:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
-      - name: Install pytest
-        run: pip install pytest
-      - name: Run the suite
-        run: pytest
+      - name: Install tooling
+        run: pip install pytest ruff
+      - name: Lint + unit tests
+        run: ./check
 
   # The unit suite exercises pure functions with canned tool output; this job runs
   # every read-only entry point end to end on the OS the skills target, catching
@@ -39,7 +29,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - name: Install pytest
-        run: pip install pytest
-      - name: Run the smoke suite
-        run: pytest tests_smoke -q
+      - name: Install tooling
+        run: pip install pytest ruff
+      - name: Lint + unit + smoke
+        run: ./check --smoke

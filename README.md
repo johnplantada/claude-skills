@@ -38,6 +38,7 @@ graph TD
     L -->|read| cfg[("~/.config/devenv/config.toml<br/>shared settings")]
     L -->|import| lib["lib/devenv_common.py<br/>shared primitives"]
     cc -. Stop hook .-> hook{{"chezmoi dotfiles-drift reminder"}}
+    cc -. PreToolUse .-> guard{{"secret-read guard:<br/>denies reading private keys,<br/>.netrc, credentials"}}
 ```
 
 ## Skills
@@ -65,7 +66,7 @@ graph LR
     req([task]) --> md["SKILL.md<br/>router + principles"]
     md --> ref["reference/*.md<br/>setup · repair · upgrade · optimize"]
     ref --> py["scripts/*.py<br/>typed helpers"]
-    py -->|pure logic| test["pytest · 446 tests · CI"]
+    py -->|pure logic| test["./check · unit + fixtures · CI"]
     py -->|subprocess + IO| lib["lib/devenv_common.py"]
     ref ==>|verification-first| proof{{"prove it by observing<br/>real behavior, not reading code"}}
 ```
@@ -80,17 +81,34 @@ graph LR
 - **One brain** — coordination knowledge (ordering, the settings contract) lives only in `devenv`;
   the layer skills never fork it.
 - **Secrets stay out of context** — private keys and plaintext secrets are handled as metadata only;
-  their values never enter the model.
+  their values never enter the model. For files that are secret by *location*, a `PreToolUse` hook
+  enforces this mechanically rather than by instruction.
 
 ## Testing & CI
 
-The helpers are typed Python with a **[pytest](tests/) suite (446 tests)** that runs on every push
-via [GitHub Actions](.github/workflows/test.yml). Pure functions (parsing, analysis, formatting) are
-tested directly with fixtures — no mocking — and every past bug is pinned as a regression test.
+One entry point, `./check`. The tiers cost very different amounts, so they're opt-in by flag
+rather than all-or-nothing:
 
 ```bash
-pip install pytest && pytest        # from the repo root
+./check              # lint + unit tests — free, ~1s. Run this before every commit.
+./check --smoke      # + every read-only entry point, on this machine — free, ~1 min, macOS
+./check --evals      # + LLM skill evals — SPENDS TOKENS, several minutes
+./check --all        # everything
+./check --capture    # refresh tests/fixtures/ from this machine's real tool output
 ```
+
+Why four tiers, when most repos have one — each catches something the others structurally cannot:
+
+| Tier | Proves |
+|---|---|
+| **unit** ([`tests/`](tests/)) | pure logic, plus docs↔scripts consistency (a renamed script breaks the build) |
+| **fixtures** ([`tests/fixtures/`](tests/fixtures/)) | parsers handle what tools *actually* print — recorded output, not invented strings |
+| **smoke** ([`tests_smoke/`](tests_smoke/)) | entry points really run against real tools, and still emit their key facts |
+| **evals** ([`tests_eval/`](tests_eval/)) | the skill steers an agent correctly — graded by deterministic transcript checks, not an LLM judging an LLM |
+
+Pure functions are tested directly — no mocking — and every past bug is pinned as a regression
+test. [GitHub Actions](.github/workflows/test.yml) runs lint + unit on every push, and smoke on
+macOS.
 
 ## Install
 
@@ -132,12 +150,15 @@ to sync. It is **non-blocking** and never writes, commits, or pushes — you dec
 ## Repository layout
 
 ```
+├── check                  ONE entry point for every tier (./check --help)
 ├── .claude-plugin/        plugin.json + marketplace.json
 ├── skills/<name>/         SKILL.md · reference/*.md · scripts/*.py
-├── lib/devenv_common.py   shared Python primitives
-├── scripts/               the plugin hook
-├── tests/                 pytest suite (mirrors skills/)
-└── .github/workflows/     CI
+├── lib/devenv_common.py   shared Python primitives + output conventions
+├── scripts/               plugin hooks (drift reminder, secret-read guard) + fixture capture
+├── tests/                 unit suite (mirrors skills/) + fixtures/ of real tool output
+├── tests_smoke/           entry points run against real tools (macOS)
+├── tests_eval/            LLM skill evals, opt-in (spends tokens)
+└── .github/workflows/     CI (runs ./check)
 ```
 
 ## Contributing
