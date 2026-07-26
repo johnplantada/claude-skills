@@ -1,0 +1,26 @@
+{
+  "name": "devenv",
+  "description": "A gallery of dev-environment skills (Homebrew, runtimes, dotfiles, shells, Ghostty, Neovim, git, ssh, macOS defaults) that share one settings store and cross-skill runbooks — each skill sets up, repairs, upgrades, and optimizes its layer, verification-first.",
+  "version": "0.1.0",
+  "author": {
+    "name": "John Plantada"
+  },
+  "homepage": "https://github.com/johnplantada/claude-skills",
+  "repository": "https://github.com/johnplantada/claude-skills",
+  "license": "MIT",
+  "keywords": [
+    "devenv",
+    "dotfiles",
+    "homebrew",
+    "shell",
+    "zsh",
+    "fish",
+    "ghostty",
+    "neovim",
+    "git",
+    "ssh",
+    "macos",
+    "mise",
+    "chezmoi"
+  ]
+}

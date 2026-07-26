@@ -1,0 +1,13 @@
+.DS_Store
+*.swp
+*.bak
+*.bak.*
+
+# Claude Code local (machine-specific) settings — never publish
+.claude/settings.local.json
+
+# Python
+__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/

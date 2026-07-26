@@ -1,0 +1,15 @@
+[project]
+name = "devenv-skills"
+version = "0.1.0"
+description = "Dev-environment Claude Code skills — setup/repair/upgrade/optimize helpers, in Python."
+requires-python = ">=3.9"
+license = { text = "MIT" }
+authors = [{ name = "John Plantada" }]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+
+[tool.ruff]
+line-length = 100
+target-version = "py39"
