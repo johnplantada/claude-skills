@@ -1,0 +1,28 @@
+version: 2
+
+# Both ecosystems here exist because both have already bitten this repo:
+# the actions went three majors stale and annotated every run until someone
+# read the warning, and the Python tooling was unpinned so it could break CI
+# without a commit. Dependabot turns each into a reviewable PR with CI attached.
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
+    commit-message:
+      prefix: "ci"
+    groups:
+      # One PR for all action bumps: they move together and each is a one-line
+      # tag change, so separate PRs would be noise with no extra signal.
+      actions:
+        patterns: ["*"]
+
+  - package-ecosystem: pip
+    directory: /
+    schedule:
+      interval: monthly
+    commit-message:
+      prefix: "deps"
+    groups:
+      dev-tooling:
+        patterns: ["*"]

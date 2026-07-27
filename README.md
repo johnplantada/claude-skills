@@ -173,6 +173,7 @@ to sync. It is **non-blocking** and never writes, commits, or pushes — you dec
 
 ```
 ├── check                  ONE entry point for every tier (./check --help)
+├── requirements-dev.txt   pytest + ruff, pinned exactly (CI installs from here)
 ├── .claude-plugin/        plugin.json + marketplace.json
 ├── skills/<name>/         SKILL.md · reference/*.md · scripts/*.py
 ├── lib/devenv_common.py   shared Python primitives + output conventions

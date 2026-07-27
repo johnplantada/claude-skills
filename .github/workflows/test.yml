@@ -15,7 +15,7 @@ jobs:
         with:
           python-version: "3.12"
       - name: Install tooling
-        run: pip install pytest ruff
+        run: pip install -r requirements-dev.txt
       - name: Lint + unit tests
         run: ./check
 
@@ -30,6 +30,6 @@ jobs:
         with:
           python-version: "3.12"
       - name: Install tooling
-        run: pip install pytest ruff
+        run: pip install -r requirements-dev.txt
       - name: Lint + unit + smoke
         run: ./check --smoke

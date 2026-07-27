@@ -1,0 +1,12 @@
+# CI + local dev tooling, pinned exactly.
+#
+# `pip install pytest ruff` floats to whatever released most recently, so a ruff
+# release that adds a lint rule turns CI red on a commit that changed nothing — and
+# the failure lands on whoever pushed next, not on whoever would understand it. The
+# lint gate is load-bearing here (the markdown IS the program), so it has to move
+# when we decide it moves.
+#
+# Dependabot opens a PR when either releases; the bump then arrives as a reviewable
+# change with CI attached, which is the moment to read the new rules.
+pytest==9.1.1
+ruff==0.16.0
