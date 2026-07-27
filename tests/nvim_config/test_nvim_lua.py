@@ -78,3 +78,35 @@ def test_parse_wait_non_numeric_value_raises():
     # smuggle Lua into the headless run.
     with pytest.raises(ValueError, match="--wait needs a number"):
         nl.parse_lua_args(["--wait", "0); os.exit(1"])
+
+
+# --- nvim absent: the documented rc 3, not a traceback -------------------------
+
+
+def test_nvim_missing_is_true_when_nvim_is_not_on_path(monkeypatch, tmp_path):
+    # PATH is controlled, not mocked — the real shutil.which decides.
+    monkeypatch.setenv("PATH", str(tmp_path))
+    assert nl.nvim_missing() is True
+
+
+def test_nvim_missing_is_false_when_a_nvim_executable_resolves(monkeypatch, tmp_path):
+    fake = tmp_path / "nvim"
+    fake.write_text("#!/bin/sh\n")
+    fake.chmod(0o755)
+    monkeypatch.setenv("PATH", str(tmp_path))
+    assert nl.nvim_missing() is False
+
+
+def test_main_returns_3_instead_of_crashing_when_nvim_is_absent(monkeypatch, tmp_path, capsys):
+    # Regression: `run()` shells out to nvim directly, so a machine without Neovim died
+    # with an unhandled FileNotFoundError. CI on a bare macOS runner is exactly that
+    # machine, and the smoke suite's contract calls for rc 3.
+    monkeypatch.setenv("PATH", str(tmp_path))
+    assert nl.main(["print('x')"]) == 3
+    assert "not on PATH" in capsys.readouterr().err
+
+
+def test_help_still_works_without_nvim(monkeypatch, tmp_path):
+    # --help documents the tool; needing nvim installed to read it would be absurd.
+    monkeypatch.setenv("PATH", str(tmp_path))
+    assert nl.main(["--help"]) == 0

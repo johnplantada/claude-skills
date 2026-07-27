@@ -135,6 +135,13 @@ def main(argv: list[str] | None = None) -> int:
     check = args[0] if args else ""
     rest = args[1:]
 
+    # Every check below drives nvim (directly or via nvim_lua.run), so a machine without
+    # it gets the documented rc 3 rather than an unhandled FileNotFoundError. The usage
+    # text still prints without nvim, so `nvim_check.py` with no args stays helpful.
+    if check and nvim_lua.nvim_missing():
+        print("nvim_check: nvim not on PATH", file=sys.stderr)
+        return 3
+
     if check == "startup":
         lines = filter_startup(gc.run_lazy_sync())
         print("\n".join(lines) if lines else "clean: no error/deprecation lines")

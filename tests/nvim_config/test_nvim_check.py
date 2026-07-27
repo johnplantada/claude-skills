@@ -107,3 +107,19 @@ def test_build_api_lua_probes_type():
     assert "type(vim.treesitter.language.get_lang)" in lua
     assert "vim.treesitter.language.get_lang = " in lua
     assert "nil/error" in lua
+
+
+# --- nvim absent: the same rc 3 (it drives nvim through nvim_lua) --------------
+
+
+def test_main_returns_3_when_nvim_is_absent(monkeypatch, tmp_path, capsys):
+    # nvim_check calls nvim_lua.run() at three sites, so it carried the identical latent
+    # crash — and, unlike nvim_lua, was never covered by the smoke tier at all.
+    monkeypatch.setenv("PATH", str(tmp_path))
+    assert nc.main(["startup"]) == 3
+    assert "not on PATH" in capsys.readouterr().err
+
+
+def test_usage_still_prints_without_nvim(monkeypatch, tmp_path):
+    monkeypatch.setenv("PATH", str(tmp_path))
+    assert nc.main([]) == 2

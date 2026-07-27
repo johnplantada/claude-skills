@@ -68,9 +68,13 @@ CASES = [
     ("skills/ghostty-config/scripts/config_audit.py", [], {0, 1, 3}),
     ("skills/ghostty-config/scripts/font_check.py", [], {0, 1, 3}),
     ("skills/ghostty-config/scripts/show_effective.py", [], {0, 3}),
-    # nvim (scripts degrade cleanly when nvim is absent)
+    # nvim — rc 3 is the documented "nvim not on PATH" exit, which is the state on a bare
+    # CI runner. nvim_lua asserted {0} and so CRASHED there instead of degrading; the
+    # comment claimed clean degradation that nothing checked. nvim_check drives nvim
+    # through the same primitive and was never smoked at all.
     ("skills/nvim-config/scripts/nvim_env.py", [], {0}),
-    ("skills/nvim-config/scripts/nvim_lua.py", ["print('smoke')"], {0}),
+    ("skills/nvim-config/scripts/nvim_lua.py", ["print('smoke')"], {0, 3}),
+    ("skills/nvim-config/scripts/nvim_check.py", ["startup"], {0, 3}),
     # ssh-config (empty temp ssh-dir: exercises the stat/keygen/agent wrappers safely)
     ("skills/ssh-config/scripts/ssh_config_audit.py", [], {0}),
     ("skills/ssh-config/scripts/key_audit.py", ["{tmp}"], {0}),

@@ -16,16 +16,31 @@ Options:
     --wait N    vim.wait(N) before running the snippet (default 0); use for async LSP
 
 Output is the snippet's stdout/stderr, verbatim. `print()` and `io.write()` both work.
+
+Exit: 0 ran, 1 bad arguments, 3 nvim not on PATH (the repo-wide "tool absent" code).
 """
 
 from __future__ import annotations
 
 import contextlib
 import os
+import shutil
 import subprocess
 import sys
 import tempfile
 from typing import NamedTuple
+
+
+def nvim_missing() -> bool:
+    """True when `nvim` is not on PATH.
+
+    `run()` shells out to nvim directly, so without this the whole process dies with an
+    unhandled FileNotFoundError on a machine that simply has no Neovim — a traceback where
+    the contract says a clean rc 3. Kept local (stdlib `shutil`) rather than importing
+    `_nvim_common`, because this module is the primitive everything else builds on and is
+    deliberately dependency-free.
+    """
+    return shutil.which("nvim") is None
 
 
 class LuaArgs(NamedTuple):
@@ -116,6 +131,11 @@ def main(argv: list[str] | None = None) -> int:
     if parsed.help:
         print(__doc__.strip())
         return 0
+
+    # Before any work: --help must still answer without nvim, but everything below runs it.
+    if nvim_missing():
+        print("nvim_lua: nvim not on PATH", file=sys.stderr)
+        return 3
 
     if parsed.mode == "file":
         with open(parsed.src, encoding="utf-8") as fh:
