@@ -12,15 +12,24 @@ config, re-reading a value, resolving both shells), never by trusting that an ed
 
 ## Architecture
 
-One capstone holds the coordination knowledge; each layer skill owns exactly one concern; a shared
-library and settings store keep them consistent. *One brain, many hands.*
+Three tiers. A capstone holds the whole-machine coordination knowledge; **goal skills** each own one
+outcome that no single layer can deliver alone; layer skills each own exactly one concern and are the
+only things that mutate it. A shared library and settings store keep them consistent.
+*One brain, many hands.*
 
 ```mermaid
 graph TD
     you([You: one request]) --> cc[Claude Code agent]
+    cc -->|routes by skill description| G
     cc -->|routes by skill description| L
     cc -->|whole-machine goals| cap
     cap[["devenv · capstone<br/>bootstrap + health runbooks"]] -. sequences .-> L
+
+    subgraph G["goal skills — one outcome, spanning layers"]
+        th[terminal-theme]
+        idp[identity-profiles]
+        cs[credential-store]
+    end
 
     subgraph L["layer skills — one per environment concern"]
         brew[brew-doctor]
@@ -28,18 +37,25 @@ graph TD
         dot[dotfiles]
         shell[shell-sync]
         gh[ghostty-config]
-        th[terminal-theme]
         nv[nvim-config]
         git[git-setup]
         ssh[ssh-config]
         mac[macos-defaults]
     end
 
+    G -. coordinates, never mutates .-> L
     L -->|read| cfg[("~/.config/devenv/config.toml<br/>shared settings")]
     L -->|import| lib["lib/devenv_common.py<br/>shared primitives"]
     cc -. Stop hook .-> hook{{"chezmoi dotfiles-drift reminder"}}
     cc -. PreToolUse .-> guard{{"secret-read guard:<br/>denies reading private keys,<br/>.netrc, credentials"}}
 ```
+
+**What makes a goal skill** (rather than another layer): it names a user-visible outcome, no single
+layer can deliver it, it has a *source-of-truth model* the other surfaces derive from, it can detect
+the specific drift that breaks that model, and it declares its boundaries with the layers it spans.
+`terminal-theme` inherits from the Ghostty theme; `identity-profiles` derives from the directory
+tree; `credential-store` resolves from one store. Anything missing the model or the detector is a
+runbook, and belongs in `devenv`.
 
 ## Skills
 
@@ -53,6 +69,8 @@ graph TD
 | [**terminal-theme**](skills/terminal-theme/) | Coordinate one theme across Ghostty, fish, zsh, and starship so they never clash — the "inherit" model makes them follow Ghostty's ANSI palette, so one edit re-themes the whole terminal. |
 | [**nvim-config**](skills/nvim-config/) | Set up, repair, upgrade, and optimize a Neovim config — lazy.nvim-first, every change verified by driving headless Neovim. |
 | [**git-setup**](skills/git-setup/) | Configure global git — signing, pager, defaults, and work-vs-personal identities — verified so commits actually verify and identities resolve. |
+| [**identity-profiles**](skills/identity-profiles/) | Coordinate *who you are* per directory tree across git, ssh, signing, and gh — catching the two silent failures no single layer can see: right email + wrong key, and signed-but-Unverified for the second identity. |
+| [**credential-store**](skills/credential-store/) | Get credentials off disk and into one store, so configs *reference* a secret instead of embedding it — classifying every assignment literal vs. reference, with the value structurally unable to reach the model. |
 | [**ssh-config**](skills/ssh-config/) | Clean up `~/.ssh/config` + key hygiene and generate/rotate ed25519 keys — treating private keys as secrets that never leave the machine or enter the model's context. |
 | [**macos-defaults**](skills/macos-defaults/) | Capture a Mac's preferences into idempotent `defaults` code, apply on any machine, and audit for drift — each setting proven by re-reading it. |
 | [**devenv**](skills/devenv/) 🧭 | **Capstone.** The shared settings store the others read, plus ordered cross-skill runbooks — bootstrap a machine end-to-end and run a whole-environment health sweep. Delegates down; never duplicates a layer's logic. |

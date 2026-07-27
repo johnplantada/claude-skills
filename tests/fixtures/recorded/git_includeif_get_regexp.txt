@@ -1,0 +1,10 @@
+# captured from: git config --global --get-regexp ^includeif\.
+# exit: 0
+# git version 2.55.0, run against a throwaway HOME whose ~/.gitconfig declared a tree at
+# "~/my work/", an include at "~/My Configs/work.gitconfig", and an onbranch condition.
+# Verbatim git output — not hand-written. The capture machine has no includeIf rules of
+# its own, so this state is not reproducible by capture_fixtures.py.
+# redacted (home path, username, emails, internal hostnames) — format sample, not an env dump
+includeif.gitdir:~/my work/.path ~/My Configs/work.gitconfig
+includeif.gitdir:~/personal/.path ~/.config/git/personal.gitconfig
+includeif.onbranch:main.path ~/.config/git/main.gitconfig

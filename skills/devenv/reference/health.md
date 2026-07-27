@@ -19,6 +19,8 @@ Delegate for interpretation and fixes; don't re-implement the checks.
 | Theme | **`terminal-theme`** · `scripts/theme_status.py` | a surface (starship/fish/zsh) on hardcoded hex that clashes with the Ghostty theme instead of inheriting it |
 | Editor | **`nvim-config`** · `scripts/nvim_check.py startup`, `scripts/nvim_check.py deprecations` | startup errors, deprecated APIs, plugin breakage |
 | Git | **`git-setup`** · `scripts/git_audit.py` | signing off/unverified, missing sane defaults, identity misresolution, gitignore gaps |
+| Identity | **`identity-profiles`** · `scripts/profile_audit.py` | a declared tree whose surfaces disagree — right email but the alias offers the wrong ssh key, or an identity signing without an `allowed_signers` pairing (commits show Unverified) |
+| Credentials | **`credential-store`** · `scripts/credential_audit.py`, `scripts/store_status.py` | a credential held as a literal on disk rather than referenced from a store — shell rc exports, `~/.aws/credentials`, `~/.netrc`, a cleartext git helper, a gh token in a file (findings name variables and paths, never values) |
 | SSH | **`ssh-config`** · `scripts/key_audit.py`, `scripts/ssh_config_audit.py` | key permissions/type, passphrase-less keys, agent identities, config hygiene |
 | macOS prefs | **`macos-defaults`** · `scripts/drift_audit.py <macos.sh>` | live `defaults` values drifted from the declarative script |
 
@@ -68,5 +70,5 @@ and let each skill run its own verification. Don't batch-apply across layers sil
 ## Report
 
 Top line: a one-glance status per layer
-(`brew ✓ · runtimes ✓ · dotfiles ✓ · shells ⚠ · terminal ✓ · theme ✓ · nvim ✓ · git ✓ · ssh ✓ · macos ✓`), then the
+(`brew ✓ · runtimes ✓ · dotfiles ✓ · shells ⚠ · terminal ✓ · theme ✓ · nvim ✓ · git ✓ · identity ✓ · creds ✓ · ssh ✓ · macos ✓`), then the
 prioritized findings, then the recommended next action.

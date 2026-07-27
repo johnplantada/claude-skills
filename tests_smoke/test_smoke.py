@@ -82,6 +82,15 @@ CASES = [
     ("skills/terminal-theme/scripts/theme_status.py", [], {0, 1}),
     ("skills/terminal-theme/scripts/theme_list.py", ["nord"], {0, 3}),
     ("skills/terminal-theme/scripts/theme_swatch.py", [], {0}),
+    # identity-profiles (rc 1 = a 🔴 gap on this machine, a documented outcome).
+    # --probe-remote is deliberately NOT smoked: it makes an outbound authenticated
+    # connection, which a test suite must never do on the user's behalf.
+    ("skills/identity-profiles/scripts/profile_audit.py", [], {0, 1}),
+    ("skills/identity-profiles/scripts/profile_resolve.py", [], {0}),
+    # credential-store (rc 1 = a 🔴 finding / no usable store — both documented outcomes)
+    ("skills/credential-store/scripts/credential_audit.py", [], {0, 1}),
+    ("skills/credential-store/scripts/credential_audit.py", ["--all-assignments"], {0, 1}),
+    ("skills/credential-store/scripts/store_status.py", [], {0, 1}),
 ]
 
 
@@ -143,4 +152,11 @@ EXPECTED_KEYS: dict[str, list[str]] = {
     "skills/ssh-config/scripts/ssh_config_audit.py": ["== permissions ==", "known_hosts"],
     "skills/ssh-config/scripts/agent_status.py": ["== agent =="],
     "skills/terminal-theme/scripts/theme_status.py": ["ghostty", "coordinated"],
+    "skills/identity-profiles/scripts/profile_resolve.py": ["query_path", "user.email", "key_match"],
+    # Both keys appear whether or not this machine declares any profile: the empty case
+    # prints `profiles (none…)` + `gaps undetermined`, the populated one `profile …` +
+    # `-- gaps --`. So a machine with no profiles still proves the report isn't silent.
+    "skills/identity-profiles/scripts/profile_audit.py": ["profile", "gaps"],
+    "skills/credential-store/scripts/credential_audit.py": ["scanned", "summary", "finding"],
+    "skills/credential-store/scripts/store_status.py": ["store.keychain", "recommended"],
 }

@@ -123,6 +123,37 @@ def test_git_config_origin_scan_tolerates_real_list_output():
     assert ga.first_email_origin(load("git/config_global_list.txt")) == ""
 
 
+# --- identity-profiles: includeIf discovery against real git output -------------------
+
+def test_includeif_rules_parse_when_paths_contain_spaces():
+    import profile_audit as pa
+
+    # The bug this pins: splitting on the FIRST space dropped the `~/my work/` profile
+    # entirely, so a configured machine audited as having no profiles at all.
+    rules = pa.parse_includeif_rules(load("recorded/git_includeif_get_regexp.txt").splitlines())
+    conditions = [c for c, _ in rules]
+    assert "gitdir:~/my work/" in conditions, f"spaced tree lost: {conditions}"
+    assert "gitdir:~/personal/" in conditions
+
+
+def test_includeif_include_path_with_spaces_survives_intact():
+    import profile_audit as pa
+
+    rules = dict(pa.parse_includeif_rules(load("recorded/git_includeif_get_regexp.txt").splitlines()))
+    assert rules["gitdir:~/my work/"] == "~/My Configs/work.gitconfig"
+
+
+def test_real_includeif_output_yields_only_tree_profiles():
+    import profile_audit as pa
+
+    rules = pa.parse_includeif_rules(load("recorded/git_includeif_get_regexp.txt").splitlines())
+    profiles, notes = pa.discover(rules)
+    # Two gitdir trees are auditable; the onbranch condition is reported, never silently
+    # dropped — an unparsed condition that vanishes reads as "no such profile".
+    assert [name for name, _, _ in profiles] == ["my work", "personal"]
+    assert len(notes) == 1 and "onbranch" in notes[0]
+
+
 # --- ghostty: config pairs + fonts ---------------------------------------------------
 
 def test_ghostty_show_config_pairs_parse():
