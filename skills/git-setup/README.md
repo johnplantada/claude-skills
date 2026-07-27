@@ -74,4 +74,4 @@ git-setup/
 
 ## License
 
-[MIT](../LICENSE).
+[MIT](../../LICENSE).

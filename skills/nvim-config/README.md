@@ -92,4 +92,4 @@ concise.
 
 ## License
 
-[MIT](../LICENSE).
+[MIT](../../LICENSE).

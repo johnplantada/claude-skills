@@ -80,4 +80,4 @@ runtime-versions/
 
 ## License
 
-[MIT](../LICENSE).
+[MIT](../../LICENSE).

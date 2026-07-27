@@ -78,4 +78,4 @@ dotfiles/
 
 ## License
 
-[MIT](../LICENSE).
+[MIT](../../LICENSE).

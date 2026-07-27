@@ -76,4 +76,4 @@ macos-defaults/
 
 ## License
 
-[MIT](../LICENSE).
+[MIT](../../LICENSE).

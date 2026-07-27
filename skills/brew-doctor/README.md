@@ -75,4 +75,4 @@ brew-doctor/
 
 ## License
 
-[MIT](../LICENSE).
+[MIT](../../LICENSE).

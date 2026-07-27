@@ -75,4 +75,4 @@ shell-sync/
 
 ## License
 
-[MIT](../LICENSE).
+[MIT](../../LICENSE).

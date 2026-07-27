@@ -79,4 +79,4 @@ ssh-config/
 
 ## License
 
-[MIT](../LICENSE).
+[MIT](../../LICENSE).

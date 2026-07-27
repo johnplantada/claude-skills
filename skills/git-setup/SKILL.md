@@ -1,6 +1,6 @@
 ---
 name: Git Setup
-description: Set up, repair, upgrade, and optimize your GLOBAL git config — prove commits actually verify, not just that config is set. Use to SET UP recommended settings + SSH commit signing + delta + a global gitignore (and work-vs-personal identities via conditional includes), REPAIR a broken setup (commits signed but unverified, wrong identity resolving, HTTPS re-prompts), UPGRADE by adopting newer git defaults and refreshing tooling, or OPTIMIZE with a prioritized gap report against the live config. Verification-first: a test commit is made to prove signatures verify and identities resolve.
+description: Set up, repair, upgrade, and optimize your GLOBAL git config — prove commits actually verify, not just that config is set. Use to SET UP recommended settings + SSH commit signing + delta + a global gitignore (and work-vs-personal identities via conditional includes), REPAIR a broken setup (commits signed but unverified, wrong identity resolving, HTTPS re-prompts), UPGRADE by adopting newer git defaults and refreshing tooling, or OPTIMIZE with a prioritized gap report against the live config. Verification-first — a test commit is made to prove signatures verify and identities resolve.
 argument-hint: [setup|repair|upgrade|optimize]
 allowed-tools: Bash(*git-setup/scripts/*), Bash(git config --get *), Bash(git config --list *), Bash(git config --global --list *), Bash(git config --global --get *), Bash(git log *), Bash(git -C * *), Bash(cat *), Bash(ls *), Bash(command -v *), Bash(uname *)
 ---

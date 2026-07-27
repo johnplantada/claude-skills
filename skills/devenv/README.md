@@ -84,4 +84,4 @@ devenv/
 
 ## License
 
-[MIT](../LICENSE).
+[MIT](../../LICENSE).

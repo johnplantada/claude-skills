@@ -10,3 +10,8 @@
 # change with CI attached, which is the moment to read the new rules.
 pytest==9.1.1
 ruff==0.16.0
+# Frontmatter validation needs a REAL YAML parser: the bug that motivated it — an
+# unquoted ": " inside a description, which YAML reads as a nested mapping — is
+# invisible to a regex check. Test-only; no skill script may import it (those stay
+# stdlib-only so they run anywhere without an install step).
+PyYAML==6.0.3

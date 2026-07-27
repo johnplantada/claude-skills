@@ -1,6 +1,6 @@
 ---
 name: Terminal Theme
-description: Coordinate one visual theme across your whole terminal — Ghostty, fish, zsh, and starship — so they never clash. Uses the "inherit" model by default: Ghostty's theme defines the 16 ANSI colors, and starship/fish/zsh are configured with ANSI color NAMES so they follow it automatically — change the Ghostty theme and the entire terminal re-themes with one edit. Use to SET UP coordinated theming (convert hardcoded hex in starship/fish to ANSI, pick the Ghostty theme as the source of truth), REPAIR a surface that clashes (a prompt or shell still on old hardcoded colors), UPGRADE by switching the theme (one Ghostty edit) or adopting the "matched" model for exact brand palettes, or OPTIMIZE by auditing every surface for hardcoded hex that breaks inheritance. Verified by auditing each surface and rendering ANSI swatches.
+description: Coordinate one visual theme across your whole terminal — Ghostty, fish, zsh, and starship — so they never clash. Uses the "inherit" model by default — Ghostty's theme defines the 16 ANSI colors, and starship/fish/zsh are configured with ANSI color NAMES so they follow it automatically — change the Ghostty theme and the entire terminal re-themes with one edit. Use to SET UP coordinated theming (convert hardcoded hex in starship/fish to ANSI, pick the Ghostty theme as the source of truth), REPAIR a surface that clashes (a prompt or shell still on old hardcoded colors), UPGRADE by switching the theme (one Ghostty edit) or adopting the "matched" model for exact brand palettes, or OPTIMIZE by auditing every surface for hardcoded hex that breaks inheritance. Verified by auditing each surface and rendering ANSI swatches.
 argument-hint: [setup|repair|upgrade|optimize]
 allowed-tools: Bash(*terminal-theme/scripts/*), Bash(ghostty +*), Bash(fish -l -i -c *), Bash(starship *), Bash(grep *), Bash(cat *), Bash(ls *)
 ---
@@ -36,7 +36,7 @@ hex (which won't follow the terminal) and rendering the ANSI palette everything 
   data. Trade-off: colors are the terminal's 16 slots, not a specific brand's exact hex.
 - **Matched (advanced).** Each surface gets a theme's **exact hex** (a native fish/starship theme +
   Ghostty theme of the same name). Brand-accurate, but every switch re-applies all surfaces and each
-  theme needs its mapping. Covered in [upgrade.md](upgrade.md).
+  theme needs its mapping. Covered in [upgrade.md](reference/upgrade.md).
 
 ## The scripts (call these, don't re-derive them)
 
