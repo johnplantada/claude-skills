@@ -46,7 +46,9 @@ def run_skill_task(
 
 
 def skill_prompt(skill: str, task: str) -> str:
-    return f"Read the skill at {ROOT / 'skills' / skill / 'SKILL.md'} and follow it for this task: {task}"
+    candidates = [ROOT / "skills" / skill / "SKILL.md", *ROOT.glob(f"plugins/*/skills/{skill}/SKILL.md")]
+    skill_md = next((candidate for candidate in candidates if candidate.is_file()), candidates[0])
+    return f"Read the skill at {skill_md} and follow it for this task: {task}"
 
 
 def final_result(transcript: str) -> str:

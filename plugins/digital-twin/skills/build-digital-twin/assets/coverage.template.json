@@ -1,0 +1,15 @@
+{
+  "schema": "digital-twin/coverage",
+  "schema_version": "0.1.0",
+  "categories": {
+    "timeline": "missing",
+    "projects": "missing",
+    "decisions": "missing",
+    "outcomes": "missing",
+    "principles": "missing",
+    "failures_lessons": "missing",
+    "voice": "missing",
+    "boundaries": "missing",
+    "evaluation_questions": "missing"
+  }
+}

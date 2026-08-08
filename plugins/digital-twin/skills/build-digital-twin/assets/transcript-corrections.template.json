@@ -1,0 +1,11 @@
+{
+  "schema": "digital-twin/transcript-corrections",
+  "schema_version": "0.1.0",
+  "session_id": "",
+  "transcript_source_occurrence_id": "",
+  "corrections": [],
+  "retractions": [],
+  "deleted_spans": [],
+  "owner_review_state": "draft",
+  "reviewed_at": ""
+}

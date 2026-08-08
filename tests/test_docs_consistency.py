@@ -20,9 +20,10 @@ import re
 from pathlib import Path
 
 import pytest
+from _skill_discovery import reference_markdown, skill_directories
 
 ROOT = Path(__file__).resolve().parent.parent
-SKILLS = sorted(p for p in (ROOT / "skills").iterdir() if p.is_dir())
+SKILLS = skill_directories(ROOT)
 
 # A doc reference to a skill script: `scripts/<name>.py` (optionally prefixed with a path).
 _SCRIPT_REF_RE = re.compile(r"scripts/([A-Za-z0-9_]+\.py)")
@@ -36,7 +37,7 @@ _FLAG_ALLOWLIST = {"--help"}
 
 def _skill_docs(skill: Path) -> list[Path]:
     docs = [skill / "SKILL.md", skill / "README.md"]
-    docs += sorted((skill / "reference").glob("*.md")) if (skill / "reference").is_dir() else []
+    docs += reference_markdown(skill)
     return [d for d in docs if d.is_file()]
 
 

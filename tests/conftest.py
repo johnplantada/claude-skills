@@ -7,14 +7,19 @@ call their pure functions directly. This adds every script dir to sys.path; per-
 shared helpers use unique names (e.g. `_ghostty_common`) to avoid collisions.
 """
 
-import glob
 import sys
 from pathlib import Path
+
+from _skill_discovery import skill_directories
 
 ROOT = Path(__file__).resolve().parent.parent
 
 # Repo root first, so `from lib.devenv_common import ...` resolves (the shared primitives).
-_script_dirs = [str(ROOT), str(ROOT / "scripts"), *sorted(glob.glob(str(ROOT / "skills" / "*" / "scripts")))]
+_script_dirs = [
+    str(ROOT),
+    str(ROOT / "scripts"),
+    *(str(skill / "scripts") for skill in skill_directories(ROOT) if (skill / "scripts").is_dir()),
+]
 for _d in _script_dirs:
     if _d not in sys.path:
         sys.path.insert(0, _d)

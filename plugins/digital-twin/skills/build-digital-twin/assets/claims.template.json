@@ -1,0 +1,6 @@
+{
+  "schema": "digital-twin/claims",
+  "schema_version": "0.1.0",
+  "policy_version": "0.1.0",
+  "claims": []
+}

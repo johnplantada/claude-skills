@@ -1,0 +1,18 @@
+{
+  "schema": "digital-twin/interview-consent",
+  "schema_version": "0.1.0",
+  "policy_version": "0.1.0",
+  "session_id": "",
+  "represented_person_consent": "not_confirmed",
+  "model_processing": {
+    "disclosure_given": false,
+    "consent": "not_confirmed",
+    "source_categories": [],
+    "purpose": ""
+  },
+  "transcript_retention": "owner_managed",
+  "publication_consent": "not_confirmed",
+  "restricted_topics": [],
+  "recorded_at": "",
+  "review_state": "draft"
+}

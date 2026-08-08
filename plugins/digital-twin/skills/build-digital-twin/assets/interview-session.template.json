@@ -1,0 +1,25 @@
+{
+  "schema": "digital-twin/interview-session",
+  "schema_version": "0.1.0",
+  "session_id": "",
+  "capture_mode": "text",
+  "status": "draft",
+  "started_at": "",
+  "ended_at": "",
+  "consent_file": "consent.json",
+  "transcript_file": "transcript.md",
+  "corrections_file": "corrections.json",
+  "candidate_claims_file": "candidate-claims.json",
+  "coverage": {
+    "purpose_boundaries": "missing",
+    "timeline": "missing",
+    "projects_role": "missing",
+    "decisions_tradeoffs": "missing",
+    "outcomes_metrics": "missing",
+    "failures_lessons": "missing",
+    "principles_style": "missing",
+    "voice": "missing",
+    "faq_authority": "missing"
+  },
+  "retention_state": "active"
+}

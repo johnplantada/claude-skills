@@ -33,7 +33,8 @@ _FRONTMATTER_RE = re.compile(r"\A---\n(.*?)\n---", re.DOTALL)
 def skill_roster() -> list[tuple[str, str]]:
     """(name, description) for every shipped skill, parsed from SKILL.md frontmatter."""
     roster: list[tuple[str, str]] = []
-    for skill_md in sorted(ROOT.glob("skills/*/SKILL.md")):
+    skill_files = [*ROOT.glob("skills/*/SKILL.md"), *ROOT.glob("plugins/*/skills/*/SKILL.md")]
+    for skill_md in sorted(skill_files):
         m = _FRONTMATTER_RE.match(skill_md.read_text())
         if not m:
             continue

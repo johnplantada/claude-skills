@@ -32,9 +32,10 @@ from pathlib import Path
 
 import pytest
 import yaml
+from _skill_discovery import reference_markdown, skill_directories
 
 ROOT = Path(__file__).resolve().parent.parent
-SKILLS = sorted(p for p in (ROOT / "skills").iterdir() if p.is_dir())
+SKILLS = skill_directories(ROOT)
 
 # Descriptions are always-on context. The longest shipped one sits near 1000 chars; the
 # cap is a ceiling that catches runaway growth, not a target to write against.
@@ -61,7 +62,7 @@ def parsed(skill: Path) -> dict:
 
 def markdown_files(skill: Path) -> list[Path]:
     docs = [skill / "SKILL.md", skill / "README.md"]
-    docs += sorted((skill / "reference").glob("*.md")) if (skill / "reference").is_dir() else []
+    docs += reference_markdown(skill)
     return [d for d in docs if d.is_file()]
 
 

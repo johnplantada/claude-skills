@@ -1,0 +1,20 @@
+{
+  "name": "digital-twin",
+  "displayName": "Digital Twin Builder",
+  "description": "Build a private, evidence-backed professional context bundle through guided interviews, selective source review, atomic claims, and owner approval.",
+  "version": "0.1.0",
+  "author": {
+    "name": "John Plantada"
+  },
+  "homepage": "https://github.com/johnplantada/claude-skills",
+  "repository": "https://github.com/johnplantada/claude-skills",
+  "license": "MIT",
+  "keywords": [
+    "digital-twin",
+    "professional-profile",
+    "career",
+    "interview",
+    "provenance",
+    "privacy"
+  ]
+}

@@ -1,16 +1,24 @@
-# devenv — a Claude Code plugin
+# claude-skills — a Claude Code plugin marketplace
 
 [![tests](https://github.com/johnplantada/claude-skills/actions/workflows/test.yml/badge.svg)](https://github.com/johnplantada/claude-skills/actions/workflows/test.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-informational.svg)](LICENSE)
 
-A gallery of [Claude Code](https://claude.com/claude-code) **Agent Skills** that set up, repair,
-upgrade, and optimize a dev environment — Homebrew, language runtimes, dotfiles, shells, the terminal,
-Neovim, git, and ssh — packaged as **one plugin** so the whole thing installs and versions as a unit.
+A [Claude Code](https://claude.com/claude-code) marketplace containing two independently installable
+plugins: **devenv**, a gallery that sets up, repairs, upgrades, and optimizes a development
+environment; and **digital-twin**, a privacy-first builder for an evidence-backed professional
+context bundle.
 
-Every skill is **verification-first**: it proves a change by observing real behavior (validating a
-config, re-reading a value, resolving both shells), never by trusting that an edit did what it meant.
+Both plugins are review-first: deterministic checks validate structure and behavior, while the human
+owner remains authoritative over changes, sensitive material, and publication.
 
-## Architecture
+## Plugins
+
+| Plugin | What it does |
+|---|---|
+| **devenv** | Thirteen verification-first skills for Homebrew, runtimes, dotfiles, shells, Ghostty, Neovim, git, ssh, macOS, identities, credentials, and whole-machine coordination. |
+| [**digital-twin**](plugins/digital-twin/) | Builds a consenting owner's private professional context from guided interviews and selected evidence, with atomic claims, owner approval, privacy boundaries, and deletion propagation. |
+
+## devenv architecture
 
 Three tiers. A capstone holds the whole-machine coordination knowledge; **goal skills** each own one
 outcome that no single layer can deliver alone; layer skills each own exactly one concern and are the
@@ -57,7 +65,7 @@ the specific drift that breaks that model, and it declares its boundaries with t
 tree; `credential-store` resolves from one store. Anything missing the model or the detector is a
 runbook, and belongs in `devenv`.
 
-## Skills
+## devenv skills
 
 | Skill | What it does |
 |---|---|
@@ -139,16 +147,21 @@ macOS.
 ```bash
 git clone https://github.com/johnplantada/claude-skills ~/codebase/claude-skills
 
-# Load it for a session (great for local dev — picks up repo edits live):
+# Load devenv for a session (great for local dev — picks up repo edits live):
 claude --plugin-dir ~/codebase/claude-skills
 
-# …or add the bundled marketplace and install it persistently:
+# Or load Digital Twin Builder directly:
+claude --plugin-dir ~/codebase/claude-skills/plugins/digital-twin
+
+# …or add the bundled marketplace and install either plugin persistently:
 /plugin marketplace add ~/codebase/claude-skills
 /plugin install devenv
+/plugin install digital-twin
 ```
 
-Installed, skills are namespaced by the plugin (`/devenv:ghostty-config`, `/devenv:shell-sync`, …) —
-or just describe your task and the matching skill auto-activates — and the Stop hook is active.
+Installed, skills are namespaced by the plugin (`/devenv:ghostty-config`, `/devenv:shell-sync`, …)
+or `/digital-twin:build-digital-twin` — or just describe your task and the matching skill
+auto-activates. The Stop and PreToolUse hooks belong only to `devenv`.
 Validate the structure with `claude plugin validate ~/codebase/claude-skills`.
 
 ### A single skill
@@ -174,8 +187,9 @@ to sync. It is **non-blocking** and never writes, commits, or pushes — you dec
 ```
 ├── check                  ONE entry point for every tier (./check --help)
 ├── requirements-dev.txt   pytest + ruff, pinned exactly (CI installs from here)
-├── .claude-plugin/        plugin.json + marketplace.json
-├── skills/<name>/         SKILL.md · reference/*.md · scripts/*.py
+├── .claude-plugin/        devenv plugin.json + multi-plugin marketplace.json
+├── skills/<name>/         devenv SKILL.md · reference/*.md · scripts/*.py
+├── plugins/digital-twin/  isolated plugin · skill · references · assets · scripts · evals
 ├── lib/devenv_common.py   shared Python primitives + output conventions
 ├── scripts/               plugin hooks (drift reminder, secret-read guard) + fixture capture
 ├── tests/                 unit suite (mirrors skills/) + fixtures/ of real tool output
@@ -186,8 +200,9 @@ to sync. It is **non-blocking** and never writes, commits, or pushes — you dec
 
 ## Contributing
 
-Issues and PRs welcome. New skills go in `skills/<name>/` and follow the principles above; changes to
-existing skills should include the test that proves them (`pytest` must stay green).
+Issues and PRs welcome. Skills for `devenv` go in `skills/<name>/`; independent plugins live under
+`plugins/<name>/`. Changes should include the deterministic test that proves them (`pytest` must stay
+green).
 
 ## License
 
