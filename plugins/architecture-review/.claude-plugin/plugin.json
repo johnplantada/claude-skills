@@ -1,0 +1,18 @@
+{
+  "name": "architecture-review",
+  "description": "General-purpose, evidence-grounded reviews of architecture plans, system-design proposals, and ADRs for implementation readiness.",
+  "version": "0.1.0",
+  "author": {
+    "name": "John Plantada"
+  },
+  "homepage": "https://github.com/johnplantada/claude-skills/tree/main/plugins/architecture-review",
+  "repository": "https://github.com/johnplantada/claude-skills",
+  "license": "MIT",
+  "keywords": [
+    "architecture",
+    "system-design",
+    "adr",
+    "technical-plan",
+    "design-review"
+  ]
+}
