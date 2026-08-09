@@ -1,0 +1,13 @@
+{
+  "schema": "digital-twin/owner-feedback-item",
+  "schema_version": "0.2.0",
+  "feedback_id": "",
+  "response_id": "",
+  "snapshot_id": "",
+  "category": "useful",
+  "record_ids": [],
+  "owner_note": "",
+  "confirmed": false,
+  "status": "new",
+  "created_at": ""
+}

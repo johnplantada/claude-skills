@@ -1,0 +1,17 @@
+{
+  "schema": "digital-twin/update-plan",
+  "schema_version": "0.2.0",
+  "policy_version": "0.2.0",
+  "update_id": "",
+  "created_at": "",
+  "base_snapshot_id": "",
+  "base_workspace_revision": 0,
+  "base_bundle_digest": "",
+  "trigger": "owner_selected_source_refresh",
+  "source_file": "",
+  "source_changes": [],
+  "impacted_claim_ids": [],
+  "impacted_record_ids": [],
+  "planned_actions": [],
+  "plan_digest": ""
+}

@@ -1,15 +1,15 @@
-# Digital Twin Builder: design and architecture
+# Professional Digital Twin: design and architecture
 
 | Field | Value |
 |---|---|
-| Status | Proposed |
+| Status | Private skill architecture implemented; public serving proposed |
 | Date | 2026-08-09 |
 | Decision owner | Product owner |
 | Audience | Product owner, maintainers, reviewers, and future implementers |
 
 ## Executive summary
 
-Digital Twin Builder should produce an owner-controlled, evidence-backed representation of a
+The digital-twin plugin should produce an owner-controlled, evidence-backed representation of a
 person's professional context. It is not an avatar, a voice clone, an autonomous representative, or
 a simulation of the whole person.
 
@@ -20,12 +20,13 @@ The initial build has two content stages:
 2. Conduct a text or voice-captured interview that addresses those gaps without treating the
    owner's answers as independent documentary corroboration.
 
-The proposed update mechanism repeats those stages over changes. It observes only sources the owner
+The implemented maintenance foundation repeats those stages over owner-selected changes. It observes only sources the owner
 selects, creates immutable source versions, invalidates dependent approvals conservatively, asks
 only update-specific interview questions, and makes a new bundle snapshot current only after owner
 review and deterministic validation.
 
-The product should first serve that bundle through an authenticated private career assistant. The
+The plugin now separates routing, building, private use, and maintenance into distinct skills. It
+serves the compiled bundle locally through a private career-assistant workflow. The
 end goal is public website chat over a physically separate, minimal public snapshot. Public chat is
 a constrained consumer, never the private twin's source of truth or an update authority. See
 [Private assistant and public website chat](serving-and-feedback.md) for the serving profiles,
@@ -39,6 +40,7 @@ with the owner at an explicit cadence rather than watching the owner continuousl
 - [Does this make sense as a digital twin?](#does-this-make-sense-as-a-digital-twin)
 - [Serving and feedback architecture](serving-and-feedback.md)
 - [Goals, constraints, and invariants](#goals)
+- [Skill orchestration and authority](#skill-orchestration-and-authority)
 - [System context and trust boundaries](#system-context-and-trust-boundaries)
 - [Architecture decision and components](#architecture-decision)
 - [Initial build lifecycle](#initial-build-lifecycle)
@@ -129,6 +131,31 @@ unqualified claim that it models the whole person.
 13. Public visitor input is untrusted feedback and cannot mutate claims or become evidence.
 14. The public runtime has no route or credentials to the private workspace.
 
+## Skill orchestration and authority
+
+The plugin uses a thin router and three lifecycle skills. The router selects and sequences work but
+has no source-reading, serving, or mutation authority.
+
+```mermaid
+flowchart TD
+    Request["Owner request"] --> Router["digital-twin router"]
+    Router -->|"Create or rebuild"| Build["build-digital-twin"]
+    Router -->|"Ask, prepare, compare, or draft"| Use["use-career-twin"]
+    Router -->|"Refresh, correct, retract, or delete"| Maintain["maintain-digital-twin"]
+    Build --> Bundle["Governed working bundle"]
+    Build --> Snapshot["Current approved private snapshot"]
+    Maintain --> Bundle
+    Maintain --> Snapshot
+    Snapshot --> Use
+    Use --> Feedback["Confirmed owner feedback inbox"]
+    Feedback -->|"Owner authorizes factual change"| Maintain
+```
+
+`use-career-twin` reads only a current compiled snapshot and cannot mutate claims, decisions,
+sources, visibility, publication, or snapshot state. `maintain-digital-twin` is the only update
+path. A future public website service remains outside this skill graph and consumes only a separate
+public artifact.
+
 ## System context and trust boundaries
 
 ```mermaid
@@ -138,7 +165,7 @@ flowchart LR
     Visitors["Website visitors"]
 
     subgraph PrivatePlane["Owner-controlled private plane"]
-        Skill["Claude Code + build-digital-twin skill"]
+        Skill["Router + build/use/maintain skills"]
         Tools["Deterministic local tools"]
         Workspace["Private twin workspace"]
         PrivateAssistant["Authenticated private career assistant"]
@@ -177,12 +204,14 @@ private workspace or convert visitor input into twin state.
 
 ## Architecture decision
 
-Adopt two linked decisions:
+Adopt three linked decisions:
 
 1. Validate the governed bundle through a private career assistant, then expose only a separately
    approved public projection through website chat.
 2. Maintain the underlying twin through an **owner-controlled, event-based delta synchronization
    loop**.
+3. Separate orchestration, initial construction, private use, and governed maintenance into skills
+   whose bundle contracts do not overlap their authority.
 
 The serving decision and rollout gates are detailed in
 [serving-and-feedback.md](serving-and-feedback.md). The remainder of this document focuses on the
@@ -426,8 +455,9 @@ python3 scripts/update_bundle.py apply WORKSPACE --plan UPDATE_ID
 python3 scripts/update_bundle.py status WORKSPACE
 ```
 
-The exact CLI is proposed. `plan` is read-only; `apply` changes structured workspace state but does
-not approve claims or publish records.
+This CLI is implemented for explicit source refreshes. `plan` writes only a private metadata plan
+and does not mutate governed bundle state; `apply` changes structured workspace state but does not
+approve claims or publish records.
 
 ```mermaid
 sequenceDiagram
@@ -521,7 +551,7 @@ ineligible public output, and flag affected evaluation answers for review.
 Use conservative invalidation. A formatting-only edit may eventually be judged immaterial, but the
 model must not make that judgment binding. Owner reapproval restores eligibility.
 
-## Proposed workspace additions
+## Implemented workspace additions
 
 ```text
 <workspace>/
@@ -597,21 +627,21 @@ Auditability and deletion pull in opposite directions. Resolve that tension as f
 | Capability | Current plugin | Target behavior |
 |---|---|---|
 | Private workspace initialization | Implemented | Reuse |
-| Source occurrence and content hash | Implemented | Add stable logical-source version chain |
+| Source occurrence and content hash | Implemented with predecessor chain | Extend beyond owner-selected refreshes as needed |
 | Atomic claims and evidence edges | Implemented | Reuse for delta candidates |
 | Evidence-strength ceiling | Implemented | Recalculate during apply and validation |
 | Exact owner approval digest | Implemented | Invalidate on update |
-| Append-only owner decisions | Implemented | Add update decisions and snapshot linkage |
-| Deletion/stale propagation | Implemented in validation model | Invoke transactionally during apply |
+| Append-only owner decisions | Implemented, including update deferrals | Add snapshot linkage where useful |
+| Deletion/stale propagation | Validation plus source-refresh invalidation implemented | Complete transactional deletion and retained-snapshot purge |
 | Publication gates | Implemented | Compile a physically separate public snapshot |
-| Private career assistant | Not implemented | First serving profile and product-value test |
-| Structured serving response contract | Not implemented | Grounded citations, uncertainty, abstention, and boundaries |
-| Owner serving-feedback inbox | Not implemented | Reviewed correction and update requests |
-| Update event log | Not implemented | Add metadata-only append log |
-| Plan/apply transaction | Not implemented | Add deterministic update tool |
-| Workspace concurrency control | Not implemented | Add lock and optimistic base revision |
-| Immutable bundle snapshots | Not implemented | Add retained snapshot compiler |
-| Atomic current pointer | Not implemented | Add after successful validation |
+| Private career assistant | Implemented as local skill plus extractive helper | Evaluate usefulness and consider a separate private UI |
+| Structured serving response contract | Implemented for local private queries | Extend generation/evaluation without weakening checks |
+| Owner serving-feedback inbox | Implemented with confirmed append-only items | Add reviewed conversion into maintenance cases |
+| Update event log | Implemented for source refreshes | Add retention and recovery administration |
+| Plan/apply transaction | Implemented for explicit source refreshes | Extend to correction, retraction, and deletion operations |
+| Workspace concurrency control | Implemented with exclusive lock and optimistic digests | Add stale-lock recovery procedure |
+| Immutable bundle snapshots | Implemented as content-addressed private record snapshots | Add retention and privacy purge controls |
+| Atomic current pointer | Implemented after successful validation | Add rollback administration |
 | Public promotion compiler | Not implemented | One-way allowlisted projection after separate approval |
 | Public website chat | Not implemented | Read-only service over public snapshot only |
 | Untrusted visitor feedback queue | Not implemented | Owner-reviewed suggestions with no direct mutation |
@@ -638,6 +668,9 @@ This design borrows concepts from standards but does not claim certification or 
 
 ### Phase 1: private career assistant and product validation
 
+The local skill, snapshot query helper, response contract, and feedback inbox are implemented.
+Forward comparison with the résumé-plus-prompt baseline remains a product acceptance gate.
+
 1. Serve the current approved bundle through an authenticated private interface.
 2. Require structured citations, uncertainty, abstention, privacy, and authority boundaries.
 3. Add confirmed owner feedback without allowing silent bundle mutation.
@@ -649,6 +682,9 @@ Detailed serving behavior and gates live in [serving-and-feedback.md](serving-an
 
 ### Phase 2: update schema foundation
 
+Schema and policy `0.2.0`, explicit `0.1.0` migration, source predecessor links, current state,
+plans, sessions, events, and snapshot manifests are implemented.
+
 1. Add stable logical-source records and predecessor links between source occurrences.
 2. Add update-plan, update-session, update-event, and snapshot-manifest schemas.
 3. Add snapshot IDs to owner decisions and approved records where needed.
@@ -659,12 +695,20 @@ explicit; do not silently reinterpret an existing `0.1.0` bundle.
 
 ### Phase 3: deterministic update transaction
 
+Plan/apply/status, locking, optimistic digests, source rechecks, idempotent session replay, and
+conservative serving blocks are implemented for owner-selected source refreshes. Crash recovery,
+transactional deletion, and rollback administration remain follow-up work.
+
 1. Implement `update_bundle.py plan`, `apply`, and `status` with standard-library Python.
 2. Add locking, optimistic base revision, plan digests, atomic writes, and idempotency.
 3. Extend validation for version chains, event ordering, snapshots, and the current pointer.
 4. Add synthetic crash, concurrency, stale-plan, deletion, and replay tests.
 
 ### Phase 4: skill workflow integration
+
+The router and separate build/use/maintain skill boundaries are implemented. Document-delta
+extraction, focused interviewing, and reapproval remain model-guided workflows over deterministic
+state rather than autonomous mutations.
 
 1. Add update onboarding and scoped consent instructions.
 2. Produce a document-delta checkpoint from the plan.

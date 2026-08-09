@@ -1,0 +1,4 @@
+interface:
+  display_name: "Use Career Twin"
+  short_description: "Use an approved private career twin safely"
+  default_prompt: "Use $use-career-twin to answer this career question from my approved twin."

@@ -5,8 +5,8 @@
 
 A [Claude Code](https://claude.com/claude-code) marketplace containing two independently installable
 plugins: **devenv**, a gallery that sets up, repairs, upgrades, and optimizes a development
-environment; and **digital-twin**, a privacy-first builder for an evidence-backed professional
-context bundle.
+environment; and **digital-twin**, a privacy-first lifecycle suite for building, using, and
+maintaining an evidence-backed professional context twin.
 
 Both plugins are review-first: deterministic checks validate structure and behavior, while the human
 owner remains authoritative over changes, sensitive material, and publication.
@@ -16,7 +16,7 @@ owner remains authoritative over changes, sensitive material, and publication.
 | Plugin | What it does |
 |---|---|
 | **devenv** | Thirteen verification-first skills for Homebrew, runtimes, dotfiles, shells, Ghostty, Neovim, git, ssh, macOS, identities, credentials, and whole-machine coordination. |
-| [**digital-twin**](plugins/digital-twin/) | Builds a consenting owner's private professional context by reviewing selected documents first, then using a gap-driven interview, with atomic claims, owner approval, privacy boundaries, and deletion propagation. |
+| [**digital-twin**](plugins/digital-twin/) | Routes separate build, private career-assistant, and owner-controlled maintenance skills over approved snapshots, atomic evidence, feedback isolation, privacy boundaries, and conservative invalidation. |
 
 ## devenv architecture
 
@@ -150,7 +150,7 @@ git clone https://github.com/johnplantada/claude-skills ~/codebase/claude-skills
 # Load devenv for a session (great for local dev — picks up repo edits live):
 claude --plugin-dir ~/codebase/claude-skills
 
-# Or load Digital Twin Builder directly:
+# Or load Digital Twin directly:
 claude --plugin-dir ~/codebase/claude-skills/plugins/digital-twin
 
 # …or add the bundled marketplace and install either plugin persistently:
@@ -160,7 +160,8 @@ claude --plugin-dir ~/codebase/claude-skills/plugins/digital-twin
 ```
 
 Installed, skills are namespaced by the plugin (`/devenv:ghostty-config`, `/devenv:shell-sync`, …)
-or `/digital-twin:build-digital-twin` — or just describe your task and the matching skill
+or `/digital-twin:build-digital-twin`, `/digital-twin:use-career-twin`, and
+`/digital-twin:maintain-digital-twin` — or just describe your task and the matching skill
 auto-activates. The Stop and PreToolUse hooks belong only to `devenv`.
 Validate the structure with `claude plugin validate ~/codebase/claude-skills`.
 
@@ -189,7 +190,7 @@ to sync. It is **non-blocking** and never writes, commits, or pushes — you dec
 ├── requirements-dev.txt   pytest + ruff, pinned exactly (CI installs from here)
 ├── .claude-plugin/        devenv plugin.json + multi-plugin marketplace.json
 ├── skills/<name>/         devenv SKILL.md · reference/*.md · scripts/*.py
-├── plugins/digital-twin/  isolated plugin · skill · references · assets · scripts · evals
+├── plugins/digital-twin/  isolated plugin · routed lifecycle skills · references · assets · scripts · evals
 ├── lib/devenv_common.py   shared Python primitives + output conventions
 ├── scripts/               plugin hooks (drift reminder, secret-read guard) + fixture capture
 ├── tests/                 unit suite (mirrors skills/) + fixtures/ of real tool output

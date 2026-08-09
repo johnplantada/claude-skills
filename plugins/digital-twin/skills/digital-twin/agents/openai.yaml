@@ -1,0 +1,4 @@
+interface:
+  display_name: "Digital Twin"
+  short_description: "Route digital-twin creation, use, and updates"
+  default_prompt: "Use $digital-twin to choose the safe workflow for my digital twin request."

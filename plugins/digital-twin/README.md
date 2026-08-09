@@ -1,10 +1,16 @@
-# Digital Twin Builder
+# Professional Digital Twin
 
-`digital-twin` is a Claude Code plugin for building a private, evidence-backed professional
-context bundle about a consenting owner. Its `build-digital-twin` skill starts with a guided
-review of explicitly selected documents, organizes their atomic candidate claims and coverage gaps,
-then uses a guided voice-or-text interview to resolve and fill those gaps. It compiles only
-owner-approved material.
+`digital-twin` is a Claude Code plugin for building, using, and maintaining a private,
+evidence-backed professional digital twin about a consenting owner. It separates lifecycle
+authority across four skills:
+
+- `digital-twin` routes ambiguous or multi-stage requests without reading or changing twin data.
+- `build-digital-twin` reviews selected documents, interviews against gaps, and compiles approved
+  records into a private snapshot.
+- `use-career-twin` provides grounded career assistance from that snapshot and captures feedback
+  without changing facts.
+- `maintain-digital-twin` plans source refreshes, invalidates stale dependencies, and guides owner
+  review before a replacement snapshot becomes current.
 
 It does not create avatars, clone a voice, impersonate the owner, publish automatically, connect
 broad accounts, or act on anyone's behalf.
@@ -22,17 +28,19 @@ accuracy, wording, evidence classification, visibility, publication rights, and 
 
 ## Product direction
 
-The current plugin builds and validates the governed private source of truth. The first proposed
-serving product is an authenticated private career assistant. The end goal is website chat backed by
-a physically separate, minimal public snapshot—not direct access to the private workspace.
+The current plugin implements the governed private source of truth, a local private career-assistant
+workflow, owner feedback capture, content-addressed private snapshots, and controlled source-refresh
+transactions. The end goal remains website chat backed by a physically separate, minimal public
+snapshot—not direct access to the private workspace.
 
 - [Design and architecture](docs/design-and-architecture.md): twin lifecycle, data model,
   owner-controlled updates, failure handling, and current-versus-proposed capabilities.
 - [Private assistant and public website chat](docs/serving-and-feedback.md): serving profiles,
   response contract, public boundary, feedback loop, threats, evaluation, and rollout gates.
 
-Neither serving profile nor the update transaction is implemented yet. The builder skill does not
-host, deploy, or automatically publish a website chatbot.
+The private interface currently runs through Claude Code plus standard-library local helpers; it is
+not a standalone application. Public projection, public website chat, hosting, deployment, and
+automatic publication are not implemented.
 
 ## Privacy model
 
@@ -66,11 +74,18 @@ Then ask, “Review and organize these documents, then interview me to fill the 
 /digital-twin:build-digital-twin
 ```
 
+For an existing twin, ask “Use my career twin to prepare me for this interview” or “Maintain my
+digital twin from this updated résumé.” The thin `digital-twin` router can select the workflow for
+ambiguous requests.
+
 The deterministic helpers are standard-library Python 3.9+:
 
 ```bash
 python3 skills/build-digital-twin/scripts/init_workspace.py /private/path/my-twin
 python3 skills/build-digital-twin/scripts/validate_bundle.py /private/path/my-twin --format json
+python3 skills/build-digital-twin/scripts/compile_private_snapshot.py /private/path/my-twin --format json
+python3 skills/use-career-twin/scripts/career_twin.py query /private/path/my-twin "What should I emphasize?" --format json
+python3 skills/maintain-digital-twin/scripts/update_bundle.py status /private/path/my-twin --format json
 ```
 
 Validate the plugin itself with:

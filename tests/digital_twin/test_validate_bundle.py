@@ -8,7 +8,7 @@ from typing import Any
 
 import init_workspace as iw
 import validate_bundle as vb
-from _bundle_common import REVIEW_LOG_FILE, TEMPLATE_FILES, template_text
+from _bundle_common import POLICY_VERSION, REVIEW_LOG_FILE, SCHEMA_VERSION, TEMPLATE_FILES, template_text
 
 
 def empty_documents() -> dict[str, Any]:
@@ -26,6 +26,8 @@ def synthetic_source(
     return {
         "source_id": f"src-{suffix}",
         "source_occurrence_id": f"occ-{suffix}",
+        "supersedes_occurrence_id": "",
+        "observed_at": "2026-01-01T00:00:00Z",
         "owner_title": f"Synthetic source {suffix}",
         "origin": f"owner-selected://{suffix}",
         "media_type": "text/plain",
@@ -116,8 +118,8 @@ def approve_claim(claim: dict[str, Any], sources: list[dict[str, Any]]) -> None:
         "publication_rights": claim["publication_rights"],
         "metric": claim["metric"],
         "reviewed_at": "2026-01-01",
-        "schema_version": "0.1.0",
-        "policy_version": "0.1.0",
+        "schema_version": SCHEMA_VERSION,
+        "policy_version": POLICY_VERSION,
     }
 
 
@@ -233,7 +235,6 @@ def test_duplicate_hashes_and_unknown_independence_do_not_multiply_support():
         vb.evidence_ceiling(unknown_claim, {source["source_occurrence_id"]: source for source in (first, unknown)})
         == "limited"
     )
-
     shared_group = synthetic_source("delta", independence_group=first["independence_group"])
     shared_group_claim = synthetic_claim([(first, "corroboration"), (shared_group, "corroboration")])
     assert (
@@ -254,6 +255,22 @@ def test_duplicate_hashes_and_unknown_independence_do_not_multiply_support():
         )
         == "limited"
     )
+
+
+def test_logical_source_versions_form_one_non_branching_predecessor_chain():
+    documents = empty_documents()
+    first = synthetic_source("resume-original")
+    second = synthetic_source("resume-update")
+    second["source_id"] = first["source_id"]
+    second["supersedes_occurrence_id"] = first["source_occurrence_id"]
+    documents["sources/source-manifest.json"]["sources"] = [first, second]
+    assert vb.validate_documents(documents) == []
+
+    branch = synthetic_source("resume-branch")
+    branch["source_id"] = first["source_id"]
+    branch["supersedes_occurrence_id"] = first["source_occurrence_id"]
+    documents["sources/source-manifest.json"]["sources"].append(branch)
+    assert "branching-source-history" in issue_codes(documents)
 
 
 def test_atomic_evidence_references_and_source_derivation_cycles_are_validated():

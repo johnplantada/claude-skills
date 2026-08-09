@@ -19,12 +19,15 @@ def test_architecture_document_is_linked_and_visually_explains_the_system():
         assert diagram in text
 
 
-def test_architecture_document_distinguishes_current_state_from_proposal():
+def test_architecture_document_distinguishes_implemented_private_state_from_public_proposal():
     text = ARCHITECTURE.read_text()
 
-    assert "| Status | Proposed |" in text
+    assert "| Status | Private skill architecture implemented; public serving proposed |" in text
     assert "## Current versus proposed capability" in text
-    assert "Plan/apply transaction | Not implemented" in text
+    assert "Plan/apply transaction | Implemented for explicit source refreshes" in text
+    assert "Public website chat | Not implemented" in text
+    assert "use-career-twin" in text
+    assert "maintain-digital-twin" in text
     assert "current-snapshot pointer changes only after complete validation" in text
 
 

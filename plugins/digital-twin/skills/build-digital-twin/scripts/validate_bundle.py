@@ -19,7 +19,14 @@ from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Any
 
-from _bundle_common import POLICY_VERSION, REVIEW_LOG_FILE, SCHEMA_VERSION, VALIDATION_FILES, digest_json
+from _bundle_common import (
+    CURRENT_STATE_FILE,
+    POLICY_VERSION,
+    REVIEW_LOG_FILE,
+    SCHEMA_VERSION,
+    VALIDATION_FILES,
+    digest_json,
+)
 
 ID_RE = re.compile(r"^[a-z][a-z0-9]*(?:-[a-z0-9]+)+$")
 HASH_RE = re.compile(r"^(?:sha256:)?[0-9a-f]{64}$")
@@ -72,6 +79,7 @@ EXPECTED_SCHEMAS = {
     "publication/approved-records.json": "digital-twin/approved-records",
     "publication/publication-manifest.json": "digital-twin/publication-manifest",
     "evals/private-evals.json": "digital-twin/private-evals",
+    "state/current.json": "digital-twin/current-state",
 }
 
 
@@ -138,6 +146,7 @@ def validate_header(document: str, value: Any) -> list[Issue]:
             "candidates/claims.json",
             "publication/approved-records.json",
             "publication/publication-manifest.json",
+            "state/current.json",
         }
         and value.get("policy_version") != POLICY_VERSION
     ):
@@ -261,6 +270,8 @@ def validate_sources(data: Any) -> tuple[list[Issue], dict[str, dict[str, Any]],
     required = (
         "source_id",
         "source_occurrence_id",
+        "supersedes_occurrence_id",
+        "observed_at",
         "owner_title",
         "origin",
         "media_type",
@@ -291,10 +302,7 @@ def validate_sources(data: Any) -> tuple[list[Issue], dict[str, dict[str, Any]],
             if not nonempty_string(value) or not ID_RE.fullmatch(value):
                 issues.append(issue("invalid-id", document, path_at(base, field), "identifier has invalid shape"))
         if nonempty_string(source_id):
-            if source_id in by_source:
-                issues.append(issue("duplicate-id", document, path_at(base, "source_id"), "source ID is duplicated"))
-            else:
-                by_source[source_id] = source
+            by_source[source_id] = source
         if nonempty_string(occurrence_id):
             if occurrence_id in by_occurrence:
                 issues.append(
@@ -308,9 +316,19 @@ def validate_sources(data: Any) -> tuple[list[Issue], dict[str, dict[str, Any]],
             else:
                 by_occurrence[occurrence_id] = source
 
-        for field in ("owner_title", "origin", "media_type", "processing_purpose"):
+        for field in ("owner_title", "origin", "media_type", "processing_purpose", "observed_at"):
             if not nonempty_string(source.get(field)):
                 issues.append(issue("invalid-type", document, path_at(base, field), "field must be a non-empty string"))
+        predecessor = source.get("supersedes_occurrence_id")
+        if not is_string(predecessor) or (predecessor and not ID_RE.fullmatch(predecessor)):
+            issues.append(
+                issue(
+                    "invalid-id",
+                    document,
+                    path_at(base, "supersedes_occurrence_id"),
+                    "predecessor occurrence ID must be empty or valid",
+                )
+            )
         content_hash = source.get("content_hash")
         if content_hash != "" and (not is_string(content_hash) or not HASH_RE.fullmatch(content_hash)):
             issues.append(
@@ -369,6 +387,51 @@ def validate_sources(data: Any) -> tuple[list[Issue], dict[str, dict[str, Any]],
                         "derived source reference does not resolve",
                     )
                 )
+
+    predecessor_graph: dict[str, list[str]] = {}
+    successor_counts: dict[str, int] = {}
+    for index, source in enumerate(sources):
+        if not is_object(source):
+            continue
+        occurrence_id = source.get("source_occurrence_id")
+        predecessor = source.get("supersedes_occurrence_id")
+        if not nonempty_string(occurrence_id):
+            continue
+        predecessor_graph[occurrence_id] = [predecessor] if nonempty_string(predecessor) else []
+        if not nonempty_string(predecessor):
+            continue
+        prior = by_occurrence.get(predecessor)
+        if prior is None:
+            issues.append(
+                issue(
+                    "broken-source-predecessor",
+                    document,
+                    f"/sources/{index}/supersedes_occurrence_id",
+                    "predecessor occurrence does not resolve",
+                )
+            )
+            continue
+        if prior.get("source_id") != source.get("source_id"):
+            issues.append(
+                issue(
+                    "cross-source-predecessor",
+                    document,
+                    f"/sources/{index}/supersedes_occurrence_id",
+                    "predecessor must belong to the same logical source",
+                )
+            )
+        successor_counts[predecessor] = successor_counts.get(predecessor, 0) + 1
+    for predecessor, count in successor_counts.items():
+        if count > 1:
+            issues.append(
+                issue(
+                    "branching-source-history",
+                    document,
+                    "/sources",
+                    "a source occurrence has multiple successors",
+                )
+            )
+    issues.extend(cycle_issues(predecessor_graph, document, "/sources", "circular-source-history"))
 
     graph = {
         source_id: [
@@ -835,7 +898,7 @@ def validate_claims(
                     "claim-dependencies-not-supported",
                     document,
                     path_at(base, "depends_on_claim_ids"),
-                    "claim dependencies are reserved and must be empty in schema version 0.1.0",
+                    "claim dependencies are reserved and must be empty in schema version 0.2.0",
                 )
             )
         if not is_object(claim.get("flags")):
@@ -1135,6 +1198,45 @@ def validate_evals(data: Any) -> list[Issue]:
     return issues
 
 
+def validate_current_state(data: Any) -> list[Issue]:
+    document = CURRENT_STATE_FILE
+    issues = validate_header(document, data)
+    if not is_object(data):
+        return issues
+    required = (
+        "workspace_revision",
+        "current_private_snapshot_id",
+        "serving_state",
+        "pending_update_id",
+        "blocked_record_ids",
+    )
+    issues.extend(require_fields(data, required, document, "/"))
+    revision = data.get("workspace_revision")
+    if not isinstance(revision, int) or isinstance(revision, bool) or revision < 0:
+        issues.append(issue("invalid-revision", document, "/workspace_revision", "revision must be non-negative"))
+    for field in ("current_private_snapshot_id", "pending_update_id"):
+        value = data.get(field)
+        if not is_string(value) or (value and not ID_RE.fullmatch(value)):
+            issues.append(issue("invalid-id", document, f"/{field}", "identifier must be empty or valid"))
+    serving_state = data.get("serving_state")
+    if serving_state not in {"uncompiled", "ready", "review_required", "error"}:
+        issues.append(issue("invalid-enum", document, "/serving_state", "serving state is unsupported"))
+    blocked = data.get("blocked_record_ids")
+    if not isinstance(blocked, list) or not all(nonempty_string(item) and ID_RE.fullmatch(item) for item in blocked):
+        issues.append(issue("invalid-type", document, "/blocked_record_ids", "blocked record IDs must be an array"))
+    if serving_state == "ready" and not nonempty_string(data.get("current_private_snapshot_id")):
+        issues.append(
+            issue(
+                "missing-current-snapshot", document, "/current_private_snapshot_id", "ready state requires a snapshot"
+            )
+        )
+    if serving_state == "review_required" and not nonempty_string(data.get("pending_update_id")):
+        issues.append(
+            issue("missing-pending-update", document, "/pending_update_id", "review state requires an update ID")
+        )
+    return issues
+
+
 def validate_approved_records(
     data: Any,
     claims_by_id: dict[str, dict[str, Any]],
@@ -1385,6 +1487,7 @@ def validate_documents(documents: dict[str, Any]) -> list[Issue]:
     issues.extend(validate_conflict_links(conflicts_by_id, claims_by_id))
     issues.extend(validate_coverage(documents.get("candidates/coverage.json")))
     issues.extend(validate_evals(documents.get("evals/private-evals.json")))
+    issues.extend(validate_current_state(documents.get(CURRENT_STATE_FILE)))
     approved_issues, approved_by_id = validate_approved_records(
         documents.get("publication/approved-records.json"), claims_by_id, current_approvals
     )
@@ -1447,6 +1550,44 @@ def load_bundle(workspace: Path) -> tuple[dict[str, Any], list[Issue], str | Non
                 f"error\tunreadable structured document\t{REVIEW_LOG_FILE}\tline-{line_number}\t{type(exc).__name__}",
             )
         documents[REVIEW_LOG_FILE] = decisions
+
+    state = documents.get(CURRENT_STATE_FILE)
+    snapshot_id = state.get("current_private_snapshot_id") if is_object(state) else ""
+    if nonempty_string(snapshot_id):
+        snapshot_dir = workspace / "snapshots" / snapshot_id
+        manifest_path = snapshot_dir / "snapshot-manifest.json"
+        records_path = snapshot_dir / "records.json"
+        for relative, target in (
+            ("snapshot-manifest.json", manifest_path),
+            ("records.json", records_path),
+        ):
+            document = f"snapshots/{snapshot_id}/{relative}"
+            if not target.is_file() or not path_inside(target.resolve(), root):
+                issues.append(issue("missing-snapshot-document", document, "/", "current snapshot file is unavailable"))
+        if manifest_path.is_file() and records_path.is_file():
+            try:
+                manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+                records = json.loads(records_path.read_text(encoding="utf-8"))
+            except (OSError, UnicodeError, json.JSONDecodeError) as exc:
+                return documents, issues, f"error\tunreadable current snapshot\t{type(exc).__name__}"
+            if not is_object(manifest) or manifest.get("snapshot_id") != snapshot_id:
+                issues.append(
+                    issue(
+                        "invalid-snapshot-manifest",
+                        "snapshots/current/snapshot-manifest.json",
+                        "/snapshot_id",
+                        "snapshot identity mismatch",
+                    )
+                )
+            elif manifest.get("records_digest") != digest_json(records):
+                issues.append(
+                    issue(
+                        "snapshot-integrity-failure",
+                        "snapshots/current/snapshot-manifest.json",
+                        "/records_digest",
+                        "snapshot records digest mismatch",
+                    )
+                )
     return documents, issues, None
 
 

@@ -1,7 +1,7 @@
 # build-digital-twin
 
 This Claude Code skill guides a consenting owner from selected career documents and a focused
-follow-up interview to a private, evidence-backed professional context bundle. It keeps facts
+follow-up interview to a compiled private, evidence-backed professional context bundle. It keeps facts
 atomic, distinguishes self-report from corroboration, surfaces conflicts, requires exact owner
 approval, and propagates source deletion to dependent claims and publication candidates.
 
@@ -19,6 +19,7 @@ The default path is:
 4. Complete a gap-driven voice-or-text interview.
 5. Approve exact records and compile a portable private bundle.
 6. Validate privacy, provenance, evidence ceilings, lifecycle state, and publication eligibility.
+7. Compile current approved records into a content-addressed private snapshot.
 
 ## Safety guarantees
 
@@ -37,7 +38,11 @@ Initialize with `python3 scripts/init_workspace.py /private/path/my-twin`.
 
 Validate with `python3 scripts/validate_bundle.py /private/path/my-twin --format json`.
 
-Both helpers use only the Python standard library. `init_workspace.py` refuses non-empty or git
-worktree destinations by default. `validate_bundle.py` never prints matched secret values.
+Compile with `python3 scripts/compile_private_snapshot.py /private/path/my-twin --format json`.
+
+All helpers use only the Python standard library. `init_workspace.py` refuses non-empty or git
+worktree destinations by default. `validate_bundle.py` never prints matched secret values. The
+compiled snapshot is the read-only handoff to the sibling `use-career-twin` skill; later factual
+changes belong to `maintain-digital-twin`.
 
 Part of the [Digital Twin Builder](../../README.md) plugin.

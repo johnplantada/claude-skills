@@ -12,8 +12,8 @@ import os
 from pathlib import Path
 from typing import Any
 
-SCHEMA_VERSION = "0.1.0"
-POLICY_VERSION = "0.1.0"
+SCHEMA_VERSION = "0.2.0"
+POLICY_VERSION = "0.2.0"
 
 SKILL_ROOT = Path(__file__).resolve().parent.parent
 ASSET_ROOT = SKILL_ROOT / "assets"
@@ -29,6 +29,13 @@ WORKSPACE_DIRECTORIES = (
     "publication",
     "evals",
     "evals/reports",
+    "feedback",
+    "updates",
+    "updates/plans",
+    "updates/sessions",
+    "snapshots",
+    "state",
+    "locks",
 )
 
 TEMPLATE_FILES = {
@@ -39,6 +46,7 @@ TEMPLATE_FILES = {
     "publication/approved-records.json": "approved-records.template.json",
     "publication/publication-manifest.json": "publication-manifest.template.json",
     "evals/private-evals.json": "private-evals.template.json",
+    "state/current.json": "current-state.template.json",
 }
 
 EMPTY_FILES = (
@@ -49,6 +57,8 @@ EMPTY_FILES = (
     "context/voice.md",
     "context/boundaries.md",
     "context/faq.md",
+    "feedback/owner-inbox.jsonl",
+    "updates/events.jsonl",
 )
 
 VALIDATION_FILES = (
@@ -59,9 +69,11 @@ VALIDATION_FILES = (
     "publication/approved-records.json",
     "publication/publication-manifest.json",
     "evals/private-evals.json",
+    "state/current.json",
 )
 
 REVIEW_LOG_FILE = "reviews/decisions.jsonl"
+CURRENT_STATE_FILE = "state/current.json"
 
 
 def canonical_json(value: Any) -> str:

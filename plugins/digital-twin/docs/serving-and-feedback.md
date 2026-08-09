@@ -2,14 +2,14 @@
 
 | Field | Value |
 |---|---|
-| Status | Proposed architecture; product direction accepted |
+| Status | Private local workflow implemented; public architecture proposed |
 | Date | 2026-08-09 |
 | Decision owner | Product owner |
 | Audience | Product owner, maintainers, website implementers, and safety reviewers |
 
 ## Executive summary
 
-The product should begin as a private career assistant for the represented owner and eventually let
+The product now begins as a local private career assistant for the represented owner and may eventually let
 website visitors chat with a constrained public projection of the owner's digital twin.
 
 The governed private bundle is the source of truth. The public chatbot is not the twin's database,
@@ -17,7 +17,8 @@ not an update source, and not an autonomous representative. It reads a physicall
 minimal, owner-approved public snapshot. Public questions and feedback enter an untrusted review
 queue and can affect the private twin only through the normal owner-controlled update workflow.
 
-This sequence validates usefulness before adding public exposure:
+The plugin implements steps 1 through 3 as separate build, use, and maintenance skills. This
+sequence validates usefulness before adding public exposure:
 
 1. Build and review the private context bundle.
 2. Prove value through an authenticated private career assistant.
@@ -82,9 +83,12 @@ flowchart LR
     Visitors["Website visitors"]
 
     subgraph PrivatePlane["Private control and data plane"]
+        Router["Thin lifecycle router"]
+        Builder["Build skill"]
+        Maintainer["Maintenance skill"]
         Graph["Private evidence and claim graph"]
         PrivateSnapshot["Current approved private snapshot"]
-        Assistant["Private career assistant"]
+        Assistant["Private career-assistant skill"]
         Review["Owner review and feedback inbox"]
         Promotion["Explicit public-promotion gate"]
     end
@@ -95,11 +99,15 @@ flowchart LR
         PublicFeedback["Untrusted public feedback queue"]
     end
 
-    Documents --> Graph
-    Interview --> Graph
+    Owner --> Router
+    Router --> Builder
+    Router --> Assistant
+    Router --> Maintainer
+    Documents --> Builder --> Graph
+    Interview --> Builder
     Graph --> PrivateSnapshot --> Assistant
     Owner <--> Assistant
-    Owner --> Review --> Graph
+    Owner --> Review --> Maintainer --> Graph
     PrivateSnapshot --> Promotion
     Owner -->|"Separately approves wording and visibility"| Promotion
     Promotion --> PublicSnapshot --> Chat
@@ -116,7 +124,9 @@ after retrieval.
 | Component | May do | Must not do |
 |---|---|---|
 | Builder workflow | Create and review candidate state | Host public chat or publish automatically |
+| Lifecycle router | Select and sequence one skill at a time | Read sources, answer from the twin, or mutate state |
 | Private assistant | Answer and draft from owner-authorized private snapshot | Approve claims or change source state silently |
+| Maintenance workflow | Apply confirmed governed changes and replacement snapshots | Treat feedback or model output as approval |
 | Promotion compiler | Produce allowlisted public records | Copy private provenance, transcripts, or raw paths |
 | Website chat | Answer from one current public snapshot | Query private state or act for the owner |
 | Public feedback queue | Capture questions and reports | Treat visitor input as evidence about the owner |
@@ -411,6 +421,10 @@ flowchart LR
 
 ### Phase 1: private career assistant
 
+Implemented locally through `use-career-twin`, a content-addressed private snapshot, deterministic
+record retrieval, structured responses, abstention, and authority refusal. Product-value evaluation
+against the baseline remains open.
+
 - Use the current approved bundle through an authenticated private interface.
 - Implement the structured response contract and grounded citations.
 - Support a small task set: professional Q&A, interview preparation, drafts, and gap detection.
@@ -418,12 +432,19 @@ flowchart LR
 
 ### Phase 2: owner feedback and evaluations
 
+Confirmed owner feedback capture is implemented as an inbox that cannot mutate factual state.
+Feedback-to-maintenance review and broader owner evaluations remain to be exercised.
+
 - Add explicit owner feedback controls and a review inbox.
 - Convert accepted feedback into correction/update requests, never silent state changes.
 - Approve private golden questions, expected facts, uncertainty, and refusal cases.
 - Decide whether usefulness justifies building synchronization.
 
 ### Phase 3: controlled updates
+
+The schema, explicit migration, source-refresh plan/apply/status transaction, dependency
+invalidation, serving block, and replacement-snapshot gate are implemented. Deletion transactions,
+crash recovery tooling, and retention administration remain incomplete.
 
 - Implement the plan/apply digital-thread architecture in
   [design-and-architecture.md](design-and-architecture.md).

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Maintain Digital Twin"
+  short_description: "Review and apply governed twin updates"
+  default_prompt: "Use $maintain-digital-twin to update my twin from this owner-selected change."

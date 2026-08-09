@@ -25,9 +25,11 @@ Never infer independence from the number of links. Repeated resumes, copied biog
 summaries, and multiple statements from the same underlying account do not multiply support.
 
 For each source occurrence, retain its opaque source/occurrence IDs, content hash, any
-`derived_from_source_ids`, an `independence_group`, and `independence_review_state`. Only
-`owner_confirmed` independence can contribute to moderate or strong support. Reject circular source
-derivation graphs.
+`derived_from_source_ids`, an `independence_group`, and `independence_review_state`. Also record
+`observed_at` and either an empty `supersedes_occurrence_id` for the first observation or the exact
+prior occurrence ID for an update. Keep `source_id` stable across occurrences and never branch one
+occurrence into multiple current successors. Only `owner_confirmed` independence can contribute to
+moderate or strong support. Reject circular source-derivation and source-history graphs.
 
 ## Evidence ceilings
 

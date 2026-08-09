@@ -44,6 +44,16 @@ its intended scope.
   evals/
     private-evals.json
     reports/
+  feedback/owner-inbox.jsonl
+  updates/
+    events.jsonl
+    plans/
+    sessions/
+  snapshots/<snapshot-id>/
+    snapshot-manifest.json
+    records.json
+  state/current.json
+  locks/
 ```
 
 The initializer creates directories and starter manifests, not source files, transcripts, or
@@ -75,6 +85,10 @@ must map to a current approved record. Clearly label interpretation and style gu
 - `publication/approved-records.json`: private approved compilation index.
 - `publication/publication-manifest.json`: minimal separately approved public selection.
 - `evals/private-evals.json`: owner-reviewed evaluation cases and draft/approved golden answers.
+- `state/current.json`: the only active private snapshot pointer and serving gate.
+- `snapshots/<snapshot-id>/records.json`: exact approved owner-only serving records.
+- `feedback/owner-inbox.jsonl`: confirmed owner feedback requests, never factual mutations.
+- `updates/`: metadata-only plans, events, and transaction sessions.
 
 Keep raw paths, excerpts, transcripts, and source hashes out of public publication data.
 
@@ -124,8 +138,9 @@ review remains authoritative.
 
 ## Serving boundary
 
-The first intended consumer is an authenticated private career assistant using a current approved
-private snapshot. A later public website chat must use a separately compiled, minimal public
+The first consumer is the sibling `use-career-twin` skill using a current approved private snapshot.
+The sibling `maintain-digital-twin` skill is the only governed update path. A later public website
+chat must use a separately compiled, minimal public
 snapshot. Never give a public runtime the private bundle and depend on query-time filtering.
 
 Public promotion is a one-way owner decision. Exclude private provenance, raw paths, transcripts,
@@ -133,8 +148,8 @@ private conflicts, internal notes, source hashes, and owner-only feedback from t
 Public questions and feedback are untrusted suggestions; they never become claims or evidence
 without normal owner review.
 
-The builder skill compiles and validates bundle artifacts. It does not host, deploy, or operate the
-private assistant or public website chat.
+The builder skill compiles and validates bundle artifacts. It does not answer from the twin,
+maintain existing state, host, deploy, or operate public website chat.
 
 ## Portability boundary
 

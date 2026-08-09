@@ -1,0 +1,10 @@
+{
+  "schema": "digital-twin/current-state",
+  "schema_version": "0.2.0",
+  "policy_version": "0.2.0",
+  "workspace_revision": 0,
+  "current_private_snapshot_id": "",
+  "serving_state": "uncompiled",
+  "pending_update_id": "",
+  "blocked_record_ids": []
+}

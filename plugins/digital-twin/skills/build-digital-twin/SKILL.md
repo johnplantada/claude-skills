@@ -1,6 +1,6 @@
 ---
 name: build-digital-twin
-description: Build a consenting person's private, evidence-backed professional digital twin by first reviewing and organizing explicitly selected career documents, then running a guided voice-or-text interview to resolve conflicts and fill documented gaps. Use when the owner asks to build an AI profile, professional context, personal knowledge corpus, career evidence bundle, or a grounded version of their work history, projects, decisions, accomplishments, principles, voice, and boundaries. Start from a resume when that is all they have, keep every extracted statement as an unapproved candidate, preserve atomic provenance, and require owner review before compilation or publication. Do not use for 3D or industrial twins, avatar art, ordinary resume editing, voice cloning, impersonation, a non-consenting subject, generic RAG architecture, or operating an existing public twin.
+description: Build or deliberately rebuild a consenting person's private, evidence-backed professional digital twin by first reviewing and organizing explicitly selected career documents, then running a guided voice-or-text interview to resolve conflicts and fill documented gaps. Use for initial creation of an AI profile, professional context, personal knowledge corpus, career evidence bundle, or grounded work history. Start from a resume when that is all the owner has, keep every extracted statement unapproved, preserve atomic provenance, and require owner review before compilation. Do not use for ordinary questions against an existing twin, source refreshes or corrections, public website operation, 3D or industrial twins, avatar art, resume editing, voice cloning, impersonation, a non-consenting subject, or generic RAG architecture.
 ---
 
 # Build a professional digital twin
@@ -57,8 +57,10 @@ Create a source occurrence in `sources/source-manifest.json` using
 [assets/source-manifest.template.json](assets/source-manifest.template.json). Record an opaque source
 ID, occurrence ID, title, explicit origin, media type, content hash when available, authorship,
 confidentiality, third-party status, purpose, retention, processing consent, publication rights, and
-lifecycle state. Record derivation roots and an owner-reviewed independence group before treating
-two sources as independent corroboration.
+lifecycle state. For the first observation, record `observed_at` and leave
+`supersedes_occurrence_id` empty; maintenance links later occurrences without changing the stable
+source ID. Record derivation roots and an owner-reviewed independence group before treating two
+sources as independent corroboration.
 
 Do not treat identical content hashes from separate occurrences as independent corroboration. After
 consent, start with the lowest-risk sources: resume/CV, owner-written project narratives, public
@@ -123,6 +125,17 @@ Validate after changes:
 ```bash
 python3 scripts/validate_bundle.py /explicit/workspace --format text
 ```
+
+After validation passes, compile and activate the read-only private serving snapshot:
+
+```bash
+python3 scripts/compile_private_snapshot.py /explicit/workspace --format text
+```
+
+Compilation never approves candidates. It includes only exact current approved records and creates
+the handoff consumed by [use-career-twin](../use-career-twin/SKILL.md). Later corrections, source
+refreshes, visibility changes, retractions, and deletion requests belong to
+[maintain-digital-twin](../maintain-digital-twin/SKILL.md).
 
 Treat validation failures as ineligible for compilation/publication. The validator reports suspected
 secrets or privacy risks by category and JSON field path without printing the matched value.
