@@ -36,3 +36,12 @@ Ask these progressively. Do not present the entire list in one turn.
 
 Confirm that the owner can say `skip`, `pause`, `private`, `retract`, or `delete` at any time, and
 that no transcript statement is published directly.
+
+## Two-stage content sequence
+
+- Which specific documents should be reviewed and organized in stage one?
+- Should any selected document be inventory-only rather than content-readable?
+- Confirm that stage two begins only after the document checkpoint lists conflicts and missing or
+  weak coverage.
+- If there are no documents, confirm that the interview will begin from an explicitly empty
+  documentary coverage map.

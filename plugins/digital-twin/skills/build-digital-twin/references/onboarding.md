@@ -1,6 +1,7 @@
 # Onboarding and workspace setup
 
-Use this workflow before interviewing deeply or reading source content.
+Use this workflow before reading source content. After setup, review selected documents before
+starting the gap-driven interview.
 
 ## Ask progressively
 
@@ -80,5 +81,7 @@ inside the owner workspace and direct the owner to provider controls for provide
 ## Finish onboarding
 
 Summarize purpose, audience, source scope, retention, restricted topics, authority limits, and the
-chosen workspace. Ask one correction question, then move to the interview. Keep unresolved items
-explicit rather than choosing defaults silently.
+chosen workspace. Ask one correction question, then move to selected-document inventory and review.
+Keep unresolved items explicit rather than choosing defaults silently. Interview only after the
+document checkpoint identifies conflicts and coverage gaps, unless the owner has no documents or
+explicitly skips document processing.

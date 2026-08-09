@@ -2,8 +2,9 @@
 
 `digital-twin` is a Claude Code plugin for building a private, evidence-backed professional
 context bundle about a consenting owner. Its `build-digital-twin` skill starts with a guided
-voice-or-text interview, turns statements and explicitly selected documents into atomic candidate
-claims, and compiles only owner-approved material.
+review of explicitly selected documents, organizes their atomic candidate claims and coverage gaps,
+then uses a guided voice-or-text interview to resolve and fill those gaps. It compiles only
+owner-approved material.
 
 It does not create avatars, clone a voice, impersonate the owner, publish automatically, connect
 broad accounts, or act on anyone's behalf.
@@ -45,7 +46,7 @@ For local development, load this plugin directory directly:
 claude --plugin-dir ~/codebase/claude-skills/plugins/digital-twin
 ```
 
-Then ask, “Interview me and build my professional context,” or invoke:
+Then ask, “Review and organize these documents, then interview me to fill the gaps,” or invoke:
 
 ```text
 /digital-twin:build-digital-twin

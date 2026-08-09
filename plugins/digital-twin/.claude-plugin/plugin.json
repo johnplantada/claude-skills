@@ -1,7 +1,7 @@
 {
   "name": "digital-twin",
   "displayName": "Digital Twin Builder",
-  "description": "Build a private, evidence-backed professional context bundle through guided interviews, selective source review, atomic claims, and owner approval.",
+  "description": "Build a private, evidence-backed professional context bundle through selected-document review, gap-driven interviews, atomic claims, and owner approval.",
   "version": "0.1.0",
   "author": {
     "name": "John Plantada"

@@ -7,6 +7,7 @@ ROOT = Path(__file__).resolve().parents[2]
 EVALS = json.loads(
     (ROOT / "plugins" / "digital-twin" / "skills" / "build-digital-twin" / "evals" / "evals.json").read_text()
 )
+SKILL_TEXT = (ROOT / "plugins" / "digital-twin" / "skills" / "build-digital-twin" / "SKILL.md").read_text()
 
 
 def test_required_behavior_scenarios_are_present_with_deterministic_assertions():
@@ -51,3 +52,13 @@ def test_trigger_cases_include_positive_requests_and_all_required_near_misses():
         "architecture review",
         "generic RAG implementation",
     }
+
+
+def test_document_review_precedes_the_gap_driven_interview():
+    assert SKILL_TEXT.index("### 2. Review the selected documents") < SKILL_TEXT.index(
+        "### 4. Run the gap-driven interview"
+    )
+    cold_start = next(case for case in EVALS["evals"] if case["eval_name"] == "resume-only-honest-cold-start")
+    assertions = " ".join(cold_start["assertions"]).lower()
+    assert "before starting the interview" in assertions
+    assert "documentary conflicts and coverage gaps" in assertions

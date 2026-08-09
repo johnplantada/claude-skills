@@ -1,11 +1,14 @@
 # Voice and text interview workflow
 
-Use one interview state machine for typed conversation and voice-captured transcripts. Version 1
+Use one interview state machine for typed conversation and voice-captured transcripts. Run it as
+stage two, after selected documents have been reviewed and organized into a coverage map. Version 1
 does not record or retain audio and does not clone, imitate, or synthesize the owner's voice.
 
 ## Start the session
 
-Create an interview session only after onboarding and explicit consent. Use
+Create an interview session only after onboarding, the document-review checkpoint, and explicit
+consent. If the owner supplied no documents or skipped document processing, record that limitation
+and use the empty documentary coverage map as the checkpoint. Use
 [../assets/interview-consent.template.json](../assets/interview-consent.template.json) and
 [../assets/interview-session.template.json](../assets/interview-session.template.json).
 
@@ -24,9 +27,11 @@ surface.
 ## Ask adaptively
 
 Ask one concise question at a time. Let the owner answer naturally, then follow the most useful
-thread. Avoid leading language and invented conclusions.
+thread. Start with the highest-value unresolved item from the document checkpoint. Briefly identify
+the gap or conflict behind a question when that context helps, without treating document wording as
+true or leading the answer. Avoid repeating questions already answered adequately by the documents.
 
-Cover these areas over the session:
+Cover only the unresolved parts of these areas over the session:
 
 1. Purpose, audience, and boundaries.
 2. Career and education timeline.
@@ -38,6 +43,10 @@ Cover these areas over the session:
 8. Communication and voice preferences.
 9. FAQs, refusals, and authority limitations.
 10. Coverage-driven follow-ups.
+
+Update the coverage map after each topic. Keep documentary evidence separate from interview
+self-report: an owner answer may clarify or contradict a document, but it does not independently
+corroborate that document.
 
 Probe ownership with questions such as “Which decisions were yours?” and distinguish individual
 actions from team outcomes. For every number confirm unit, denominator, population, and time window.
@@ -84,7 +93,7 @@ Provide a checkpoint containing:
 - candidate claims grouped by category;
 - confirmations and corrections still needed;
 - conflicts and ownership ambiguities;
-- coverage gaps;
+- closed and remaining coverage gaps;
 - suggested next interview question or lowest-risk source;
 - transcript retention/deletion action due next.
 

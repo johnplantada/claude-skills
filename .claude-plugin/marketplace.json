@@ -15,7 +15,7 @@
     {
       "name": "digital-twin",
       "source": "./plugins/digital-twin",
-      "description": "Build a consenting person's private, evidence-backed professional context bundle through guided voice-or-text interviews, selective source review, atomic provenance, owner approval, privacy gates, and deletion propagation."
+      "description": "Build a consenting person's private, evidence-backed professional context bundle through selected-document review, gap-driven voice-or-text interviews, atomic provenance, owner approval, privacy gates, and deletion propagation."
     }
   ]
 }

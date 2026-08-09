@@ -95,6 +95,10 @@ For each category report approved, pending, weak/self-reported, conflicted, and 
 the next best question/source. Keep conflicts open until the owner resolves or deliberately defers
 them.
 
+Create the first coverage/conflict checkpoint after document review and before interviewing. Use it
+to prioritize stage-two questions, then update it as interview answers create, revise, or retract
+self-reported candidates.
+
 ## Validation contract
 
 Run:

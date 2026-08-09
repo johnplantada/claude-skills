@@ -1,22 +1,22 @@
 # build-digital-twin
 
-This Claude Code skill guides a consenting owner from an interview or resume to a private,
-evidence-backed professional context bundle. It keeps facts atomic, distinguishes self-report from
-corroboration, surfaces conflicts, requires exact owner approval, and propagates source deletion to
-dependent claims and publication candidates.
+This Claude Code skill guides a consenting owner from selected career documents and a focused
+follow-up interview to a private, evidence-backed professional context bundle. It keeps facts
+atomic, distinguishes self-report from corroboration, surfaces conflicts, requires exact owner
+approval, and propagates source deletion to dependent claims and publication candidates.
 
 ## Start
 
 Ask Claude:
 
-> Interview me and build a reviewable professional digital twin from my resume and project history.
+> Review and organize my resume and project documents first, then interview me to fill the gaps.
 
 The default path is:
 
 1. Define purpose, audience, privacy, authority, and retention boundaries.
-2. Complete an adaptive voice-or-text interview.
-3. Review and correct atomic self-reported candidates.
-4. Add selected documents to corroborate valuable or disputed claims.
+2. Inventory and review only the documents the owner selects.
+3. Organize documentary candidates, conflicts, and coverage gaps.
+4. Complete a gap-driven voice-or-text interview.
 5. Approve exact records and compile a portable private bundle.
 6. Validate privacy, provenance, evidence ceilings, lifecycle state, and publication eligibility.
 

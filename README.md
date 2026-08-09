@@ -16,7 +16,7 @@ owner remains authoritative over changes, sensitive material, and publication.
 | Plugin | What it does |
 |---|---|
 | **devenv** | Thirteen verification-first skills for Homebrew, runtimes, dotfiles, shells, Ghostty, Neovim, git, ssh, macOS, identities, credentials, and whole-machine coordination. |
-| [**digital-twin**](plugins/digital-twin/) | Builds a consenting owner's private professional context from guided interviews and selected evidence, with atomic claims, owner approval, privacy boundaries, and deletion propagation. |
+| [**digital-twin**](plugins/digital-twin/) | Builds a consenting owner's private professional context by reviewing selected documents first, then using a gap-driven interview, with atomic claims, owner approval, privacy boundaries, and deletion propagation. |
 
 ## devenv architecture
 

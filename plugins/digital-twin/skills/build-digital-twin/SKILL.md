@@ -1,13 +1,14 @@
 ---
 name: build-digital-twin
-description: Build a consenting person's private, evidence-backed professional digital twin from a guided voice-or-text interview plus explicitly selected career material. Use when the owner asks to build an AI profile, professional context, personal knowledge corpus, career evidence bundle, or a grounded version of their work history, projects, decisions, accomplishments, principles, voice, and boundaries. Start from a resume when that is all they have, keep every extracted statement as an unapproved candidate, preserve atomic provenance, and require owner review before compilation or publication. Do not use for 3D or industrial twins, avatar art, ordinary resume editing, voice cloning, impersonation, a non-consenting subject, generic RAG architecture, or operating an existing public twin.
+description: Build a consenting person's private, evidence-backed professional digital twin by first reviewing and organizing explicitly selected career documents, then running a guided voice-or-text interview to resolve conflicts and fill documented gaps. Use when the owner asks to build an AI profile, professional context, personal knowledge corpus, career evidence bundle, or a grounded version of their work history, projects, decisions, accomplishments, principles, voice, and boundaries. Start from a resume when that is all they have, keep every extracted statement as an unapproved candidate, preserve atomic provenance, and require owner review before compilation or publication. Do not use for 3D or industrial twins, avatar art, ordinary resume editing, voice cloning, impersonation, a non-consenting subject, generic RAG architecture, or operating an existing public twin.
 ---
 
 # Build a professional digital twin
 
 Build a private, portable context bundle that represents the owner without pretending to be the
-owner. Treat the guided interview as the narrative spine; use selected documents to strengthen,
-correct, and bound it. Never make a candidate true or public by default.
+owner. After privacy setup, run two content stages in order: review and organize selected documents,
+then interview against the resulting conflicts and coverage gaps. Never make a candidate true or
+public by default.
 
 ## Non-negotiable rules
 
@@ -50,19 +51,7 @@ python3 scripts/init_workspace.py /explicit/owner/selected/path
 Use `--allow-git-worktree` only after the owner makes a specific, informed override. The script
 creates empty structure and starter manifests; it never copies source documents.
 
-### 2. Start with the guided interview
-
-Default to a 20–30 minute adaptive interview. Use text directly, or let a voice surface capture a
-transcript using [assets/voice-interview-prompt.md](assets/voice-interview-prompt.md). Voice and text
-share the same state machine; do not store audio or claim automatic mobile-surface integration.
-
-Follow [references/voice-interview.md](references/voice-interview.md). Begin with processing,
-transcript-retention, privacy, and publication consent. Ask one concise question at a time, follow
-useful threads, and periodically summarize what seems supported, uncertain, wrong, or missing.
-Honor `skip`, `pause`, `private`, `retract`, and `delete` immediately. Mark every factual interview
-claim `self_reported` and preserve its transcript span. Never publish from a transcript.
-
-### 3. Inventory each source before reading content
+### 2. Review the selected documents
 
 Create a source occurrence in `sources/source-manifest.json` using
 [assets/source-manifest.template.json](assets/source-manifest.template.json). Record an opaque source
@@ -75,7 +64,7 @@ Do not treat identical content hashes from separate occurrences as independent c
 consent, start with the lowest-risk sources: resume/CV, owner-written project narratives, public
 portfolio or bio, owner-authored articles/talks, then explicitly selected professional documents.
 
-### 4. Build atomic candidates and conflicts
+### 3. Organize documentary candidates and map gaps
 
 Split compound statements so each candidate can be supported, corrected, approved, or deleted
 independently. Use [references/evidence-model.md](references/evidence-model.md) and
@@ -89,7 +78,28 @@ version 1. Draft profile, timeline, project, decision,
 principle, failure/lesson, voice, FAQ, boundary, and contact records only from these candidates.
 
 Detect disagreements in dates, titles, roles, ownership verbs, metrics, attribution, evidence roles,
-and publication rights. Turn gaps into focused interview questions; never fill them with inference.
+and publication rights. Complete a document-review checkpoint before interviewing: list the source
+inventory, documentary candidates, tentative timeline/project groupings, conflicts, weak or missing
+coverage, and a prioritized interview agenda. Do not fill gaps with inference or ask generic
+questions that the reviewed documents already answer.
+
+If the owner has no documents or elects to skip document processing, record that limitation, create
+an empty documentary coverage map, and derive the interview agenda from the missing categories.
+
+### 4. Run the gap-driven interview
+
+Only after the document-review checkpoint, run an adaptive interview focused on unresolved gaps,
+conflicts, interpretation, actual decision authority, failures/lessons, principles, voice, and
+boundaries. Use text directly, or let a voice surface capture a transcript using
+[assets/voice-interview-prompt.md](assets/voice-interview-prompt.md). Voice and text share the same
+state machine; do not store audio or claim automatic mobile-surface integration.
+
+Follow [references/voice-interview.md](references/voice-interview.md). Confirm processing,
+transcript-retention, privacy, and publication consent. Ask one concise question at a time, explain
+which documented gap or conflict it addresses when useful, and periodically update the coverage map.
+Honor `skip`, `pause`, `private`, `retract`, and `delete` immediately. Mark every factual interview
+claim `self_reported` and preserve its transcript span. Never publish from a transcript or treat an
+owner answer as independent corroboration of the documents.
 
 ### 5. Run owner review
 
