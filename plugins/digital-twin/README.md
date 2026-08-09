@@ -20,9 +20,19 @@ broad accounts, or act on anyone's behalf.
 Every extracted or interview-derived statement begins as a candidate. Only the owner decides its
 accuracy, wording, evidence classification, visibility, publication rights, and approval state.
 
-See [Design and architecture](docs/design-and-architecture.md) for the current system boundaries and
-the proposed owner-controlled update mechanism, including lifecycle, data model, transaction, and
-failure-handling diagrams.
+## Product direction
+
+The current plugin builds and validates the governed private source of truth. The first proposed
+serving product is an authenticated private career assistant. The end goal is website chat backed by
+a physically separate, minimal public snapshot—not direct access to the private workspace.
+
+- [Design and architecture](docs/design-and-architecture.md): twin lifecycle, data model,
+  owner-controlled updates, failure handling, and current-versus-proposed capabilities.
+- [Private assistant and public website chat](docs/serving-and-feedback.md): serving profiles,
+  response contract, public boundary, feedback loop, threats, evaluation, and rollout gates.
+
+Neither serving profile nor the update transaction is implemented yet. The builder skill does not
+host, deploy, or automatically publish a website chatbot.
 
 ## Privacy model
 

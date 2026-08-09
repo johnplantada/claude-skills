@@ -25,12 +25,19 @@ selects, creates immutable source versions, invalidates dependent approvals cons
 only update-specific interview questions, and makes a new bundle snapshot current only after owner
 review and deterministic validation.
 
+The product should first serve that bundle through an authenticated private career assistant. The
+end goal is public website chat over a physically separate, minimal public snapshot. Public chat is
+a constrained consumer, never the private twin's source of truth or an update authority. See
+[Private assistant and public website chat](serving-and-feedback.md) for the serving profiles,
+response contract, feedback loop, threats, evaluation, and delivery gates.
+
 This is best described as a **discrete-event synchronized professional context twin**. It converges
 with the owner at an explicit cadence rather than watching the owner continuously.
 
 ## Contents
 
 - [Does this make sense as a digital twin?](#does-this-make-sense-as-a-digital-twin)
+- [Serving and feedback architecture](serving-and-feedback.md)
 - [Goals, constraints, and invariants](#goals)
 - [System context and trust boundaries](#system-context-and-trust-boundaries)
 - [Architecture decision and components](#architecture-decision)
@@ -57,7 +64,8 @@ an update lifecycle, and controlled convergence with its subject.
 | Observation | Owner-selected document versions and owner statements |
 | Convergence | Event-driven or periodic owner-controlled update sessions |
 | Digital thread | Source revisions, claim revisions, decisions, invalidations, and snapshots |
-| Outputs | Private context bundle and separately approved publication records |
+| Outputs | Private assistant responses and a separately approved public website-chat projection |
+| Feedback | Owner-controlled corrections; visitor feedback enters an untrusted review queue |
 | Control | The owner approves accuracy, wording, evidence class, visibility, and rights |
 
 It would not qualify as a high-frequency physical or industrial twin. It has no sensors, simulation,
@@ -74,6 +82,8 @@ unqualified claim that it models the whole person.
 - Preserve enough history to explain why the current twin says something.
 - Support correction, consent withdrawal, source deletion, retraction, and full erasure.
 - Produce deterministic, metadata-only validation and update reports.
+- Prove usefulness through a private career assistant before public deployment.
+- Support public website chat without giving the public runtime access to private state.
 
 ## Non-goals
 
@@ -83,6 +93,8 @@ unqualified claim that it models the whole person.
 - Treating the model's semantic comparison as an approval decision.
 - Voice recording, voice imitation, or audio storage.
 - Automatic publication or autonomous action on the owner's behalf.
+- Direct public queries against the private workspace or runtime filtering of private records.
+- Hosting or deploying the website chat service from the builder skill itself.
 - An event-sourced system whose entire private state must be reconstructed from an eternal log.
 
 ## Assumptions and constraints
@@ -91,12 +103,13 @@ unqualified claim that it models the whole person.
 - Update volume is human-scale: tens of sources and hundreds or low thousands of claims, not a
   high-throughput event platform.
 - Deterministic helpers remain standard-library Python 3.9+ and operate on a local filesystem.
-- Filesystem atomic replacement and a single-writer lock are sufficient; there is no distributed
-  consensus or always-on service.
+- Filesystem atomic replacement and a single-writer lock are sufficient for the private builder and
+  update core. The later public chat runtime is a separate service and data plane.
 - Raw documents normally remain at owner-managed external paths.
 - Model output is nondeterministic and can draft candidates, but it cannot independently approve or
   authorize committed state.
-- Downstream consumers read a compiled snapshot rather than the mutable working graph.
+- The private assistant reads a compiled private snapshot. Website chat reads only a separately
+  compiled public snapshot.
 - Provider-side retention and deletion remain governed by the configured provider, not this plugin.
 
 ## Core invariants
@@ -113,6 +126,8 @@ unqualified claim that it models the whole person.
 10. The current-snapshot pointer changes only after complete validation.
 11. Reports contain opaque identifiers and safe field paths, never matched secrets or source text.
 12. The twin represents the owner but cannot impersonate or make commitments for the owner.
+13. Public visitor input is untrusted feedback and cannot mutate claims or become evidence.
+14. The public runtime has no route or credentials to the private workspace.
 
 ## System context and trust boundaries
 
@@ -120,12 +135,20 @@ unqualified claim that it models the whole person.
 flowchart LR
     Owner["Consenting owner"]
     Documents["Explicitly selected documents"]
-    Consumer["Approved downstream consumer"]
+    Visitors["Website visitors"]
 
-    subgraph Device["Owner-controlled device"]
+    subgraph PrivatePlane["Owner-controlled private plane"]
         Skill["Claude Code + build-digital-twin skill"]
         Tools["Deterministic local tools"]
         Workspace["Private twin workspace"]
+        PrivateAssistant["Authenticated private career assistant"]
+        Promotion["Explicit public-promotion gate"]
+    end
+
+    subgraph PublicPlane["Public read-only plane"]
+        PublicSnapshot["Minimal approved public snapshot"]
+        WebsiteChat["Website chat service"]
+        Feedback["Untrusted visitor feedback queue"]
     end
 
     Provider["Configured model provider"]
@@ -136,17 +159,34 @@ flowchart LR
     Provider -->|"Draft extraction and interview assistance"| Skill
     Skill -->|"Explicit operations"| Tools
     Tools -->|"Versioned manifests, validation, snapshots"| Workspace
-    Workspace -->|"Approved snapshot only"| Consumer
-    Consumer -.->|"No authority to act as owner"| Owner
+    Workspace -->|"Approved private snapshot"| PrivateAssistant
+    Owner <--> PrivateAssistant
+    Workspace --> Promotion
+    Owner -->|"Separate approval"| Promotion
+    Promotion --> PublicSnapshot --> WebsiteChat
+    Visitors <--> WebsiteChat
+    WebsiteChat --> Feedback
+    Feedback -->|"Review suggestion only"| Owner
 ```
 
 The model provider is outside the private workspace trust boundary. Source content can cross that
 boundary only after disclosure and consent. Deterministic tools should hash files and manipulate
-structured metadata locally; their reports must not include source content.
+structured metadata locally; their reports must not include source content. The public runtime is
+also outside the private plane and receives only the compiled public snapshot. It cannot query the
+private workspace or convert visitor input into twin state.
 
 ## Architecture decision
 
-Adopt an **owner-controlled, event-based delta synchronization loop**.
+Adopt two linked decisions:
+
+1. Validate the governed bundle through a private career assistant, then expose only a separately
+   approved public projection through website chat.
+2. Maintain the underlying twin through an **owner-controlled, event-based delta synchronization
+   loop**.
+
+The serving decision and rollout gates are detailed in
+[serving-and-feedback.md](serving-and-feedback.md). The remainder of this document focuses on the
+private source-of-truth and update transaction.
 
 Do not implement automatic continuous connectors. A reminder may prompt the owner to begin an
 update, but it must not grant source access. “Appropriate synchronization” for this product means:
@@ -221,6 +261,11 @@ flowchart TB
 The event log is an audit trail, not the only source of truth. Current manifests remain the mutable
 working view; approved snapshots are immutable while retained. This avoids the operational and
 privacy burden of retaining enough event content to reconstruct all private state forever.
+
+The private assistant, promotion compiler, and website chat service are downstream of `Current` and
+belong to separate serving profiles. They are intentionally omitted from this private update-core
+diagram; see [serving-and-feedback.md](serving-and-feedback.md) for their component and request
+flows.
 
 ## Initial build lifecycle
 
@@ -549,7 +594,7 @@ Auditability and deletion pull in opposite directions. Resolve that tension as f
 
 ## Current versus proposed capability
 
-| Capability | Current plugin | Proposed update architecture |
+| Capability | Current plugin | Target behavior |
 |---|---|---|
 | Private workspace initialization | Implemented | Reuse |
 | Source occurrence and content hash | Implemented | Add stable logical-source version chain |
@@ -558,12 +603,18 @@ Auditability and deletion pull in opposite directions. Resolve that tension as f
 | Exact owner approval digest | Implemented | Invalidate on update |
 | Append-only owner decisions | Implemented | Add update decisions and snapshot linkage |
 | Deletion/stale propagation | Implemented in validation model | Invoke transactionally during apply |
-| Publication gates | Implemented | Apply to the current snapshot |
+| Publication gates | Implemented | Compile a physically separate public snapshot |
+| Private career assistant | Not implemented | First serving profile and product-value test |
+| Structured serving response contract | Not implemented | Grounded citations, uncertainty, abstention, and boundaries |
+| Owner serving-feedback inbox | Not implemented | Reviewed correction and update requests |
 | Update event log | Not implemented | Add metadata-only append log |
 | Plan/apply transaction | Not implemented | Add deterministic update tool |
 | Workspace concurrency control | Not implemented | Add lock and optimistic base revision |
 | Immutable bundle snapshots | Not implemented | Add retained snapshot compiler |
 | Atomic current pointer | Not implemented | Add after successful validation |
+| Public promotion compiler | Not implemented | One-way allowlisted projection after separate approval |
+| Public website chat | Not implemented | Read-only service over public snapshot only |
+| Untrusted visitor feedback queue | Not implemented | Owner-reviewed suggestions with no direct mutation |
 | Reminder cadence | Not implemented | Optional later; reminders grant no access |
 
 ## Standards alignment
@@ -585,7 +636,18 @@ This design borrows concepts from standards but does not claim certification or 
 
 ## Implementation sequence
 
-### Phase 1: schema foundation
+### Phase 1: private career assistant and product validation
+
+1. Serve the current approved bundle through an authenticated private interface.
+2. Require structured citations, uncertainty, abstention, privacy, and authority boundaries.
+3. Add confirmed owner feedback without allowing silent bundle mutation.
+4. Compare representative tasks against a résumé-plus-generic-prompt baseline.
+
+Do not build synchronization or public chat merely to make the architecture feel complete. Continue
+only if the private assistant produces materially more useful, accurate, and maintainable results.
+Detailed serving behavior and gates live in [serving-and-feedback.md](serving-and-feedback.md).
+
+### Phase 2: update schema foundation
 
 1. Add stable logical-source records and predecessor links between source occurrences.
 2. Add update-plan, update-session, update-event, and snapshot-manifest schemas.
@@ -595,14 +657,14 @@ This design borrows concepts from standards but does not claim certification or 
 These schema changes should increment the bundle schema and policy versions. Migration must be
 explicit; do not silently reinterpret an existing `0.1.0` bundle.
 
-### Phase 2: deterministic update transaction
+### Phase 3: deterministic update transaction
 
 1. Implement `update_bundle.py plan`, `apply`, and `status` with standard-library Python.
 2. Add locking, optimistic base revision, plan digests, atomic writes, and idempotency.
 3. Extend validation for version chains, event ordering, snapshots, and the current pointer.
 4. Add synthetic crash, concurrency, stale-plan, deletion, and replay tests.
 
-### Phase 3: skill workflow integration
+### Phase 4: skill workflow integration
 
 1. Add update onboarding and scoped consent instructions.
 2. Produce a document-delta checkpoint from the plan.
@@ -610,13 +672,28 @@ explicit; do not silently reinterpret an existing `0.1.0` bundle.
 4. Route revised claims through existing owner review.
 5. Compile and activate the new snapshot only after validation.
 
-### Phase 4: optional cadence support
+### Phase 5: public projection and website chat
+
+1. Compile a minimal allowlisted public snapshot through separate owner approval.
+2. Prove the public runtime has no route or credentials to private state.
+3. Add a read-only website chat pipeline with citation verification, abstention, persistent identity
+   disclosure, authority refusal, rate limits, and content-minimized telemetry.
+4. Route visitor feedback into an untrusted owner-review queue.
+
+Do not make public chat a mode switch over the private assistant. Deploy it as a separate data plane
+using only the public artifact.
+
+### Phase 6: optional cadence support
 
 Add owner-approved reminders for update reviews. Do not add automatic source access or connectors as
 part of cadence support.
 
 ## Acceptance criteria
 
+- The private assistant outperforms a résumé-plus-prompt baseline on agreed owner tasks before
+  update or public-serving investment proceeds.
+- Private serving answers bind to a current snapshot, cite approved records, expose uncertainty, and
+  accept confirmed owner feedback without silent learning.
 - Rechecking an unchanged source produces a deterministic no-op.
 - Changed bytes create a new occurrence linked to the prior occurrence.
 - Duplicate or derived versions never increase independent evidence strength.
@@ -629,9 +706,18 @@ part of cadence support.
 - Deletion propagates into retained snapshots and locally controlled caches.
 - Reports never contain source text, raw secret matches, or unsafe dynamic field names.
 - The complete initial and update workflows remain usable through typed conversation.
+- Public promotion produces a minimal standalone artifact with no private dependencies.
+- Website chat reads only the public artifact, discloses that it is an AI representation, and cannot
+  act for the owner.
+- Visitor prompts and feedback cannot retrieve or mutate private state.
 
 ## Recommended product defaults
 
+- **Rollout:** private career assistant, then controlled updates, then public website chat.
+- **Serving boundary:** physically separate private and public snapshots and runtimes.
+- **Public identity:** persistent AI-representation disclosure and no unqualified claim to be the
+  owner.
+- **Public feedback:** untrusted owner-review suggestions, never evidence or direct updates.
 - **Synchronization mode:** owner-triggered plus optional quarterly reminder.
 - **Changed-source policy:** conservatively stale dependent approvals immediately on apply.
 - **Publication policy:** hide affected current public records until reapproved.
@@ -643,16 +729,20 @@ part of cadence support.
 
 ## Open decisions
 
-1. Should a periodic reminder default to quarterly, remain unset, or be selected during onboarding?
-2. Should private consumers see stale records with labels, or should stale records disappear entirely?
-3. How many historical snapshots should be retained by default?
-4. What owner identity verification is required before high-risk approval or erasure actions?
-5. Should snapshots use the current JSON bundle format only, or add an optional W3C PROV export?
-6. Is “professional context twin” the primary product name, with “digital twin” as a discoverability
+1. Which three private career-assistant tasks determine whether the product is useful?
+2. Should the first private interface remain in Claude Code or use a separate local application?
+3. What visible identity and citation style should the public website chat use?
+4. Should a periodic reminder default to quarterly, remain unset, or be selected during onboarding?
+5. Should private consumers see stale records with labels, or should stale records disappear entirely?
+6. How many historical snapshots should be retained by default?
+7. What owner identity verification is required before high-risk approval or erasure actions?
+8. Should snapshots use the current JSON bundle format only, or add an optional W3C PROV export?
+9. Is “professional context twin” the primary product name, with “digital twin” as a discoverability
    term?
 
-These decisions do not block the architecture. They should be resolved before implementing the
-update schemas because they affect retention, access, and migration behavior.
+Resolve decisions 1 and 2 before implementing the private assistant, decision 3 before public chat,
+and decisions 4 through 8 before finalizing update schemas and retention behavior. Additional public
+serving decisions are tracked in [serving-and-feedback.md](serving-and-feedback.md).
 
 ## Example update
 
@@ -671,6 +761,8 @@ An owner replaces a résumé after a promotion:
 8. Validation succeeds, a new snapshot is compiled, and the current pointer changes atomically.
 9. The prior snapshot remains private history only while retention permits; affected public records
    are replaced only by separately approved publication records.
+10. The public promotion compiler emits a replacement public snapshot; website chat cannot use the
+    new role until that snapshot is approved and deployed.
 
 That cycle provides useful convergence without silently watching the owner or granting the twin
 authority to act.

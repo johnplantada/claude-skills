@@ -11,6 +11,7 @@ its intended scope.
 - [Machine-readable layers](#machine-readable-layers)
 - [Coverage and conflicts](#coverage-and-conflicts)
 - [Validation contract](#validation-contract)
+- [Serving boundary](#serving-boundary)
 - [Portability boundary](#portability-boundary)
 
 ## Workspace layout
@@ -120,6 +121,20 @@ Exit codes:
 
 Validation is a preflight, not proof that every fact is true or every secret is detected. Owner
 review remains authoritative.
+
+## Serving boundary
+
+The first intended consumer is an authenticated private career assistant using a current approved
+private snapshot. A later public website chat must use a separately compiled, minimal public
+snapshot. Never give a public runtime the private bundle and depend on query-time filtering.
+
+Public promotion is a one-way owner decision. Exclude private provenance, raw paths, transcripts,
+private conflicts, internal notes, source hashes, and owner-only feedback from the public artifact.
+Public questions and feedback are untrusted suggestions; they never become claims or evidence
+without normal owner review.
+
+The builder skill compiles and validates bundle artifacts. It does not host, deploy, or operate the
+private assistant or public website chat.
 
 ## Portability boundary
 

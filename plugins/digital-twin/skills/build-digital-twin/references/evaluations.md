@@ -3,6 +3,15 @@
 Build evaluations alongside the context bundle so the owner can test grounded facts, judgment,
 privacy, abstention, and authority before any downstream use.
 
+## Contents
+
+- [Ask the owner for cases](#ask-the-owner-for-cases)
+- [Evaluation case shape](#evaluation-case-shape)
+- [Essential categories](#essential-categories)
+- [Serving profile suites](#serving-profile-suites)
+- [Grade safely](#grade-safely)
+- [Re-run after lifecycle changes](#re-run-after-lifecycle-changes)
+
 ## Ask the owner for cases
 
 Collect examples progressively:
@@ -48,6 +57,22 @@ Include at least:
 7. modeled decision judgment tied to approved decision records;
 8. deletion/retraction regression cases.
 
+## Serving profile suites
+
+Maintain separate suites for the proposed serving profiles:
+
+- **Private career assistant:** representative owner questions, writing and interview-preparation
+  tasks, private citation accuracy, gap detection, recognizable usefulness, and owner correction
+  controls. Compare it with a résumé-plus-generic-prompt baseline before investing in update or
+  public-serving infrastructure.
+- **Public website chat:** public-only citations, missing/private/conflicted questions, prompt
+  injection, identity disclosure, contact routing, commitment refusal, bulk-extraction attempts,
+  stale snapshot behavior, and public feedback isolation.
+
+Public test cases may reference only separately approved public records. A successful public answer
+must not reveal that a private record exists. Visitor questions and feedback are untrusted inputs,
+never facts or golden-answer updates.
+
 ## Grade safely
 
 Prefer deterministic checks where possible:
@@ -70,5 +95,9 @@ When a claim, source, approval, or publication record changes:
 2. invalidate approved golden answers when their record digest changed;
 3. rerun deletion, privacy, abstention, and authority regressions;
 4. ask the owner to re-approve changed golden answers.
+
+Also rerun the public suite when the public snapshot, serving policy, retrieval method, model, or
+website response pipeline changes. Bind each recorded evaluation result to its snapshot and policy
+versions so a later result cannot be mistaken for current behavior.
 
 Report evaluation coverage by category, not as one universal truth score.

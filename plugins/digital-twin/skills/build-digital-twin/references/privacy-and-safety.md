@@ -57,8 +57,10 @@ Public output must contain only separately approved public records. Exclude:
 - claims without confirmed publication rights;
 - `public_candidate` material not separately promoted by the owner.
 
-The owner controls final wording and publication. The workflow never posts, serves, deploys, or
-contacts others automatically.
+The owner controls final wording and publication. The builder workflow never posts, serves, deploys,
+or contacts others automatically. A separate public website system may consume only a compiled,
+separately approved public snapshot and must have no route or credentials to the private workspace.
+Public questions and feedback remain untrusted and cannot modify the twin directly.
 
 ## Identity and authority gate
 
