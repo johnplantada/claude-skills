@@ -20,6 +20,10 @@ broad accounts, or act on anyone's behalf.
 Every extracted or interview-derived statement begins as a candidate. Only the owner decides its
 accuracy, wording, evidence classification, visibility, publication rights, and approval state.
 
+See [Design and architecture](docs/design-and-architecture.md) for the current system boundaries and
+the proposed owner-controlled update mechanism, including lifecycle, data model, transaction, and
+failure-handling diagrams.
+
 ## Privacy model
 
 Claude Code may send selected content to the configured model provider; it is not automatically a
