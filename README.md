@@ -1,11 +1,21 @@
-# devenv — a Claude Code plugin
+# Claude Code plugins
 
 [![tests](https://github.com/johnplantada/claude-skills/actions/workflows/test.yml/badge.svg)](https://github.com/johnplantada/claude-skills/actions/workflows/test.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-informational.svg)](LICENSE)
 
-A gallery of [Claude Code](https://claude.com/claude-code) **Agent Skills** that set up, repair,
-upgrade, and optimize a dev environment — Homebrew, language runtimes, dotfiles, shells, the terminal,
-Neovim, git, and ssh — packaged as **one plugin** so the whole thing installs and versions as a unit.
+This repository is a [Claude Code](https://claude.com/claude-code) marketplace containing two
+independent plugins:
+
+| Plugin | Purpose |
+|---|---|
+| **devenv** | Set up, repair, upgrade, and optimize a complete development environment. |
+| [**architecture-review**](plugins/architecture-review/) | Review architecture plans, system-design proposals, and ADRs for implementation readiness. |
+
+## devenv
+
+The devenv plugin is a gallery of **Agent Skills** for Homebrew, language runtimes, dotfiles, shells,
+the terminal, Neovim, git, and ssh, packaged as one plugin so the whole environment toolkit installs
+and versions as a unit.
 
 Every skill is **verification-first**: it proves a change by observing real behavior (validating a
 config, re-reading a value, resolving both shells), never by trusting that an edit did what it meant.
@@ -139,17 +149,19 @@ macOS.
 ```bash
 git clone https://github.com/johnplantada/claude-skills ~/codebase/claude-skills
 
-# Load it for a session (great for local dev — picks up repo edits live):
+# Load the devenv plugin for a session (great for local dev — picks up repo edits live):
 claude --plugin-dir ~/codebase/claude-skills
 
-# …or add the bundled marketplace and install it persistently:
+# …or add the bundled marketplace and install either plugin persistently:
 /plugin marketplace add ~/codebase/claude-skills
-/plugin install devenv
+/plugin install devenv@devenv-marketplace
+/plugin install architecture-review@devenv-marketplace
 ```
 
-Installed, skills are namespaced by the plugin (`/devenv:ghostty-config`, `/devenv:shell-sync`, …) —
-or just describe your task and the matching skill auto-activates — and the Stop hook is active.
-Validate the structure with `claude plugin validate ~/codebase/claude-skills`.
+Installed, skills are namespaced by their plugin (`/devenv:ghostty-config`,
+`/architecture-review:review-architecture-plan`, …) — or just describe your task and the matching skill
+auto-activates. Validate both structures with `claude plugin validate ~/codebase/claude-skills` and
+`claude plugin validate ~/codebase/claude-skills/plugins/architecture-review`.
 
 ### A single skill
 
@@ -175,6 +187,7 @@ to sync. It is **non-blocking** and never writes, commits, or pushes — you dec
 ├── check                  ONE entry point for every tier (./check --help)
 ├── requirements-dev.txt   pytest + ruff, pinned exactly (CI installs from here)
 ├── .claude-plugin/        plugin.json + marketplace.json
+├── plugins/               independent marketplace plugins (including architecture-review)
 ├── skills/<name>/         SKILL.md · reference/*.md · scripts/*.py
 ├── lib/devenv_common.py   shared Python primitives + output conventions
 ├── scripts/               plugin hooks (drift reminder, secret-read guard) + fixture capture
@@ -186,8 +199,8 @@ to sync. It is **non-blocking** and never writes, commits, or pushes — you dec
 
 ## Contributing
 
-Issues and PRs welcome. New skills go in `skills/<name>/` and follow the principles above; changes to
-existing skills should include the test that proves them (`pytest` must stay green).
+Issues and PRs welcome. New devenv skills go in `skills/<name>/`; independent plugins go in
+`plugins/<name>/`. Changes should include the test that proves them (`pytest` must stay green).
 
 ## License
 

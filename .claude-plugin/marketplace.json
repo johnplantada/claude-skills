@@ -4,13 +4,18 @@
     "name": "John Plantada"
   },
   "metadata": {
-    "description": "Dev-environment skills gallery, packaged as a Claude Code plugin."
+    "description": "Claude Code plugins for dev-environment management and general-purpose architecture reviews."
   },
   "plugins": [
     {
       "name": "devenv",
       "source": "./",
       "description": "Set up, repair, upgrade, and optimize your whole dev environment — Homebrew, runtimes (mise), dotfiles (chezmoi), zsh↔fish, Ghostty, Neovim, git, ssh, macOS defaults — with a shared settings store and cross-skill bootstrap/health runbooks. Ships a Stop hook that reminds you when chezmoi-managed dotfiles drift, and a PreToolUse guard that mechanically blocks reading secret-by-location files (private keys, .netrc, .aws/credentials) into the model's context."
+    },
+    {
+      "name": "architecture-review",
+      "source": "./plugins/architecture-review",
+      "description": "Review and stress-test architecture plans, system-design proposals, and ADRs against repository evidence before implementation."
     }
   ]
 }

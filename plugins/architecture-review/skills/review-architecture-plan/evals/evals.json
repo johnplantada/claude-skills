@@ -1,0 +1,130 @@
+{
+  "skill_name": "review-architecture-plan",
+  "evals": [
+    {
+      "id": 1,
+      "eval_name": "privacy-sensitive-document-ingestion",
+      "prompt": "Review the document-ingestion proposal in this fixture for implementation readiness. Focus on trust boundaries, remote processing, deletion, retention, failure behavior, and evidence integrity. Ground the report in the supplied files and do not modify them.",
+      "expected_output": "Returns a Not ready verdict. Treats upload authorization, external processing terms, retry duplication, and incomplete erasure as blockers; distinguishes the proposed flow from tested behavior; marks unspecified external retention as Unverified; defines enforceable deletion and authorization invariants; and proposes a reversible end-to-end slice using redacted representative data before broad ingestion.",
+      "files": [
+        {
+          "path": "docs/architecture.md",
+          "content": "# Document ingestion proposal\n\nAuthenticated workspace members upload documents by document ID.\nThe API stores the original object and publishes an ingestion message.\nA worker sends the full document to a remote inference endpoint for extraction.\nSuccessful extraction stores structured fields plus a confidence score.\nDELETE /documents/{id} removes the database row and original object.\nRemote retention and deletion use the provider default.\nMessages are retried until they succeed; duplicate extraction results overwrite the row.\nObjects and database rows are encrypted at rest.\n"
+        },
+        {
+          "path": "config/model-gateway.yaml",
+          "content": "endpoint: https://inference.invalid/v1/extract\nrequest_logging: metadata\nretention: provider_default\ntimeout_seconds: 120\n"
+        },
+        {
+          "path": "tests/test_ingestion.py",
+          "content": "def test_successful_ingestion():\n    assert upload_and_extract(sample_document()).status == 'complete'\n"
+        }
+      ],
+      "assertions": [
+        "final answer states an explicit readiness verdict",
+        "blocking findings cite supplied fixture paths and relevant lines",
+        "blocking findings are separated from important improvements",
+        "at least one enforceable deletion or authorization invariant includes acceptance evidence",
+        "missing retention, erasure latency, recovery, and privacy requirements are exposed",
+        "recommended rollout starts with a risk-ordered end-to-end vertical slice",
+        "no fixture file is created, edited, or deleted"
+      ]
+    },
+    {
+      "id": 2,
+      "eval_name": "proposal-conflicts-with-repository-contracts",
+      "prompt": "Review docs/search-index-v2.md against the repository schema and publication workflow. Decide whether the proposal is ready to implement, cite exact conflicts, and do not modify the fixture.",
+      "expected_output": "Returns a Not ready verdict. Identifies the plan's nullable content key and direct publish step as conflicts with the canonical schema and signed-bundle publication gate; separates current contracts from proposed changes; requires one source of truth and a compatibility decision; defines publication invariants; and recommends a vertical slice that proves schema translation and gated publication before migration.",
+      "files": [
+        {
+          "path": "docs/search-index-v2.md",
+          "content": "# Search index v2\n\nThe new indexer reads records directly from the authoring database.\nEach record uses slug as an optional content key.\nStates are draft, published, or removed.\nWhen indexing completes, the service uploads the index directly to production storage.\nThe existing release bundler can remain for legacy consumers during migration.\nBoth writers may publish during the compatibility window.\n"
+        },
+        {
+          "path": "schema/content.json",
+          "content": "{\n  \"required\": [\"content_id\", \"publication_state\"],\n  \"properties\": {\n    \"content_id\": {\"type\": \"string\", \"minLength\": 1},\n    \"publication_state\": {\"enum\": [\"draft\", \"review\", \"live\"]}\n  }\n}\n"
+        },
+        {
+          "path": ".github/workflows/publish.yml",
+          "content": "name: publish\non:\n  workflow_dispatch:\njobs:\n  release:\n    steps:\n      - run: ./bin/build-signed-bundle\n      - run: ./bin/verify-contract schema/content.json dist/bundle.json\n      - run: ./bin/promote-release dist/bundle.json\n"
+        }
+      ],
+      "assertions": [
+        "final answer states an explicit readiness verdict",
+        "findings cite the supplied fixture paths for the plan, schema, and workflow with relevant lines",
+        "blocking contract conflicts are separated from important improvements",
+        "at least one publication or identity invariant includes acceptance evidence",
+        "missing compatibility-window, consistency, and recovery requirements are exposed",
+        "recommended rollout begins with a risk-ordered end-to-end vertical slice",
+        "no fixture file is created, edited, or deleted"
+      ]
+    },
+    {
+      "id": 3,
+      "eval_name": "rollout-missing-operating-contracts",
+      "prompt": "Stress-test the event-processing rollout plan. Preserve its strong decisions, identify what prevents a readiness decision, and recommend the smallest risk-reducing slice. Do not modify the supplied files.",
+      "expected_output": "Returns a Not ready or Ready with required changes verdict justified by timing. Preserves the queue, idempotency key, canary, and rollback intent; identifies absent workload limits, ordering and retry semantics, dead-letter recovery, SLOs, observability thresholds, and objective release gates; defines an idempotent-processing invariant; and proposes a production-shaped single-tenant slice with fault injection and measurable promotion gates.",
+      "files": [
+        {
+          "path": "docs/event-rollout.md",
+          "content": "# Event processor rollout\n\nProducers write events to a durable queue.\nWorkers claim batches and store results using an idempotency key.\nThe deployment starts with a canary and expands gradually.\nA feature flag returns traffic to the old processor if errors rise.\nDashboards show worker success and failure counts.\nAfter one week, the old processor and compatibility code are removed.\n"
+        },
+        {
+          "path": "config/worker.yaml",
+          "content": "batch_size: 100\nconcurrency: 32\nvisibility_timeout_seconds: 60\nmax_attempts: 8\n"
+        },
+        {
+          "path": "tests/test_worker.py",
+          "content": "def test_reuses_idempotency_key():\n    assert process(event('same-key')) == process(event('same-key'))\n"
+        }
+      ],
+      "assertions": [
+        "final answer states an explicit readiness verdict",
+        "strengths and findings cite supplied fixture paths and relevant lines",
+        "blocking gaps are separated from important improvements",
+        "at least one idempotency or replay invariant includes acceptance evidence",
+        "missing scale, latency, failure, recovery, and release-gate requirements are exposed",
+        "recommended rollout begins with a risk-ordered end-to-end vertical slice",
+        "no fixture file is created, edited, or deleted"
+      ]
+    }
+  ],
+  "trigger_cases": [
+    {
+      "id": 1,
+      "category": "architecture-plan-review",
+      "prompt": "Review this architecture plan and tell me whether it is ready to implement.",
+      "should_trigger": true
+    },
+    {
+      "id": 2,
+      "category": "adr-review",
+      "prompt": "Stress-test this ADR's trust boundaries and failure semantics against the current repository.",
+      "should_trigger": true
+    },
+    {
+      "id": 3,
+      "category": "code-diff-review",
+      "prompt": "Review this code diff for bugs and style regressions.",
+      "should_trigger": false
+    },
+    {
+      "id": 4,
+      "category": "proofreading",
+      "prompt": "Proofread this design document for grammar and clarity without evaluating the architecture.",
+      "should_trigger": false
+    },
+    {
+      "id": 5,
+      "category": "approved-plan-implementation",
+      "prompt": "This architecture plan is approved. Implement its API and database changes.",
+      "should_trigger": false
+    },
+    {
+      "id": 6,
+      "category": "plan-generation",
+      "prompt": "Generate a system design from scratch for a new notification service; no review is needed.",
+      "should_trigger": false
+    }
+  ]
+}
