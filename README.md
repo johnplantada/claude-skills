@@ -63,15 +63,15 @@ runbook, and belongs in `devenv`.
 |---|---|
 | [**brew-doctor**](skills/brew-doctor/) | Find, set up, repair, upgrade, and optimize Homebrew safely — search + choose the best install, a reproducible Brewfile, gated upgrades, and taming of silent auto-upgrades so a background `brew upgrade` never breaks your tools. |
 | [**runtime-versions**](skills/runtime-versions/) | Manage language runtimes with one tool — mise — instead of nvm/asdf/pyenv fighting over PATH; migrate off the sprawl and fix per-shell `node`-differs bugs. |
-| [**dotfiles**](skills/dotfiles/) | Version-control your configs with chezmoi, sync across machines, bootstrap a new machine, and keep secrets out of git (their plaintext never enters the model's context). |
+| [**dotfiles**](skills/dotfiles/) | Version-control your configs with chezmoi, sync across machines, bootstrap a new machine, and keep secrets out of git (metadata-only handling is the required workflow). |
 | [**shell-sync**](skills/shell-sync/) | Keep zsh ↔ fish consistent (mirror one canonical shell's env/PATH/aliases/prompt into the other) and keep PATH healthy — verified by resolving both shells and comparing. |
 | [**ghostty-config**](skills/ghostty-config/) | Manage your Ghostty config as a version-controlled file — the macOS-robust way (real config in `~/.config`, pulled in via a `config-file` include so it isn't silently overridden), proven with `ghostty +validate-config`. |
 | [**terminal-theme**](skills/terminal-theme/) | Coordinate one theme across Ghostty, fish, zsh, and starship so they never clash — the "inherit" model makes them follow Ghostty's ANSI palette, so one edit re-themes the whole terminal. |
 | [**nvim-config**](skills/nvim-config/) | Set up, repair, upgrade, and optimize a Neovim config — lazy.nvim-first, every change verified by driving headless Neovim. |
 | [**git-setup**](skills/git-setup/) | Configure global git — signing, pager, defaults, and work-vs-personal identities — verified so commits actually verify and identities resolve. |
 | [**identity-profiles**](skills/identity-profiles/) | Coordinate *who you are* per directory tree across git, ssh, signing, and gh — catching the two silent failures no single layer can see: right email + wrong key, and signed-but-Unverified for the second identity. |
-| [**credential-store**](skills/credential-store/) | Get credentials off disk and into one store, so configs *reference* a secret instead of embedding it — classifying every assignment literal vs. reference, with the value structurally unable to reach the model. |
-| [**ssh-config**](skills/ssh-config/) | Clean up `~/.ssh/config` + key hygiene and generate/rotate ed25519 keys — treating private keys as secrets that never leave the machine or enter the model's context. |
+| [**credential-store**](skills/credential-store/) | Get credentials off disk and into one store, so configs *reference* a secret instead of embedding it — classifying every assignment literal vs. reference, using metadata-only helpers to keep values out of model output. |
+| [**ssh-config**](skills/ssh-config/) | Clean up `~/.ssh/config` + key hygiene and generate/rotate ed25519 keys — using metadata-only key audits and keeping private-key values out of model output. |
 | [**macos-defaults**](skills/macos-defaults/) | Capture a Mac's preferences into idempotent `defaults` code, apply on any machine, and audit for drift — each setting proven by re-reading it. |
 | [**devenv**](skills/devenv/) 🧭 | **Capstone.** The shared settings store the others read, plus ordered cross-skill runbooks — bootstrap a machine end-to-end and run a whole-environment health sweep. Delegates down; never duplicates a layer's logic. |
 
@@ -98,9 +98,11 @@ graph LR
   stdlib-only helpers with **pure logic separated from subprocess/IO**, so it's directly unit-tested.
 - **One brain** — coordination knowledge (ordering, the settings contract) lives only in `devenv`;
   the layer skills never fork it.
-- **Secrets stay out of context** — private keys and plaintext secrets are handled as metadata only;
-  their values never enter the model. For files that are secret by *location*, a `PreToolUse` hook
-  enforces this mechanically rather than by instruction.
+- **Keep secrets out of context** — metadata-only helpers and skill instructions are the required
+  workflow. The plugin's `PreToolUse` guard denies recognized secret-by-location paths for `Read`,
+  explicit-file `Grep`, and supported direct Bash readers. It is deliberately narrow and fails open
+  on unexpected input; it does not cover arbitrary shell/Python reads, directory-wide searches, or
+  secrets embedded in ordinary files. This is defense in depth, not a guarantee of containment.
 - **Reports say how they know** — a fact that depends on which environment was asked carries
   `src=login-shell` or `src=this-process`; a line a parser couldn't read is emitted as `unparsed`
   rather than silently dropped; a check that couldn't run says `undetermined` instead of looking
@@ -126,11 +128,16 @@ Why four tiers, when most repos have one — each catches something the others s
 | **unit** ([`tests/`](tests/)) | pure logic, plus docs↔scripts consistency (a renamed script breaks the build) |
 | **fixtures** ([`tests/fixtures/`](tests/fixtures/)) | parsers handle what tools *actually* print — recorded output, not invented strings |
 | **smoke** ([`tests_smoke/`](tests_smoke/)) | entry points really run against real tools, and still emit their key facts |
-| **evals** ([`tests_eval/`](tests_eval/)) | the skill steers an agent correctly — graded by deterministic transcript checks, not an LLM judging an LLM |
+| **evals** ([`tests_eval/`](tests_eval/)) | direct skill-following behavior via explicit `SKILL.md` prompts, graded by deterministic transcript checks; does not verify installed-plugin routing or hooks |
 
 Pure functions are tested directly — no mocking — and every past bug is pinned as a regression
 test. [GitHub Actions](.github/workflows/test.yml) runs lint + unit on every push, and smoke on
-macOS.
+macOS (both CI jobs currently use Python 3.12). Helpers declare Python 3.9+; the optional
+settings-validation examples require Python 3.11+ for stdlib `tomllib`. The declared minimum
+has not been verified by a CI matrix. An explicitly selected eval tier with zero executed tests
+fails instead of reporting a pass. Eval receipts record revision/dirty state, platform, Python,
+CLI version, outcomes and skipped counts in `tests_eval/results/`; preserve the matching diff
+when the revision is dirty. See [installed-plugin acceptance](docs/plugin-acceptance.md).
 
 ## Install
 
@@ -160,11 +167,16 @@ directory name (`/ghostty-config`):
 ln -s ~/codebase/claude-skills/skills/ghostty-config ~/.claude/skills/ghostty-config
 ```
 
-*(The Stop hook ships with the plugin, so a symlink-only install doesn't activate it.)*
+**A symlink-only install activates neither plugin hook:** the `Stop` drift reminder nor the
+`PreToolUse` secret-read guard. Use the plugin install when you need those protections.
 
-## The hook
+## The hooks
 
-The plugin ships one **`Stop` hook** ([`hooks/hooks.json`](hooks/hooks.json) →
+The plugin ships a **`PreToolUse` secret-read guard** and a **`Stop` drift reminder**.
+The guard's scope and limitations are described above; its implementation is
+[`scripts/secret_read_guard.py`](scripts/secret_read_guard.py).
+
+The **`Stop` hook** ([`hooks/hooks.json`](hooks/hooks.json) →
 [`scripts/chezmoi_drift_check.py`](scripts/chezmoi_drift_check.py)): when Claude finishes a response,
 if a chezmoi-managed dotfile has drifted (a skill just edited a config), it prints a one-line reminder
 to sync. It is **non-blocking** and never writes, commits, or pushes — you decide when. Silent when in sync.

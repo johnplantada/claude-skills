@@ -59,6 +59,10 @@ reality (the canonical shell must exist, pinned formulae must be installed). Aft
 
 ## Validate
 
+These examples require Python 3.11+ (`tomllib` is in the standard library from 3.11).
+Check `python3 --version` first; if it is older, use an already available Python 3.11+
+interpreter for these examples. Do not install or upgrade Python implicitly.
+
 ```bash
 # 1. TOML parses
 python3 -c 'import tomllib,sys; tomllib.load(open(sys.argv[1],"rb")); print("TOML OK")' ~/.config/devenv/config.toml
