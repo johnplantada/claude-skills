@@ -6,7 +6,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 ${CLAUDE_PLUGIN_ROOT}/scripts/secret_read_guard.py",
+            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/scripts/secret_read_guard.py\"",
             "timeout": 5
           }
         ]
@@ -17,7 +17,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 ${CLAUDE_PLUGIN_ROOT}/scripts/chezmoi_drift_check.py",
+            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/scripts/chezmoi_drift_check.py\"",
             "timeout": 10
           }
         ]
