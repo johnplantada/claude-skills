@@ -3,6 +3,10 @@
 Every behavior eval is the same shape: headless `claude -p` told to follow a skill,
 stream-json transcript captured, mechanical assertions on it. The helpers here keep the
 per-skill test files down to fixtures + assertions.
+
+These are direct skill-following evals: the prompt explicitly reads SKILL.md.
+No --plugin-dir is passed, so these runs do not prove installed-plugin routing or
+hook activation. Local/global Claude configuration may also affect a run.
 """
 
 from __future__ import annotations
