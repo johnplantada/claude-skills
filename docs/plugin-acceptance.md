@@ -1,4 +1,20 @@
-# Installed-plugin acceptance (pending execution)
+# Installed-plugin acceptance
+
+On released main `4970cef`, Claude Code 2.1.309 accepted an isolated local marketplace add
+and `devenv@devenv-marketplace` install and listed version 0.2.0 as enabled. Strict validation
+found unquoted hook paths; executing that command from a plugin folder with spaces failed
+before the guard ran. Release 0.2.1 quotes those paths and gives caches a new version.
+
+`tests/hook/test_packaged_commands.py` executes the actual registered shell commands from
+a spaced fixture path: synthetic Read/Grep/Bash denials, readable public-key control,
+fail-open malformed input, Stop drift adapter, absent chezmoi, and absent Python. It also
+executes two helpers through single-skill symlinks with their tools missing. These are
+package/adapter checks, not Claude dispatch or all-skill semantic checks.
+
+The install-only CLI tests use an isolated `CLAUDE_CONFIG_DIR` and `--bare` to avoid
+keychain reads and model requests. `--bare` skips hooks, so those tests do not prove
+client-side hook dispatch. Normal-session namespaced routing, natural-language selection,
+and hook events remain pending a consumer with an authorized model setup.
 
 Direct `tests_eval` prompts read `SKILL.md`; they do not establish plugin installation,
 automatic routing, namespacing, or hook activation. Unit and fixture passes must be

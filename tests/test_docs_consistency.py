@@ -17,6 +17,7 @@ from __future__ import annotations
 
 import json
 import re
+import shlex
 from pathlib import Path
 
 import pytest
@@ -124,6 +125,8 @@ def test_hook_command_points_at_a_real_file():
     ]
     assert commands, "hooks.json defines no command hooks"
     for cmd in commands:
-        # e.g. "python3 ${CLAUDE_PLUGIN_ROOT}/scripts/chezmoi_drift_check.py"
-        path = cmd.split("${CLAUDE_PLUGIN_ROOT}/", 1)[-1]
+        # Parse the shell command so quoted paths are checked without their quotes.
+        paths = [arg for arg in shlex.split(cmd) if arg.startswith("${CLAUDE_PLUGIN_ROOT}/")]
+        assert len(paths) == 1, f"expected one plugin script in hook command: {cmd}"
+        path = paths[0].removeprefix("${CLAUDE_PLUGIN_ROOT}/")
         assert (ROOT / path).is_file(), f"hook command references a missing file: {cmd}"

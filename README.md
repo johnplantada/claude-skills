@@ -141,6 +141,14 @@ when the revision is dirty. See [installed-plugin acceptance](docs/plugin-accept
 
 ## Install
 
+This is a local **Claude Code plugin**, not a hosted MCP server. Consumers need Claude Code
+with plugin support and their own authorized model setup for agent tasks. Python 3.9+ must
+resolve as `python3` on the Claude process PATH for helpers and both hooks; without it the
+hooks cannot run. Settings-validation examples require 3.11+. macOS is the target platform.
+Individual workflows also need their named tools (for example Ghostty, Neovim, Homebrew,
+chezmoi, or mise); a reported missing tool is not proof that workflow succeeded. No
+workflow dependencies are installed automatically when installing this plugin.
+
 ### As a plugin (recommended)
 
 ```bash
@@ -151,12 +159,25 @@ claude --plugin-dir ~/codebase/claude-skills
 
 # …or add the bundled marketplace and install it persistently:
 /plugin marketplace add ~/codebase/claude-skills
-/plugin install devenv
+/plugin install devenv@devenv-marketplace
 ```
 
 Installed, skills are namespaced by the plugin (`/devenv:ghostty-config`, `/devenv:shell-sync`, …) —
-or just describe your task and the matching skill auto-activates — and the Stop hook is active.
-Validate the structure with `claude plugin validate ~/codebase/claude-skills`.
+or describe your task to request automatic skill selection. Confirm the plugin is enabled and
+restart Claude after installation or updates. Hook dispatch requires a normal session with
+hooks enabled: `--bare` skips plugin hooks. Validate the package with
+`claude plugin validate ~/codebase/claude-skills --strict`; this checks package structure,
+not semantic routing or client hook execution.
+
+For an existing install, refresh the marketplace and update the plugin, then restart Claude:
+
+```text
+/plugin marketplace update devenv-marketplace
+/plugin update devenv@devenv-marketplace
+```
+
+Release 0.2.1 gives cached installs a new version for these verification and hook-path fixes.
+The local checkout must stay available when the client reads the plugin from that folder.
 
 ### A single skill
 
